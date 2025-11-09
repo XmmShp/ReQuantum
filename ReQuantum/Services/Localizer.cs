@@ -1,8 +1,11 @@
-﻿using ReQuantum.Attributes;
+﻿using ReQuantum.Abstractions;
+using ReQuantum.Attributes;
+using ReQuantum.Extensions;
 using ReQuantum.Resources.I18n;
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace ReQuantum.Services;
 
@@ -15,17 +18,25 @@ public interface ILocalizer
     event Action<CultureInfo> CultureChanged;
 }
 
-[AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(ILocalizer)])]
-public class Localizer : ILocalizer, INotifyPropertyChanged
+[AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(ILocalizer), typeof(IInitializable)])]
+public class Localizer : ILocalizer, INotifyPropertyChanged, IInitializable
 {
+    private readonly IStorage _storage;
+    private const string LanguageStateKey = "Localizer:Lang";
+    public Localizer(IStorage storage)
+    {
+        _storage = storage;
+    }
     public void SetCulture(string cultureName)
     {
         if (cultureName == CultureInfo.CurrentUICulture.Name && cultureName == CultureInfo.CurrentCulture.Name)
         {
             return;
         }
+
         var newCultureInfo = new CultureInfo(cultureName);
         CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = newCultureInfo;
+        _storage.Set(LanguageStateKey, cultureName);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         CultureChanged?.Invoke(newCultureInfo);
     }
@@ -48,4 +59,12 @@ public class Localizer : ILocalizer, INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    public Task InitializeAsync(IServiceProvider serviceProvider)
+    {
+        if (_storage.TryGet<string>(LanguageStateKey, out var cultureName))
+        {
+            SetCulture(cultureName);
+        }
+        return Task.CompletedTask;
+    }
 }

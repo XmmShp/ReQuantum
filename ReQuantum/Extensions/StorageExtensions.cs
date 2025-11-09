@@ -1,5 +1,6 @@
 using ReQuantum.Services;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -39,7 +40,7 @@ public static class StorageExtensions
     /// <summary>
     /// 尝试获取值
     /// </summary>
-    public static bool TryGet<T>(this IStorage storage, string key, out T? value)
+    public static bool TryGet<T>(this IStorage storage, string key, [MaybeNullWhen(false)] out T value)
     {
         try
         {
