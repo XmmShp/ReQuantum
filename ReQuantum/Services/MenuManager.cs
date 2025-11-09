@@ -6,6 +6,7 @@ using ReQuantum.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@ public partial class MenuManager : ObservableObject, IMenuManager, IInitializabl
         _localizer.CultureChanged += OnCultureChanged;
     }
 
-    private void OnCultureChanged()
+    private void OnCultureChanged(CultureInfo cultureInfo)
     {
         foreach (var mip in MenuItemPairs)
         {

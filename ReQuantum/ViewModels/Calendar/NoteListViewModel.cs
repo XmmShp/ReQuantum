@@ -1,0 +1,102 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ReQuantum.Attributes;
+using ReQuantum.Models;
+using ReQuantum.Services;
+using ReQuantum.Views;
+using System.Collections.ObjectModel;
+
+namespace ReQuantum.ViewModels;
+
+[AutoInject(Lifetime.Transient, RegisterTypes = [typeof(NoteListViewModel)])]
+public partial class NoteListViewModel : ViewModelBase<NoteListView>
+{
+    private readonly ICalendarService _calendarService;
+
+    #region 数据集合
+
+    [ObservableProperty]
+    private ObservableCollection<CalendarNote> _notes = [];
+
+    #endregion
+
+    #region 编辑状态
+
+    [ObservableProperty]
+    private string _newNoteContent = string.Empty;
+
+    #endregion
+
+    #region 对话框状态
+
+    [ObservableProperty]
+    private bool _isAddDialogOpen;
+
+    #endregion
+
+    public NoteListViewModel(ICalendarService calendarService)
+    {
+        _calendarService = calendarService;
+        LoadNotes();
+    }
+
+    #region 数据加载
+
+    public void LoadNotes()
+    {
+        var notes = _calendarService.GetAllNotes();
+        Notes = new ObservableCollection<CalendarNote>(notes);
+    }
+
+    #endregion
+
+    #region 便签管理
+
+    [RelayCommand]
+    private void ShowAddDialog()
+    {
+        NewNoteContent = string.Empty;
+        IsAddDialogOpen = true;
+    }
+
+    [RelayCommand]
+    private void AddNote()
+    {
+        if (string.IsNullOrWhiteSpace(NewNoteContent))
+        {
+            return;
+        }
+
+        var note = new CalendarNote
+        {
+            Content = NewNoteContent.Trim()
+        };
+
+        _calendarService.AddNote(note);
+        Notes.Add(note);
+        NewNoteContent = string.Empty;
+        IsAddDialogOpen = false;
+    }
+
+    [RelayCommand]
+    private void CancelAdd()
+    {
+        NewNoteContent = string.Empty;
+        IsAddDialogOpen = false;
+    }
+
+    [RelayCommand]
+    private void DeleteNote(CalendarNote note)
+    {
+        _calendarService.DeleteNote(note.Id);
+        Notes.Remove(note);
+    }
+
+    [RelayCommand]
+    private void UpdateNote(CalendarNote note)
+    {
+        _calendarService.UpdateNote(note);
+    }
+
+    #endregion
+}

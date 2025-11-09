@@ -1,0 +1,288 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:views="clr-namespace:ReQuantum.Views"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="ReQuantum.Views.CalendarView"
+             x:DataType="viewModels:CalendarViewModel">
+  <Design.DataContext>
+    <viewModels:CalendarViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <!-- 桌面端布局：左右分栏 -->
+    <Grid IsVisible="{Binding WindowService.IsDesktopMode}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="3*" MinWidth="500"/>
+        <ColumnDefinition Width="3"/>
+        <ColumnDefinition Width="1*" MinWidth="300"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- 左侧：日历视图 -->
+      <Border Grid.Column="0" Padding="16">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+          <views:CalendarPartView DataContext="{Binding CalendarPartViewModel}"/>
+        </ScrollViewer>
+      </Border>
+
+      <GridSplitter Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+      <!-- 右侧：便签、待办、日程展示 -->
+      <Border Grid.Column="2" Padding="16">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+          <StackPanel Spacing="24">
+            
+            <!-- 日程区域（上部） -->
+            <views:EventListView DataContext="{Binding EventListViewModel}"/>
+
+            <!-- 待办区域（中部） -->
+            <views:TodoListView DataContext="{Binding TodoListViewModel}"/>
+
+            <!-- 便签区域（下部） -->
+            <views:NoteListView DataContext="{Binding NoteListViewModel}"/>
+
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <!-- 移动端布局：上下分栏 -->
+    <ScrollViewer IsVisible="{Binding !WindowService.IsDesktopMode}"
+                  VerticalScrollBarVisibility="Hidden">
+      <StackPanel Spacing="16">
+        
+        <!-- 日历视图区域 -->
+        <Border BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                CornerRadius="8"
+                Padding="16">
+          <views:CalendarPartView DataContext="{Binding CalendarPartViewModel}"/>
+        </Border>
+
+        <!-- 内容区域 -->
+        <StackPanel Spacing="16">
+          
+          <!-- 日程区域 -->
+          <views:EventListView DataContext="{Binding EventListViewModel}"/>
+
+          <!-- 待办区域 -->
+          <views:TodoListView DataContext="{Binding TodoListViewModel}"/>
+
+          <!-- 便签区域 -->
+          <views:NoteListView DataContext="{Binding NoteListViewModel}"/>
+
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 添加待办对话框（全屏覆盖）-->
+    <Border IsVisible="{Binding TodoListViewModel.IsAddDialogOpen}"
+            Background="#80000000"
+            ZIndex="1000">
+      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="24"
+              MaxWidth="700"
+              MinWidth="550"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+          <TextBlock Text="{Binding Localizer[AddTodo]}" FontSize="20" FontWeight="SemiBold"/>
+          
+          <!-- 警告消息 -->
+          <TextBlock Text="{Binding TodoListViewModel.WarningMessage}"
+                     Foreground="Orange"
+                     FontSize="14"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding TodoListViewModel.WarningMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Localizer[Content]}" FontSize="14"/>
+            <TextBox Text="{Binding TodoListViewModel.NewTodoContent}" 
+                     Watermark="{Binding Localizer[EnterTodoContent]}"
+                     MinHeight="80"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"/>
+          </StackPanel>
+          
+          <!-- 桌面端：横向布局 -->
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="8"
+                IsVisible="{Binding WindowService.IsDesktopMode}">
+            <StackPanel Grid.Column="0" Spacing="8">
+              <TextBlock Text="{Binding Localizer[DueDate]}" FontSize="14"/>
+              <DatePicker SelectedDate="{Binding TodoListViewModel.NewTodoDueDate}"
+                          HorizontalAlignment="Stretch"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Spacing="8">
+              <TextBlock Text="{Binding Localizer[DueTime]}" FontSize="14"/>
+              <TimePicker SelectedTime="{Binding TodoListViewModel.NewTodoDueTimeOfDay}"
+                          HorizontalAlignment="Stretch"/>
+            </StackPanel>
+          </Grid>
+          
+          <!-- 移动端：纵向布局 -->
+          <StackPanel Spacing="8" IsVisible="{Binding !WindowService.IsDesktopMode}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[DueDate]}" FontSize="14"/>
+              <DatePicker SelectedDate="{Binding TodoListViewModel.NewTodoDueDate}"
+                          HorizontalAlignment="Stretch"/>
+            </StackPanel>
+            
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[DueTime]}" FontSize="14"/>
+              <TimePicker SelectedTime="{Binding TodoListViewModel.NewTodoDueTimeOfDay}"
+                          HorizontalAlignment="Stretch"/>
+            </StackPanel>
+          </StackPanel>
+          
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Command="{Binding TodoListViewModel.CancelAddCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Cancel]}" FontSize="14"/>
+            </Button>
+            <Button Command="{Binding TodoListViewModel.AddTodoCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Add]}" FontSize="14"/>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+
+    <!-- 添加便签对话框（全屏覆盖）-->
+    <Border IsVisible="{Binding NoteListViewModel.IsAddDialogOpen}"
+            Background="#80000000"
+            ZIndex="1000">
+      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="24"
+              MaxWidth="600"
+              MinWidth="400"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+          <TextBlock Text="{Binding Localizer[AddNote]}" FontSize="20" FontWeight="SemiBold"/>
+          
+          <TextBox Text="{Binding NoteListViewModel.NewNoteContent}" 
+                   Watermark="{Binding Localizer[EnterNoteContent]}"
+                   MinHeight="100"
+                   TextWrapping="Wrap"
+                   AcceptsReturn="True"/>
+          
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Command="{Binding NoteListViewModel.CancelAddCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Cancel]}" FontSize="14"/>
+            </Button>
+            <Button Command="{Binding NoteListViewModel.AddNoteCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Add]}" FontSize="14"/>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+
+    <!-- 添加日程对话框（全屏覆盖）-->
+    <Border IsVisible="{Binding EventListViewModel.IsAddDialogOpen}"
+            Background="#80000000"
+            ZIndex="1000">
+      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="24"
+              MaxWidth="700"
+              MinWidth="550"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+          <TextBlock Text="{Binding Localizer[AddEvent]}" FontSize="20" FontWeight="SemiBold"/>
+          
+          <!-- 警告消息 -->
+          <TextBlock Text="{Binding EventListViewModel.WarningMessage}"
+                     Foreground="Orange"
+                     FontSize="14"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding EventListViewModel.WarningMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Localizer[Title]}" FontSize="14"/>
+            <TextBox Text="{Binding EventListViewModel.NewEventTitle}" 
+                     Watermark="{Binding Localizer[EnterEventTitle]}"/>
+          </StackPanel>
+          
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Localizer[Content]}" FontSize="14"/>
+            <TextBox Text="{Binding EventListViewModel.NewEventContent}" 
+                     Watermark="{Binding Localizer[EnterEventContent]}"
+                     MinHeight="60"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"/>
+          </StackPanel>
+          
+          <!-- 桌面端：横向布局 -->
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
+                IsVisible="{Binding WindowService.IsDesktopMode}">
+            <StackPanel Grid.Column="0" Spacing="8">
+              <TextBlock Text="{Binding Localizer[StartTime]}" FontSize="14"/>
+              <StackPanel Spacing="4">
+                <DatePicker SelectedDate="{Binding EventListViewModel.NewEventStartDate}"
+                            HorizontalAlignment="Stretch"/>
+                <TimePicker SelectedTime="{Binding EventListViewModel.NewEventStartTimeOfDay}"
+                            HorizontalAlignment="Stretch"/>
+              </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Spacing="8">
+              <TextBlock Text="{Binding Localizer[EndTime]}" FontSize="14"/>
+              <StackPanel Spacing="4">
+                <DatePicker SelectedDate="{Binding EventListViewModel.NewEventEndDate}"
+                            HorizontalAlignment="Stretch"/>
+                <TimePicker SelectedTime="{Binding EventListViewModel.NewEventEndTimeOfDay}"
+                            HorizontalAlignment="Stretch"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+          
+          <!-- 移动端：纵向布局 -->
+          <StackPanel Spacing="12" IsVisible="{Binding !WindowService.IsDesktopMode}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[StartTime]}" FontSize="14"/>
+              <StackPanel Spacing="4">
+                <DatePicker SelectedDate="{Binding EventListViewModel.NewEventStartDate}"
+                            HorizontalAlignment="Stretch"/>
+                <TimePicker SelectedTime="{Binding EventListViewModel.NewEventStartTimeOfDay}"
+                            HorizontalAlignment="Stretch"/>
+              </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[EndTime]}" FontSize="14"/>
+              <StackPanel Spacing="4">
+                <DatePicker SelectedDate="{Binding EventListViewModel.NewEventEndDate}"
+                            HorizontalAlignment="Stretch"/>
+                <TimePicker SelectedTime="{Binding EventListViewModel.NewEventEndTimeOfDay}"
+                            HorizontalAlignment="Stretch"/>
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+          
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Command="{Binding EventListViewModel.CancelAddCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Cancel]}" FontSize="14"/>
+            </Button>
+            <Button Command="{Binding EventListViewModel.AddEventCommand}" Padding="16,8">
+              <TextBlock Text="{Binding Localizer[Add]}" FontSize="14"/>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+
+  </Grid>
+</UserControl>

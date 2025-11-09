@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:controls="clr-namespace:ReQuantum.Controls"
+             xmlns:r="https://github.com/metaone01/RelativeControl.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="800"
+             x:Class="ReQuantum.Views.CalendarPartView"
+             x:DataType="viewModels:CalendarPartViewModel">
+  <Design.DataContext>
+    <viewModels:CalendarPartViewModel />
+  </Design.DataContext>
+
+  <StackPanel Spacing="12">
+    <!-- 桌面端控制栏 -->
+    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" IsVisible="{Binding WindowService.IsDesktopMode}">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+        <Button Command="{Binding GoToPreviousCommand}" Padding="8">
+          <TextBlock Text="◀" FontSize="14"/>
+        </Button>
+        <Button Command="{Binding GoToNextCommand}" Padding="8">
+          <TextBlock Text="▶" FontSize="14"/>
+        </Button>
+        <Button Command="{Binding GoToTodayCommand}" Padding="8,4">
+          <TextBlock Text="{Binding Localizer[Today]}" FontSize="14"/>
+        </Button>
+      </StackPanel>
+
+      <TextBlock Grid.Column="1" 
+               VerticalAlignment="Center" 
+               FontSize="18" 
+               FontWeight="SemiBold"
+               Margin="16,0"
+               Text="{Binding YearMonthText.Text}"/>
+
+      <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
+        <Button Command="{Binding SwitchToWeekViewCommand}" 
+                Padding="8,4">
+          <TextBlock Text="{Binding Localizer[Week]}" FontSize="14"/>
+        </Button>
+        <Button Command="{Binding SwitchToMonthViewCommand}" 
+                Padding="8,4">
+          <TextBlock Text="{Binding Localizer[Month]}" FontSize="14"/>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- 移动端控制栏 -->
+    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" RowDefinitions="Auto,Auto" RowSpacing="8" IsVisible="{Binding !WindowService.IsDesktopMode}">
+      <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4">
+        <Button Command="{Binding GoToPreviousCommand}" Padding="6">
+          <TextBlock Text="◀" FontSize="12"/>
+        </Button>
+        <Button Command="{Binding GoToNextCommand}" Padding="6">
+          <TextBlock Text="▶" FontSize="12"/>
+        </Button>
+        <Button Command="{Binding GoToTodayCommand}" Padding="6,4">
+          <TextBlock Text="{Binding Localizer[Today]}" FontSize="12"/>
+        </Button>
+      </StackPanel>
+
+      <TextBlock Grid.Row="0" Grid.Column="1" 
+               FontSize="14"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="8,0"
+               Text="{Binding YearMonthText.Text}"/>
+
+      <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" Spacing="4">
+        <Button Command="{Binding SwitchToWeekViewCommand}" Padding="6,4">
+          <TextBlock Text="{Binding Localizer[Week]}" FontSize="12"/>
+        </Button>
+        <Button Command="{Binding SwitchToMonthViewCommand}" Padding="6,4">
+          <TextBlock Text="{Binding Localizer[Month]}" FontSize="12"/>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- 周视图 -->
+    <!-- 移动端：限制最大高度40vh，允许滚动 -->
+    <!-- 桌面端：不限制高度 -->
+    <controls:WeekCalendarControl IsVisible="{Binding CurrentViewType, Converter={x:Static viewModels:EnumEqualsConverter.Instance}, ConverterParameter=Week}"
+                                 WeekStartDate="{Binding WeekStartDate}"
+                                 r:Relative.MaxHeight="{Binding WindowService.IsDesktopMode, Converter={x:Static controls:CalendarConverters.IsDesktopModeToMaxHeightConverter}}"/>
+
+    <!-- 月视图 -->
+    <!-- 移动端：限制最大高度40vh，内容自适应 -->
+    <!-- 桌面端：不限制高度 -->
+    <controls:MonthCalendarControl IsVisible="{Binding CurrentViewType, Converter={x:Static viewModels:EnumEqualsConverter.Instance}, ConverterParameter=Month}"
+                                   Year="{Binding SelectedYear}"
+                                   Month="{Binding SelectedMonth}"
+                                   SelectedDate="{Binding SelectedDate}"
+                                   r:Relative.MaxHeight="{Binding WindowService.IsDesktopMode, Converter={x:Static controls:CalendarConverters.IsDesktopModeToMaxHeightConverter}}"/>
+
+  </StackPanel>
+</UserControl>

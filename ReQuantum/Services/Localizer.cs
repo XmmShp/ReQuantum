@@ -12,7 +12,7 @@ public interface ILocalizer
     string this[string key, params object?[] args] { get; }
     void SetCulture(string cultureName);
 
-    event Action CultureChanged;
+    event Action<CultureInfo> CultureChanged;
 }
 
 [AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(ILocalizer)])]
@@ -27,10 +27,10 @@ public class Localizer : ILocalizer, INotifyPropertyChanged
         var newCultureInfo = new CultureInfo(cultureName);
         CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = newCultureInfo;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        CultureChanged?.Invoke();
+        CultureChanged?.Invoke(newCultureInfo);
     }
 
-    public event Action? CultureChanged;
+    public event Action<CultureInfo>? CultureChanged;
 
     public string this[string key] => UIText.ResourceManager.GetString(key, UIText.Culture) ?? key;
 

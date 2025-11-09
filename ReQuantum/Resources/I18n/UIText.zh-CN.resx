@@ -210,4 +210,129 @@
   <data name="NotLoggedIn" xml:space="preserve">
     <value>用户未登录。</value>
   </data>
+  
+  <!-- Calendar Module -->
+  <data name="Calendar" xml:space="preserve">
+    <value>日历</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>周</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>月</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>年</value>
+  </data>
+  <data name="Events" xml:space="preserve">
+    <value>日程</value>
+  </data>
+  <data name="Todos" xml:space="preserve">
+    <value>待办</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>便签</value>
+  </data>
+  <data name="AddEvent" xml:space="preserve">
+    <value>添加日程</value>
+  </data>
+  <data name="AddTodo" xml:space="preserve">
+    <value>添加待办</value>
+  </data>
+  <data name="AddNote" xml:space="preserve">
+    <value>添加便签</value>
+  </data>
+  <data name="EventsOnDate" xml:space="preserve">
+    <value>日程 - {0:yyyy年MM月dd日}</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>内容</value>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>开始时间</value>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>结束时间</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>截止日期</value>
+  </data>
+  <data name="DueTime" xml:space="preserve">
+    <value>截止时间</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>暂无日程</value>
+  </data>
+  <data name="NoTodos" xml:space="preserve">
+    <value>暂无待办</value>
+  </data>
+  <data name="NoNotes" xml:space="preserve">
+    <value>暂无便签</value>
+  </data>
+  <data name="EnterEventTitle" xml:space="preserve">
+    <value>输入日程标题...</value>
+  </data>
+  <data name="EnterEventContent" xml:space="preserve">
+    <value>输入日程内容...</value>
+  </data>
+  <data name="EnterTodoContent" xml:space="preserve">
+    <value>输入待办内容...</value>
+  </data>
+  <data name="EnterNoteContent" xml:space="preserve">
+    <value>输入便签内容...</value>
+  </data>
+  <data name="DueOn" xml:space="preserve">
+    <value>截止: {0:yyyy-MM-dd HH:mm}</value>
+  </data>
+  <data name="MoreItems" xml:space="preserve">
+    <value>还有 {0} 项</value>
+  </data>
+  <data name="Sunday" xml:space="preserve">
+    <value>Sun</value>
+  </data>
+  <data name="Monday" xml:space="preserve">
+    <value>Mon</value>
+  </data>
+  <data name="Tuesday" xml:space="preserve">
+    <value>Tue</value>
+  </data>
+  <data name="Wednesday" xml:space="preserve">
+    <value>Wed</value>
+  </data>
+  <data name="Thursday" xml:space="preserve">
+    <value>Thu</value>
+  </data>
+  <data name="Friday" xml:space="preserve">
+    <value>Fri</value>
+  </data>
+  <data name="Saturday" xml:space="preserve">
+    <value>Sat</value>
+  </data>
+  <data name="EventEndTimeBeforeStart" xml:space="preserve">
+    <value>❌ 结束时间不能早于或等于开始时间</value>
+  </data>
+  <data name="EventInPast" xml:space="preserve">
+    <value>⚠️ 你正在创建过去的日程</value>
+  </data>
+  <data name="TodoInPast" xml:space="preserve">
+    <value>⚠️ 你正在创建过去的待办</value>
+  </data>
+  <data name="YearMonthFormat" xml:space="preserve">
+    <value>{0}年{1}月</value>
+  </data>
 </root>

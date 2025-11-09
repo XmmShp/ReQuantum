@@ -2,6 +2,7 @@
 using ReQuantum.Services;
 using System;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace ReQuantum.ViewModels;
 
@@ -11,13 +12,27 @@ public interface IViewModel;
 public abstract class ViewModelBase<TView> : ObservableObject, IViewModel, IDisposable
 {
     public ILocalizer Localizer { get; }
-    public ViewModelBase(ILocalizer localizer)
+    public IWindowService WindowService { get; }
+
+    protected ViewModelBase()
     {
-        Localizer = localizer;
+        Localizer = SingletonManager.Instance.GetInstance<ILocalizer>();
+        WindowService = SingletonManager.Instance.GetInstance<IWindowService>();
         Localizer.CultureChanged += OnCultureChanged;
+        WindowService.PlatformModeChanged += OnPlatformModeChanged;
     }
 
-    protected virtual void OnCultureChanged()
+    protected virtual void OnCultureChanged(CultureInfo cultureInfo)
+    {
+        Refresh();
+    }
+
+    protected virtual void OnPlatformModeChanged(bool isDesktop)
+    {
+        Refresh();
+    }
+
+    protected void Refresh()
     {
         OnPropertyChanged(new PropertyChangedEventArgs(null));
     }
@@ -25,6 +40,7 @@ public abstract class ViewModelBase<TView> : ObservableObject, IViewModel, IDisp
     public virtual void Dispose()
     {
         Localizer.CultureChanged -= OnCultureChanged;
+        WindowService.PlatformModeChanged -= OnPlatformModeChanged;
         GC.SuppressFinalize(this);
     }
 }

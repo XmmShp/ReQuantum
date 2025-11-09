@@ -210,4 +210,129 @@
   <data name="NotLoggedIn" xml:space="preserve">
     <value>User is not logged in.</value>
   </data>
+  
+  <!-- Calendar Module -->
+  <data name="Calendar" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Events" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="Todos" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="AddEvent" xml:space="preserve">
+    <value>Add Event</value>
+  </data>
+  <data name="AddTodo" xml:space="preserve">
+    <value>Add Todo</value>
+  </data>
+  <data name="AddNote" xml:space="preserve">
+    <value>Add Note</value>
+  </data>
+  <data name="EventsOnDate" xml:space="preserve">
+    <value>Events - {0:MMM dd, yyyy}</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>Start Time</value>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>End Time</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>Due Date</value>
+  </data>
+  <data name="DueTime" xml:space="preserve">
+    <value>Due Time</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>No events</value>
+  </data>
+  <data name="NoTodos" xml:space="preserve">
+    <value>No todos</value>
+  </data>
+  <data name="NoNotes" xml:space="preserve">
+    <value>No notes</value>
+  </data>
+  <data name="EnterEventTitle" xml:space="preserve">
+    <value>Enter event title...</value>
+  </data>
+  <data name="EnterEventContent" xml:space="preserve">
+    <value>Enter event content...</value>
+  </data>
+  <data name="EnterTodoContent" xml:space="preserve">
+    <value>Enter todo content...</value>
+  </data>
+  <data name="EnterNoteContent" xml:space="preserve">
+    <value>Enter note content...</value>
+  </data>
+  <data name="DueOn" xml:space="preserve">
+    <value>Due: {0:yyyy-MM-dd HH:mm}</value>
+  </data>
+  <data name="MoreItems" xml:space="preserve">
+    <value>{0} more items</value>
+  </data>
+  <data name="Sunday" xml:space="preserve">
+    <value>Sun</value>
+  </data>
+  <data name="Monday" xml:space="preserve">
+    <value>Mon</value>
+  </data>
+  <data name="Tuesday" xml:space="preserve">
+    <value>Tue</value>
+  </data>
+  <data name="Wednesday" xml:space="preserve">
+    <value>Wed</value>
+  </data>
+  <data name="Thursday" xml:space="preserve">
+    <value>Thu</value>
+  </data>
+  <data name="Friday" xml:space="preserve">
+    <value>Fri</value>
+  </data>
+  <data name="Saturday" xml:space="preserve">
+    <value>Sat</value>
+  </data>
+  <data name="EventEndTimeBeforeStart" xml:space="preserve">
+    <value>❌ End time cannot be earlier than or equal to start time</value>
+  </data>
+  <data name="EventInPast" xml:space="preserve">
+    <value>⚠️ You are creating an event in the past</value>
+  </data>
+  <data name="TodoInPast" xml:space="preserve">
+    <value>⚠️ You are creating a todo in the past</value>
+  </data>
+  <data name="YearMonthFormat" xml:space="preserve">
+    <value>{0}/{1}</value>
+  </data>
 </root>

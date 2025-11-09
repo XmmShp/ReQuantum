@@ -10,14 +10,21 @@
     </Application.DataTemplates>
 
      <Application.Resources>
-         <FontFamily x:Key="SourceHanSansCN">avares://ReQuantum/Assets/Fonts/SourceHanSansCN.ttf#Source Han Sans CN</FontFamily>
-         <FontFamily x:Key="NotoSans">avares://ReQuantum/Assets/Fonts/NotoSans.ttf#Noto Sans</FontFamily>
+         <ResourceDictionary>
+             <ResourceDictionary.MergedDictionaries>
+                 <ResourceInclude Source="/Controls/Calendar/MonthCalendarControl.axaml" />
+                 <ResourceInclude Source="/Controls/Calendar/WeekCalendarControl.axaml" />
+             </ResourceDictionary.MergedDictionaries>
+
+             <FontFamily x:Key="SourceHanSansCn">/Assets/Fonts/SourceHanSansCN.ttf#Source Han Sans CN</FontFamily>
+             <FontFamily x:Key="NotoSans">/Assets/Fonts/NotoSans.ttf#Noto Sans</FontFamily>
+         </ResourceDictionary>
      </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />
         <Style Selector=":is(TemplatedControl)">
-            <Setter Property="FontFamily" Value="{StaticResource SourceHanSansCN}"/>
+            <Setter Property="FontFamily" Value="{StaticResource SourceHanSansCn}"/>
         </Style>
         <StyleInclude Source="avares://IconPacks.Avalonia.Material/Material.axaml" />
     </Application.Styles>

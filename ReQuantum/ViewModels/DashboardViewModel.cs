@@ -25,7 +25,7 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
 
     public string Welcome => _localizer[UIText.HelloWorld];
 
-    public DashboardViewModel(ILocalizer localizer) : base(localizer)
+    public DashboardViewModel(ILocalizer localizer)
     {
         _localizer = localizer;
     }

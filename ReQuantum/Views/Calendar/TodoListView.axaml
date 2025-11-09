@@ -1,0 +1,84 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:models="clr-namespace:ReQuantum.Models"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+             x:Class="ReQuantum.Views.TodoListView"
+             x:DataType="viewModels:TodoListViewModel">
+  <Design.DataContext>
+    <viewModels:TodoListViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <!-- 待办区域 -->
+    <Border BorderThickness="1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+            CornerRadius="8"
+            Padding="16">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0"
+                   Text="{Binding Localizer[Todos]}" 
+                   FontSize="18" 
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+          <Button Grid.Column="1"
+                Command="{Binding ShowAddDialogCommand}"
+                Padding="12,6">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="+" FontSize="16" FontWeight="Bold"/>
+              <TextBlock Text="{Binding Localizer[AddTodo]}" FontSize="14"/>
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <!-- 待办列表 -->
+        <ItemsControl ItemsSource="{Binding Todos}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="models:CalendarTodo">
+              <Border BorderThickness="1"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      CornerRadius="4"
+                      Padding="12"
+                      Margin="0,4">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <CheckBox Grid.Column="0" 
+                          IsChecked="{Binding IsCompleted}"
+                          Command="{Binding $parent[UserControl].((viewModels:TodoListViewModel)DataContext).ToggleTodoCompleteCommand}"
+                          CommandParameter="{Binding}"
+                          VerticalAlignment="Center"
+                          Margin="0,0,8,0"/>
+                  <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="{Binding Content}" 
+                             FontSize="14"
+                             TextWrapping="Wrap"
+                             FontWeight="Medium"
+                             TextDecorations="{Binding IsCompleted, Converter={x:Static viewModels:BoolToStrikethroughConverter.Instance}}"/>
+                    <TextBlock Text="{Binding DueTime, StringFormat='截止: yyyy-MM-dd HH:mm'}" 
+                             FontSize="12"
+                             Opacity="0.7"/>
+                  </StackPanel>
+                  <Button Grid.Column="2" 
+                        Command="{Binding $parent[UserControl].((viewModels:TodoListViewModel)DataContext).DeleteTodoCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="8,4">
+                    <TextBlock Text="{Binding $parent[UserControl].((viewModels:TodoListViewModel)DataContext).Localizer[Delete]}" FontSize="12"/>
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 空状态提示 -->
+        <TextBlock Text="{Binding Localizer[NoTodos]}"
+                 Opacity="0.5"
+                 HorizontalAlignment="Center"
+                 Margin="0,16"
+                 IsVisible="{Binding !Todos.Count}"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

@@ -29,12 +29,12 @@ public partial class ZjuSsoLoginViewModel : ViewModelBase<ZjuSsoLoginView>
     [ObservableProperty]
     private bool _isLoggedIn;
 
-    public ZjuSsoLoginViewModel(IZjuSsoService zjuSsoService, ILocalizer localizer) : base(localizer)
+    public ZjuSsoLoginViewModel(IZjuSsoService zjuSsoService)
     {
         _zjuSsoService = zjuSsoService;
         _isLoggedIn = _zjuSsoService.IsAuthenticated;
         _zjuSsoService.OnLogout += OnLogout;
-        StatusMessage = new LocalizedText(localizer);
+        StatusMessage = new LocalizedText(Localizer);
 
         if (!_zjuSsoService.IsAuthenticated)
         {

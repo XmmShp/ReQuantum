@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using ReQuantum.Services;
 using System;
+using System.Globalization;
 
 namespace ReQuantum.Infrastructure;
 
@@ -36,7 +37,7 @@ public partial class LocalizedText : ObservableObject, IDisposable
         Arguments = args;
     }
 
-    private void OnCultureChanged()
+    private void OnCultureChanged(CultureInfo cultureInfo)
     {
         OnPropertyChanged(nameof(Text));
     }

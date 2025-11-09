@@ -11,16 +11,15 @@ namespace ReQuantum.Shells;
 public partial class ShellViewModel : ViewModelBase<ShellView>
 {
     private readonly INavigator _navigator;
-    private readonly IMenuManager _navMenuManager;
+    private readonly IMenuManager _menuManager;
     private readonly IStorage _storage;
 
     private const string MenuExpandedStateKey = "Shell:MenuExpanded";
-    private bool _isDesktop = true;
 
-    public ShellViewModel(INavigator navigator, IMenuManager navMenuManager, ILocalizer localizer, IStorage storage) : base(localizer)
+    public ShellViewModel(INavigator navigator, IMenuManager menuManager, IStorage storage)
     {
         _navigator = navigator;
-        _navMenuManager = navMenuManager;
+        _menuManager = menuManager;
         _storage = storage;
         _currentViewModel = _navigator.CurrentViewModel;
         _navigator.CurrentViewModelChanged += OnNavigate;
@@ -30,7 +29,7 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
 
     private void InitializeMenuState()
     {
-        if (_isDesktop)
+        if (WindowService.IsDesktopMode)
         {
             if (!_storage.TryGet(MenuExpandedStateKey, out _isMenuExpanded))
             {
@@ -45,15 +44,10 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
         OnPropertyChanged(nameof(IsMenuExpanded));
     }
 
-    public void SetPlatformMode(bool isDesktop)
+    protected override void OnPlatformModeChanged(bool isDesktop)
     {
-        if (_isDesktop == isDesktop)
-        {
-            return;
-        }
-
-        _isDesktop = isDesktop;
         InitializeMenuState();
+        base.OnPlatformModeChanged(isDesktop);
     }
 
     [ObservableProperty]
@@ -70,7 +64,7 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
                 return;
             }
 
-            if (!_isDesktop)
+            if (!WindowService.IsDesktopMode)
             {
                 return;
             }
@@ -79,7 +73,7 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
         }
     }
 
-    public IReadOnlyCollection<MenuItemPair> MenuItems => _navMenuManager.MenuItemPairs;
+    public IReadOnlyCollection<MenuItemPair> MenuItems => _menuManager.MenuItemPairs;
 
     /// <summary>
     /// Top 3 menu items for mobile bottom navigation
@@ -100,7 +94,7 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
             SetProperty(ref _selectedMenuItemPair, value);
             _navigator.NavigateTo(value.ViewModelType);
 
-            if (!_isDesktop)
+            if (!WindowService.IsDesktopMode)
             {
                 IsMenuExpanded = false;
             }
@@ -122,5 +116,12 @@ public partial class ShellViewModel : ViewModelBase<ShellView>
     private void SelectMenuItem(MenuItemPair menuItemPair)
     {
         SelectedMenuItemPair = menuItemPair;
+    }
+
+    public override void Dispose()
+    {
+        WindowService.PlatformModeChanged -= OnPlatformModeChanged;
+        _navigator.CurrentViewModelChanged -= OnNavigate;
+        base.Dispose();
     }
 }

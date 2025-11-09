@@ -3,14 +3,17 @@ using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Interactivity;
 using ReQuantum.Resources.I18n;
+using ReQuantum.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 
 namespace ReQuantum.Shells;
 
-public partial class ShellView : UserControl
+public partial class ShellView : UserControl, IDisposable
 {
+    private readonly IDisposable _eventHandler;
+
     // Converters for orientation-based layout
     public static readonly IValueConverter IsLandscapeConverter =
         new FuncValueConverter<Rect, bool>(bounds => bounds.Width > bounds.Height);
@@ -33,15 +36,7 @@ public partial class ShellView : UserControl
     {
         InitializeComponent();
 
-        this.GetObservable(BoundsProperty).Subscribe(bounds =>
-        {
-            if (DataContext is not ShellViewModel viewModel)
-            {
-                return;
-            }
-            var isDesktop = bounds.Width > bounds.Height;
-            viewModel.SetPlatformMode(isDesktop);
-        });
+        _eventHandler = this.GetObservable(BoundsProperty).Subscribe(SingletonManager.Instance.GetInstance<IWindowService>().UpdateWindowBounds);
     }
 
     private void MenuFabButton_OnClick(object? sender, RoutedEventArgs e)
@@ -66,6 +61,11 @@ public partial class ShellView : UserControl
         {
             viewModel.IsMenuExpanded = false;
         }
+    }
+
+    public void Dispose()
+    {
+        _eventHandler.Dispose();
     }
 }
 

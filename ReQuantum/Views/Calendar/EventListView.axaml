@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:models="clr-namespace:ReQuantum.Models"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+             x:Class="ReQuantum.Views.EventListView"
+             x:DataType="viewModels:EventListViewModel">
+  <Design.DataContext>
+    <viewModels:EventListViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <!-- 日程区域 -->
+    <Border BorderThickness="1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+            CornerRadius="8"
+            Padding="16">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0"
+                   Text="{Binding EventsTitle.Text}" 
+                   FontSize="18" 
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+          <Button Grid.Column="1"
+                Command="{Binding ShowAddDialogCommand}"
+                Padding="12,6">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="+" FontSize="16" FontWeight="Bold"/>
+              <TextBlock Text="{Binding Localizer[AddEvent]}" FontSize="14"/>
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <!-- 日程列表 -->
+        <ItemsControl ItemsSource="{Binding Events}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="models:CalendarEvent">
+              <Border BorderThickness="1"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      CornerRadius="4"
+                      Padding="12"
+                      Margin="0,4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="{Binding Title}" 
+                             FontSize="14"
+                             TextWrapping="Wrap"
+                             FontWeight="Medium"/>
+                    <TextBlock FontSize="12" Opacity="0.7">
+                      <Run Text="{Binding StartTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
+                      <Run Text=" - "/>
+                      <Run Text="{Binding EndTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Content}" 
+                             FontSize="12"
+                             TextWrapping="Wrap"
+                             Opacity="0.8"
+                             IsVisible="{Binding Content, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                  </StackPanel>
+                  <Button Grid.Column="1" 
+                        Command="{Binding $parent[UserControl].((viewModels:EventListViewModel)DataContext).DeleteEventCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="8,4"
+                        VerticalAlignment="Top">
+                    <TextBlock Text="{Binding $parent[UserControl].((viewModels:EventListViewModel)DataContext).Localizer[Delete]}" FontSize="12"/>
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 空状态提示 -->
+        <TextBlock Text="{Binding Localizer[NoEvents]}"
+                 Opacity="0.5"
+                 HorizontalAlignment="Center"
+                 Margin="0,16"
+                 IsVisible="{Binding !Events.Count}"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

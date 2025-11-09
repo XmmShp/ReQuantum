@@ -12,6 +12,7 @@ using ReQuantum.Services;
 using ReQuantum.Shells;
 using ReQuantum.ViewModels;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture;
         var serviceCollection = new ServiceCollection();
 
         serviceCollection.AddLogging();
@@ -47,13 +49,15 @@ public partial class App : Application
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
 
+        SingletonManager.Instance.Configure(_serviceProvider);
+
         var initializableObjects = _serviceProvider.GetServices<IInitializable>();
         Task.WhenAll(initializableObjects.Select(i => i.InitializeAsync(_serviceProvider))).Wait();
 
         var navigator = _serviceProvider.GetRequiredService<INavigator>();
         var navigationMenuService = _serviceProvider.GetRequiredService<IMenuManager>();
-        var localizer = _serviceProvider.GetRequiredService<ILocalizer>();
         var storage = _serviceProvider.GetRequiredService<IStorage>();
+        var windowService = _serviceProvider.GetRequiredService<IWindowService>();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -62,14 +66,14 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new ShellWindow
             {
-                DataContext = new ShellViewModel(navigator, navigationMenuService, localizer, storage)
+                DataContext = new ShellViewModel(navigator, navigationMenuService, storage)
             };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new ShellView
             {
-                DataContext = new ShellViewModel(navigator, navigationMenuService, localizer, storage)
+                DataContext = new ShellViewModel(navigator, navigationMenuService, storage)
             };
         }
 

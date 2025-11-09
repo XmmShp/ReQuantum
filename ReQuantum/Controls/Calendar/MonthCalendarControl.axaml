@@ -1,0 +1,125 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:ReQuantum.Controls"
+                    xmlns:r="https://github.com/metaone01/RelativeControl.Avalonia">
+  <ControlTheme x:Key="{x:Type controls:MonthCalendarControl}" TargetType="controls:MonthCalendarControl">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderThickness="0"
+                CornerRadius="8">
+          <Grid RowDefinitions="Auto,*">
+            
+            <!-- 星期标题行 -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,*,*,*,*,*,*" Margin="0,8,0,8">
+              <TextBlock Grid.Column="0" Text="Sun" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="1" Text="Mon" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="2" Text="Tue" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="3" Text="Wed" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="4" Text="Thu" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="5" Text="Fri" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+              <TextBlock Grid.Column="6" Text="Sat" HorizontalAlignment="Center" FontSize="12" Opacity="0.6" FontWeight="SemiBold"/>
+            </Grid>
+
+            <!-- 日历网格 -->
+            <ItemsControl Grid.Row="1" ItemsSource="{TemplateBinding CalendarDays}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="7" Rows="6"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="controls:CalendarDay">
+                  <Button Background="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBackgroundConverter}}"
+                          BorderThickness="0,1,1,0"
+                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                          Padding="4"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          VerticalContentAlignment="Stretch"
+                          Cursor="Hand"
+                          Command="{Binding Select}">
+                    <Button.Styles>
+                      <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                      </Style>
+                    </Button.Styles>
+                    <StackPanel Spacing="2">
+                      <!-- 日期数字 -->
+                      <Border Background="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToBackgroundConverter}}"
+                              BorderThickness="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBorderThicknessConverter}}"
+                              BorderBrush="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBorderBrushConverter}}"
+                              CornerRadius="12"
+                              Padding="6,2"
+                              HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding Day}"
+                                 FontSize="13"
+                                 Foreground="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToForegroundConverter}}"
+                                 Opacity="{Binding IsCurrentMonth, Converter={x:Static controls:CalendarConverters.IsCurrentMonthToOpacityConverter}}"
+                                 FontWeight="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToFontWeightConverter}}"/>
+                      </Border>
+                      
+                      <!-- 事项列表（最多3条）-->
+                      <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate DataType="controls:CalendarDayItem">
+                            <Panel>
+                              <!-- 待办事项 -->
+                              <Border IsVisible="{Binding IsTodo}"
+                                      Background="#FFEBEE"
+                                      BorderBrush="#F44336"
+                                      BorderThickness="2,0,0,0"
+                                      CornerRadius="2"
+                                      Padding="4,2"
+                                      Margin="0,1">
+                                <TextBlock Text="{Binding Title}"
+                                         FontSize="9"
+                                         Foreground="#D32F2F"
+                                         TextTrimming="CharacterEllipsis"
+                                         MaxLines="1"/>
+                              </Border>
+                              <!-- 日程事项 -->
+                              <Border IsVisible="{Binding IsEvent}"
+                                      Background="#E3F2FD"
+                                      BorderBrush="#2196F3"
+                                      BorderThickness="2,0,0,0"
+                                      CornerRadius="2"
+                                      Padding="4,2"
+                                      Margin="0,1">
+                                <TextBlock Text="{Binding Title}"
+                                         FontSize="9"
+                                         Foreground="#1976D2"
+                                         TextTrimming="CharacterEllipsis"
+                                         MaxLines="1"/>
+                              </Border>
+                              <!-- 更多提示 -->
+                              <Border IsVisible="{Binding IsMore}"
+                                      Background="#F5F5F5"
+                                      CornerRadius="2"
+                                      Padding="4,2"
+                                      Margin="0,1">
+                                <TextBlock Text="{Binding Title}"
+                                         FontSize="9"
+                                         Foreground="#757575"
+                                         TextTrimming="CharacterEllipsis"
+                                         MaxLines="1"/>
+                              </Border>
+                            </Panel>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+  
+</ResourceDictionary>

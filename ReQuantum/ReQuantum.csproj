@@ -24,11 +24,15 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="RelativeControl.Avalonia" />
     <PackageReference Include="System.Reactive" />
     <ProjectReference Include="..\ReQuantum.SourceGenerator\ReQuantum.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\Calendar\MonthCalendarControl.axaml.cs">
+      <DependentUpon>MonthCalendarControl.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Resources\I18n\UIText.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -40,8 +44,8 @@
     <Compile Update="Shells\ShellView.axaml.cs">
       <DependentUpon>ShellView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\AnotherView.axaml.cs">
-      <DependentUpon>AnotherView.axaml</DependentUpon>
+    <Compile Update="Views\Calendar\CalendarView.axaml.cs">
+      <DependentUpon>CalendarView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\DashboardView.axaml.cs">
       <DependentUpon>DashboardView.axaml</DependentUpon>

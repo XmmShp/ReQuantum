@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:models="clr-namespace:ReQuantum.Models"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+             x:Class="ReQuantum.Views.NoteListView"
+             x:DataType="viewModels:NoteListViewModel">
+  <Design.DataContext>
+    <viewModels:NoteListViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <!-- 便签区域 -->
+    <Border BorderThickness="1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+            CornerRadius="8"
+            Padding="16">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0"
+                   Text="{Binding Localizer[Notes]}" 
+                   FontSize="18" 
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+          <Button Grid.Column="1"
+                Command="{Binding ShowAddDialogCommand}"
+                Padding="12,6">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="+" FontSize="16" FontWeight="Bold"/>
+              <TextBlock Text="{Binding Localizer[AddNote]}" FontSize="14"/>
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <!-- 便签列表 -->
+        <ItemsControl ItemsSource="{Binding Notes}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="models:CalendarNote">
+              <Border BorderThickness="1"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      CornerRadius="4"
+                      Padding="12"
+                      Margin="0,4"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" 
+                           Text="{Binding Content}" 
+                           FontSize="14"
+                           TextWrapping="Wrap"/>
+                  <Button Grid.Column="1" 
+                        Command="{Binding $parent[UserControl].((viewModels:NoteListViewModel)DataContext).DeleteNoteCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="8,4">
+                    <TextBlock Text="{Binding $parent[UserControl].((viewModels:NoteListViewModel)DataContext).Localizer[Delete]}" FontSize="12"/>
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 空状态提示 -->
+        <TextBlock Text="{Binding Localizer[NoNotes]}"
+                 Opacity="0.5"
+                 HorizontalAlignment="Center"
+                 Margin="0,16"
+                 IsVisible="{Binding !Notes.Count}"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

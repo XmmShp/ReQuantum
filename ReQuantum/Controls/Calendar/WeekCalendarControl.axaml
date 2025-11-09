@@ -1,0 +1,197 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:ReQuantum.Controls"
+                    xmlns:r="https://github.com/metaone01/RelativeControl.Avalonia">
+  <ControlTheme x:Key="{x:Type controls:WeekCalendarControl}" TargetType="controls:WeekCalendarControl">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderThickness="0"
+                CornerRadius="8">
+          <Grid RowDefinitions="Auto,*" ColumnDefinitions="50,*">
+            
+            <!-- 左上角空白 -->
+            <Border Grid.Row="0" Grid.Column="0"/>
+            
+            <!-- 星期标题行 -->
+            <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{TemplateBinding WeekDays}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="7"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="controls:WeekDay">
+                  <Button Background="Transparent"
+                          BorderThickness="0"
+                          Padding="8"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Cursor="Hand"
+                          Command="{Binding Select}">
+                    <Button.Styles>
+                      <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                      </Style>
+                    </Button.Styles>
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding DayOfWeek}" 
+                               HorizontalAlignment="Center" 
+                               FontSize="12" 
+                               Opacity="0.6" 
+                               FontWeight="SemiBold"/>
+                      <Border Background="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToBackgroundConverter}}"
+                              BorderThickness="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBorderThicknessConverter}}"
+                              BorderBrush="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBorderBrushConverter}}"
+                              CornerRadius="16"
+                              Padding="8,4"
+                              HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Day}"
+                                 FontSize="16"
+                                 Foreground="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToForegroundConverter}}"
+                                 FontWeight="{Binding IsToday, Converter={x:Static controls:CalendarConverters.IsTodayToFontWeightConverter}}"/>
+                      </Border>
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- 时间线网格（使用 ScrollViewer 包装以支持滚动）-->
+            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                          VerticalScrollBarVisibility="Auto" 
+                          HorizontalScrollBarVisibility="Disabled">
+              <Grid ColumnDefinitions="50,*" Height="720">
+                
+                <!-- 左侧时间列 -->
+                <ItemsControl Grid.Column="0" ItemsSource="{x:Static controls:CalendarConverters.Hours24}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="x:Int32">
+                      <Border Height="30" 
+                              BorderThickness="0,1,0,0"
+                              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                              Padding="4,2,0,0">
+                        <TextBlock Text="{Binding Converter={x:Static controls:CalendarConverters.HourToTimeStringConverter}}"
+                                 FontSize="10"
+                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 VerticalAlignment="Top"/>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <!-- 右侧7天列 -->
+                <Grid Grid.Column="1">
+                  <!-- 横线背景层（连续不断开）-->
+                  <ItemsControl ItemsSource="{x:Static controls:CalendarConverters.Hours24}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="x:Int32">
+                        <Border Height="30" 
+                                BorderThickness="0,1,0,0"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  
+                  <!-- 7天列（带竖线分隔）-->
+                  <ItemsControl ItemsSource="{TemplateBinding WeekDays}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <UniformGrid Columns="7"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="controls:WeekDay">
+                        <Button Background="Transparent"
+                                BorderThickness="1,0,0,0"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                Padding="4"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Cursor="Hand"
+                                Command="{Binding Select}">
+                          <Button.Styles>
+                            <!-- 移除悬浮背景色，避免覆盖横线 -->
+                            <Style Selector="Button:pointerover">
+                              <Setter Property="Opacity" Value="0.8"/>
+                            </Style>
+                            <!-- 选中状态使用边框而不是背景 -->
+                            <Style Selector="Button">
+                              <Setter Property="BorderBrush" Value="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.IsSelectedToBorderBrushConverter}}"/>
+                              <Setter Property="BorderThickness" Value="{Binding IsSelected, Converter={x:Static controls:CalendarConverters.WeekDaySelectedBorderThicknessConverter}}"/>
+                            </Style>
+                          </Button.Styles>
+                          <!-- 时间线容器（24小时，每小时30像素）-->
+                          <Grid Height="720">
+                        
+                        <!-- 事项层（使用 Canvas 绝对定位）-->
+                        <ItemsControl ItemsSource="{Binding TimelineItems}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <Canvas/>
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="controls:WeekTimelineItem">
+                              <Grid Width="{Binding $parent[Button].Bounds.Width}">
+                                <!-- 待办事项（红色区块，宽度95%，居左）-->
+                                <Border IsVisible="{Binding IsTodo}"
+                                        Background="#FFCDD2"
+                                        BorderBrush="#F44336"
+                                        BorderThickness="0,3,0,0"
+                                        CornerRadius="0"
+                                        Height="{Binding Height, Converter={x:Static controls:CalendarConverters.HourToPixelConverter}}"
+                                        HorizontalAlignment="Left"
+                                        Width="{Binding $parent[Grid].Bounds.Width, Converter={x:Static controls:CalendarConverters.WidthTo95PercentConverter}}">
+                                  <Border.RenderTransform>
+                                    <TranslateTransform Y="{Binding TopPosition, Converter={x:Static controls:CalendarConverters.HourToPixelConverter}}"/>
+                                  </Border.RenderTransform>
+                                  <TextBlock Text="{Binding Title}"
+                                           FontSize="10"
+                                           Foreground="#C62828"
+                                           FontWeight="Medium"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- 日程事项（蓝色区块，宽度95%，居左）-->
+                                <Border IsVisible="{Binding IsEvent}"
+                                        Background="#BBDEFB"
+                                        BorderBrush="#2196F3"
+                                        BorderThickness="0,3,0,0"
+                                        CornerRadius="0"
+                                        HorizontalAlignment="Left"
+                                        Width="{Binding $parent[Grid].Bounds.Width, Converter={x:Static controls:CalendarConverters.WidthTo95PercentConverter}}"
+                                        Height="{Binding Height, Converter={x:Static controls:CalendarConverters.HourToPixelConverter}}">
+                                  <Border.RenderTransform>
+                                    <TranslateTransform Y="{Binding TopPosition, Converter={x:Static controls:CalendarConverters.HourToPixelConverter}}"/>
+                                  </Border.RenderTransform>
+                                  <TextBlock Text="{Binding Title}"
+                                           FontSize="10"
+                                           Foreground="#1565C0"
+                                           FontWeight="Medium"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                </Border>
+                              </Grid>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                          </Grid>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Grid>
+              </Grid>
+            </ScrollViewer>
+            
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>
