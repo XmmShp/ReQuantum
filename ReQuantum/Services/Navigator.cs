@@ -4,6 +4,7 @@ using ReQuantum.Attributes;
 using ReQuantum.ViewModels;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.Services;
 
@@ -13,7 +14,7 @@ public interface INavigator
     event Action CurrentViewModelChanged;
     event Action CurrentViewModelChanging;
 
-    void NavigateTo(Type viewModelType);
+    void NavigateTo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type viewModelType);
 }
 
 [AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(INavigator)])]
@@ -34,7 +35,7 @@ public partial class Navigator : ObservableObject, INavigator, IDisposable
     public event Action? CurrentViewModelChanged;
     public event Action? CurrentViewModelChanging;
 
-    public void NavigateTo(Type viewModelType)
+    public void NavigateTo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type viewModelType)
     {
         if (!viewModelType.IsAssignableTo(typeof(IViewModel)))
         {
@@ -46,8 +47,7 @@ public partial class Navigator : ObservableObject, INavigator, IDisposable
             return;
         }
 
-        var viewModel = _serviceProvider.GetService(viewModelType);
-        viewModel ??= ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, viewModelType);
+        var viewModel = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, viewModelType);
         var prevViewModel = CurrentViewModel;
         CurrentViewModel = (IViewModel)viewModel;
         (prevViewModel as IDisposable)?.Dispose();

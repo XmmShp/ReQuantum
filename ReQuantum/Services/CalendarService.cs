@@ -1,3 +1,4 @@
+using ReQuantum.Abstractions;
 using ReQuantum.Attributes;
 using ReQuantum.Extensions;
 using ReQuantum.Models;
@@ -5,8 +6,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ReQuantum.Services;
 
@@ -40,16 +41,16 @@ public interface ICalendarService
 }
 
 [AutoInject(Lifetime.Singleton)]
-public class CalendarService : ICalendarService
+public class CalendarService : ICalendarService, IInitializable
 {
     private readonly IStorage _storage;
     private const string NotesKey = "Calendar:Notes";
     private const string TodosKey = "Calendar:Todos";
     private const string EventsKey = "Calendar:Events";
 
-    private List<CalendarNote> _notes;
-    private List<CalendarTodo> _todos;
-    private List<CalendarEvent> _events;
+    private List<CalendarNote> _notes = [];
+    private List<CalendarTodo> _todos = [];
+    private List<CalendarEvent> _events = [];
 
     // 日历数据字典 - 全局唯一，每个日期只有一个对象
     private readonly ConcurrentDictionary<DateOnly, CalendarDayData> _calendarDataDict = [];
@@ -57,7 +58,6 @@ public class CalendarService : ICalendarService
     public CalendarService(IStorage storage)
     {
         _storage = storage;
-        LoadData();
     }
 
     #region 便签管理
@@ -297,9 +297,6 @@ public class CalendarService : ICalendarService
 
     #region 数据持久化
 
-    [MemberNotNull(nameof(_notes))]
-    [MemberNotNull(nameof(_todos))]
-    [MemberNotNull(nameof(_events))]
     private void LoadData()
     {
         _notes = _storage.TryGet<List<CalendarNote>>(NotesKey, out var notes) && notes is not null
@@ -399,4 +396,10 @@ public class CalendarService : ICalendarService
     }
 
     #endregion
+
+    public Task InitializeAsync(IServiceProvider serviceProvider)
+    {
+        LoadData();
+        return Task.CompletedTask;
+    }
 }

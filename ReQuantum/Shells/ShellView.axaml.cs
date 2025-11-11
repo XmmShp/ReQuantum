@@ -66,6 +66,7 @@ public partial class ShellView : UserControl, IDisposable
     public void Dispose()
     {
         _eventHandler.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

@@ -1,11 +1,13 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
+using ReQuantum.Abstractions;
 using ReQuantum.Attributes;
 using ReQuantum.Client;
 using ReQuantum.Options;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace ReQuantum.Services;
 
@@ -18,8 +20,8 @@ public interface IStorage
     void Remove(string key);
 }
 
-[AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(IStorage)])]
-public class SqliteStorage : IStorage, IDisposable
+[AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(IStorage), typeof(IInitializable)])]
+public class SqliteStorage : IStorage, IInitializable, IDisposable
 {
     private readonly SqliteConnection _connection;
 
@@ -27,7 +29,6 @@ public class SqliteStorage : IStorage, IDisposable
     {
         _connection = new SqliteConnection($"Data Source={options.Value.StoragePath}");
         _connection.Open();
-        InitializeDatabase();
     }
 
     private void InitializeDatabase()
@@ -82,5 +83,11 @@ public class SqliteStorage : IStorage, IDisposable
     {
         _connection.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public Task InitializeAsync(IServiceProvider serviceProvider)
+    {
+        InitializeDatabase();
+        return Task.CompletedTask;
     }
 }

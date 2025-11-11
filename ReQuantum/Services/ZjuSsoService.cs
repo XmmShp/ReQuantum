@@ -1,4 +1,5 @@
 using HtmlAgilityPack;
+using ReQuantum.Abstractions;
 using ReQuantum.Attributes;
 using ReQuantum.Extensions;
 using ReQuantum.Models;
@@ -31,7 +32,7 @@ public interface IZjuSsoService
 }
 
 [AutoInject(Lifetime.Singleton)]
-public class ZjuSsoService : IZjuSsoService
+public class ZjuSsoService : IZjuSsoService, IInitializable
 {
     private readonly IStorage _storage;
     private const string LoginUrl = "https://zjuam.zju.edu.cn/cas/login";
@@ -41,7 +42,6 @@ public class ZjuSsoService : IZjuSsoService
     public ZjuSsoService(IStorage storage)
     {
         _storage = storage;
-        LoadState();
     }
 
     private ZjuSsoState? _state;
@@ -282,5 +282,11 @@ public class ZjuSsoService : IZjuSsoService
         }
 
         _storage.SetWithEncryption(StateKey, _state);
+    }
+
+    public Task InitializeAsync(IServiceProvider serviceProvider)
+    {
+        LoadState();
+        return Task.CompletedTask;
     }
 }

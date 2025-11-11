@@ -6,6 +6,7 @@ using ReQuantum.Models;
 using ReQuantum.Resources.I18n;
 using ReQuantum.Views;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.ViewModels;
 
@@ -16,6 +17,8 @@ public partial class CalendarViewModel : ViewModelBase<CalendarView>, IMenuItemP
     public string Title => UIText.Calendar;
     public PackIconMaterialKind IconKind => PackIconMaterialKind.Calendar;
     public uint Order => 2;
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type ViewModelType => typeof(CalendarViewModel);
     Action<MenuItem> IMenuItemProvider.OnCultureChanged => item => item.Title = UIText.Calendar;
     #endregion

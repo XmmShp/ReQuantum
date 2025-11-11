@@ -7,6 +7,7 @@ using ReQuantum.Resources.I18n;
 using ReQuantum.Services;
 using ReQuantum.Views;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.ViewModels;
 
@@ -17,6 +18,8 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     public string Title => UIText.Home;
     public PackIconMaterialKind IconKind => PackIconMaterialKind.ViewDashboard;
     public uint Order => 0;
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type ViewModelType => typeof(DashboardViewModel);
     Action<MenuItem> IMenuItemProvider.OnCultureChanged => item => item.Title = UIText.Home;
     #endregion

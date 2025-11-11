@@ -6,6 +6,7 @@ using ReQuantum.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +21,9 @@ public interface IMenuManager
     MenuItem? SelectedItem { get; set; }
 }
 
-public record MenuItemPair(Type ViewModelType, MenuItem MenuItem, Action<MenuItem> OnCultureChanged);
+public record MenuItemPair([property: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type ViewModelType,
+    MenuItem MenuItem,
+    Action<MenuItem> OnCultureChanged);
 
 [AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(IMenuManager), typeof(IInitializable)])]
 public partial class MenuManager : ObservableObject, IMenuManager, IInitializable, IDisposable

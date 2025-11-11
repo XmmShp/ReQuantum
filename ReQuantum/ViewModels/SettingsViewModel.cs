@@ -7,6 +7,7 @@ using ReQuantum.Resources.I18n;
 using ReQuantum.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace ReQuantum.ViewModels;
@@ -18,6 +19,8 @@ public partial class SettingsViewModel : ViewModelBase<SettingsView>, IMenuItemP
     public string Title => UIText.Settings;
     public PackIconMaterialKind IconKind => PackIconMaterialKind.Cog;
     public uint Order => uint.MaxValue;
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type ViewModelType => typeof(SettingsViewModel);
     Action<MenuItem> IMenuItemProvider.OnCultureChanged => item => item.Title = UIText.Settings;
     #endregion
