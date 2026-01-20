@@ -6,6 +6,7 @@ using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.Calendar.Services;
 using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Modules.Pta.Services;
 using ReQuantum.Modules.Zdbk.Services;
 using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.ViewModels;
@@ -27,6 +28,9 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private readonly IZdbkExamService _examService;
     private readonly IZdbkCalendarConverter _zdbkConverter;
     private readonly IZjuSsoService _zjuSsoService;
+    private readonly IPtaProblemSetService _ptaService;
+    private readonly IPtaCalendarConvertService _ptaConverter;
+    private readonly IPtaAuthService _ptaAuthService;
 
     /// <summary>
     /// 动态标题：日程 - 日期
@@ -150,12 +154,6 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     [ObservableProperty]
     private bool _isSyncingZdbk;
 
-    [ObservableProperty]
-    private string _debugInfo = string.Empty;
-
-    [ObservableProperty]
-    private bool _showDebugInfo = false;
-
     #endregion
 
     public EventListViewModel(
@@ -163,26 +161,41 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IZdbkSectionScheduleService zdbkService,
         IZdbkExamService examService,
         IZdbkCalendarConverter zdbkConverter,
-        IZjuSsoService zjuSsoService)
+        IZjuSsoService zjuSsoService,
+        IPtaProblemSetService ptaService,
+        IPtaCalendarConvertService ptaConverter,
+        IPtaAuthService ptaAuthService)
     {
         _calendarService = calendarService;
         _zdbkService = zdbkService;
         _examService = examService;
         _zdbkConverter = zdbkConverter;
         _zjuSsoService = zjuSsoService;
+        _ptaService = ptaService;
+        _ptaConverter = ptaConverter;
+        _ptaAuthService = ptaAuthService;
         EventsTitle = new LocalizedText();
         UpdateEventsTitle();
         LoadEvents();
 
-        _zjuSsoService.OnLogin += OnLoginHandler;
+        _zjuSsoService.OnLogin += OnZjuSsoLoginHandler;
         _zjuSsoService.OnLogout += () => OnPropertyChanged(nameof(ShowZdbkSyncButton));
+        _ptaAuthService.OnLogin += OnPtaLoginHandler;
+        _ptaAuthService.OnLogout += () => OnPropertyChanged(nameof(ShowPtaSyncButton));
     }
 
-    private async void OnLoginHandler()
+    private async void OnZjuSsoLoginHandler()
     {
         OnPropertyChanged(nameof(ShowZdbkSyncButton));
         // 登录成功后自动同步课程表和考试
         await SyncZdbkScheduleAsync();
+    }
+
+    private async void OnPtaLoginHandler()
+    {
+        OnPropertyChanged(nameof(ShowPtaSyncButton));
+        // 登录成功后自动同步 PTA 习题集
+        await SyncPtaAsync();
     }
 
     #region 数据加载
@@ -293,28 +306,14 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
             return;
         IsSyncingZdbk = true;
 
-        var debugLines = new List<string>();
-        debugLines.Add($"===== 课表与考试同步调试信息 =====");
-        debugLines.Add($"开始时间: {DateTime.Now:HH:mm:ss}");
-
         try
         {
             // 1. 同步课程表
-            debugLines.Add("正在获取课表...");
             var scheduleResult = await _zdbkService.GetCurrentSemesterScheduleAsync();
 
-            if (!scheduleResult.IsSuccess)
-            {
-                debugLines.Add($"❌ 获取课表失败: {scheduleResult.Message}");
-            }
-            else
+            if (scheduleResult.IsSuccess)
             {
                 var schedule = scheduleResult.Value;
-                debugLines.Add($"✅ 获取课表成功");
-                debugLines.Add($"学年: {schedule.AcademicYear ?? "无"}");
-                debugLines.Add($"学期: {schedule.Semester ?? "无"}");
-                debugLines.Add($"课程数量: {schedule.SectionList?.Count ?? 0}");
-
                 var allNewEvents = new List<CalendarEvent>();
 
                 // 如果有 RelatedSemesters 信息，按学期分别转换
@@ -322,8 +321,6 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                 {
                     var semester1 = schedule.RelatedSemesters[0]; // 秋 或 春
                     var semester2 = schedule.RelatedSemesters[1]; // 冬 或 夏
-
-                    debugLines.Add($"\n转换学期: {semester1}, {semester2}");
 
                     var events1 = await _zdbkConverter.ConvertToCalendarEventsAsync(
                         schedule.SectionList,
@@ -337,17 +334,13 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 
                     allNewEvents.AddRange(events1);
                     allNewEvents.AddRange(events2);
-
-                    debugLines.Add($"转换后事件数: {semester1}={events1.Count}, {semester2}={events2.Count}");
                 }
                 else
                 {
-                    debugLines.Add($"\n转换学期: {schedule.Semester}");
                     allNewEvents = await _zdbkConverter.ConvertToCalendarEventsAsync(
                         schedule.SectionList,
                         schedule.AcademicYear ?? "",
                         schedule.Semester ?? "");
-                    debugLines.Add($"转换后事件数: {allNewEvents.Count}");
                 }
 
                 // 标记来源
@@ -358,9 +351,6 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                 var existingZdbkEvents = _calendarService.GetAllEvents().Where(e => e.IsFromZdbk).ToList();
                 var newEventIds = allNewEvents.Select(e => e.Id).ToHashSet();
 
-                debugLines.Add($"\n删除旧课程: {existingZdbkEvents.Count}");
-                debugLines.Add($"添加新课程: {allNewEvents.Count}");
-
                 foreach (var existingEvent in existingZdbkEvents.Where(e => !newEventIds.Contains(e.Id)))
                     _calendarService.DeleteEvent(existingEvent.Id);
 
@@ -369,22 +359,12 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
             }
 
             // 2. 同步考试信息
-            debugLines.Add("\n正在获取考试信息...");
             var examsResult = await _examService.GetExamsAsync();
 
-            if (!examsResult.IsSuccess)
-            {
-                debugLines.Add($"❌ 获取考试失败: {examsResult.Message}");
-            }
-            else
+            if (examsResult.IsSuccess)
             {
                 var parsedExams = examsResult.Value;
-                debugLines.Add($"✅ 获取考试成功");
-                debugLines.Add($"考试数量: {parsedExams.Count}");
-
-                debugLines.Add("\n正在转换为日程事件...");
                 var calendarEvents = _zdbkConverter.ConvertExamsToCalendarEvents(parsedExams);
-                debugLines.Add($"转换后事件数: {calendarEvents.Count}");
 
                 // 标记来源为考试
                 foreach (var evt in calendarEvents)
@@ -394,9 +374,6 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                 var existingExamEvents = _calendarService.GetAllEvents().Where(e => e.IsFromZdbkExam).ToList();
                 var newEventIds = calendarEvents.Select(e => e.Id).ToHashSet();
 
-                debugLines.Add($"\n删除旧考试: {existingExamEvents.Count}");
-                debugLines.Add($"添加新考试: {calendarEvents.Count}");
-
                 foreach (var existingEvent in existingExamEvents.Where(e => !newEventIds.Contains(e.Id)))
                     _calendarService.DeleteEvent(existingEvent.Id);
 
@@ -405,20 +382,58 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
             }
 
             Publisher.Publish(new CalendarSelectedDateChanged(SelectedDate));
-
-            debugLines.Add($"\n✅ 同步完成");
-            debugLines.Add($"结束时间: {DateTime.Now:HH:mm:ss}");
-        }
-        catch (Exception ex)
-        {
-            debugLines.Add($"\n❌ 异常: {ex.Message}");
-            debugLines.Add($"堆栈: {ex.StackTrace}");
         }
         finally
         {
             IsSyncingZdbk = false;
-            DebugInfo = string.Join("\n", debugLines);
-            ShowDebugInfo = true;
+        }
+    }
+
+    #endregion
+
+    #region PTA 习题集同步
+
+    public bool ShowPtaSyncButton => _ptaAuthService.IsAuthenticated;
+
+    [ObservableProperty]
+    private bool _isSyncingPta;
+
+    [RelayCommand]
+    private async Task SyncPtaAsync()
+    {
+        if (IsSyncingPta)
+            return;
+        IsSyncingPta = true;
+
+        try
+        {
+            var problemSetsResult = await _ptaService.GetProblemSetsAsync();
+
+            if (problemSetsResult.IsSuccess)
+            {
+                var problemSets = problemSetsResult.Value;
+                var calendarEvents = _ptaConverter.ConvertToCalendarEvents(problemSets);
+
+                // 标记来源为 PTA
+                foreach (var evt in calendarEvents)
+                    evt.IsFromPta = true;
+
+                // 删除旧的 PTA 事件，添加新事件
+                var existingPtaEvents = _calendarService.GetAllEvents().Where(e => e.IsFromPta).ToList();
+                var newEventIds = calendarEvents.Select(e => e.Id).ToHashSet();
+
+                foreach (var existingEvent in existingPtaEvents.Where(e => !newEventIds.Contains(e.Id)))
+                    _calendarService.DeleteEvent(existingEvent.Id);
+
+                foreach (var evt in calendarEvents)
+                    _calendarService.AddOrUpdateEvent(evt);
+            }
+
+            Publisher.Publish(new CalendarSelectedDateChanged(SelectedDate));
+        }
+        finally
+        {
+            IsSyncingPta = false;
         }
     }
 

@@ -19,13 +19,13 @@
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
-        <Grid ColumnDefinitions="*,Auto,Auto">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto">
           <TextBlock Grid.Column="0"
-                   Text="{Binding EventsTitle.Text}" 
-                   FontSize="18" 
+                   Text="{Binding EventsTitle.Text}"
+                   FontSize="18"
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
-          
+
           <!-- 教务网课程表同步按钮 -->
           <Button Grid.Column="1"
                 Command="{Binding SyncZdbkScheduleCommand}"
@@ -38,8 +38,21 @@
               <TextBlock Text="同步课程表与考试" FontSize="14"/>
             </StackPanel>
           </Button>
-          
+
+          <!-- PTA 习题集同步按钮 -->
           <Button Grid.Column="2"
+                Command="{Binding SyncPtaCommand}"
+                IsVisible="{Binding ShowPtaSyncButton}"
+                Padding="12,6"
+                Margin="0,0,8,0">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="📝" FontSize="14" IsVisible="{Binding !IsSyncingPta}"/>
+              <TextBlock Text="⏳" FontSize="14" IsVisible="{Binding IsSyncingPta}"/>
+              <TextBlock Text="同步 PTA 作业" FontSize="14"/>
+            </StackPanel>
+          </Button>
+
+          <Button Grid.Column="3"
                 Command="{Binding ShowAddDialogCommand}"
                 Padding="12,6">
             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -94,29 +107,6 @@
                  HorizontalAlignment="Center"
                  Margin="0,16"
                  IsVisible="{Binding !Events.Count}"/>
-
-        <!-- 调试信息显示 -->
-        <Border BorderThickness="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                CornerRadius="4"
-                Padding="12"
-                Margin="0,8,0,0"
-                IsVisible="{Binding ShowDebugInfo}">
-          <StackPanel Spacing="8">
-            <TextBlock Text="🔍 调试信息"
-                     FontSize="14"
-                     FontWeight="SemiBold"/>
-            <ScrollViewer MaxHeight="300"
-                        VerticalScrollBarVisibility="Auto">
-              <TextBlock Text="{Binding DebugInfo}"
-                       FontSize="12"
-                       FontFamily="Consolas,Courier New,monospace"
-                       TextWrapping="Wrap"
-                       Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                       Padding="8"/>
-            </ScrollViewer>
-          </StackPanel>
-        </Border>
       </StackPanel>
     </Border>
   </Grid>
