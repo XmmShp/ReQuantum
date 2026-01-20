@@ -8,7 +8,7 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ReQuantum.Views.CalendarView"
              x:DataType="viewModels:CalendarViewModel">
-  <Design.DataContext>
+  <Design.DataContext>m    
     <viewModels:CalendarViewModel />
   </Design.DataContext>
 
@@ -225,8 +225,18 @@
                      TextWrapping="Wrap"
                      AcceptsReturn="True"/>
           </StackPanel>
-          
-          <!-- 桌面端：横向布局 -->
+
+			<!-- 备注输入框 -->
+			<StackPanel Spacing="8">
+				<TextBlock Text="{Binding Localizer[Note]}" FontSize="14" />
+				<TextBox Text="{Binding EventListViewModel.NewEventNote}"
+						 Watermark="{Binding Localizer[EnterNote]}"
+						 MinHeight="60"
+						 TextWrapping="Wrap"
+						 AcceptsReturn="True" />
+			</StackPanel>
+
+			<!-- 桌面端：横向布局 -->
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
                 IsVisible="{Binding WindowService.IsDesktopMode}">
             <StackPanel Grid.Column="0" Spacing="8">

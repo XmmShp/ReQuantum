@@ -342,4 +342,10 @@
   <data name="RepeatTimes" xml:space="preserve">
     <value> Repeat Times：</value>
   </data>
+  <data name="Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="EnterNote" xml:space="preserve">
+    <value>Enter note...</value>
+  </data>
 </root>
