@@ -24,6 +24,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 {
     private readonly ICalendarService _calendarService;
     private readonly IZdbkSectionScheduleService _zdbkService;
+    private readonly IZdbkExamService _examService;
     private readonly IZdbkCalendarConverter _zdbkConverter;
     private readonly IZjuSsoService _zjuSsoService;
 
@@ -160,11 +161,13 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     public EventListViewModel(
         ICalendarService calendarService,
         IZdbkSectionScheduleService zdbkService,
+        IZdbkExamService examService,
         IZdbkCalendarConverter zdbkConverter,
         IZjuSsoService zjuSsoService)
     {
         _calendarService = calendarService;
         _zdbkService = zdbkService;
+        _examService = examService;
         _zdbkConverter = zdbkConverter;
         _zjuSsoService = zjuSsoService;
         EventsTitle = new LocalizedText();
@@ -178,7 +181,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private async void OnLoginHandler()
     {
         OnPropertyChanged(nameof(ShowZdbkSyncButton));
-        // 登录成功后自动同步课程表
+        // 登录成功后自动同步课程表和考试
         await SyncZdbkScheduleAsync();
     }
 
@@ -291,101 +294,115 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IsSyncingZdbk = true;
 
         var debugLines = new List<string>();
-        debugLines.Add($"===== 课表同步调试信息 =====");
+        debugLines.Add($"===== 课表与考试同步调试信息 =====");
         debugLines.Add($"开始时间: {DateTime.Now:HH:mm:ss}");
 
         try
         {
+            // 1. 同步课程表
             debugLines.Add("正在获取课表...");
             var scheduleResult = await _zdbkService.GetCurrentSemesterScheduleAsync();
 
             if (!scheduleResult.IsSuccess)
             {
-                debugLines.Add($"❌ 获取失败: {scheduleResult.Message}");
-                DebugInfo = string.Join("\n", debugLines);
-                ShowDebugInfo = true;
-                return;
-            }
-
-            var schedule = scheduleResult.Value;
-            debugLines.Add($"✅ 获取成功");
-            debugLines.Add($"学年: {schedule.AcademicYear ?? "无"}");
-            debugLines.Add($"学期: {schedule.Semester ?? "无"}");
-            debugLines.Add($"学号: {schedule.StudentId ?? "无"}");
-            debugLines.Add($"姓名: {schedule.StudentName ?? "无"}");
-            debugLines.Add($"课程数量: {schedule.SectionList?.Count ?? 0}");
-
-            if (schedule.SectionList != null && schedule.SectionList.Any())
-            {
-                debugLines.Add("\n前3个课程详情:");
-                for (int i = 0; i < Math.Min(3, schedule.SectionList.Count); i++)
-                {
-                    var section = schedule.SectionList[i];
-                    debugLines.Add($"  课程 #{i + 1}:");
-                    debugLines.Add($"    ID: {section.CourseId}");
-                    debugLines.Add($"    星期: {section.DayOfWeek}");
-                    debugLines.Add($"    节次: {section.StartSection}");
-                    debugLines.Add($"    学期: {section.Term}");
-                    var info = section.CourseInfo;
-                    if (!string.IsNullOrEmpty(info))
-                    {
-                        var preview = info.Length > 50 ? info.Substring(0, 50) + "..." : info;
-                        debugLines.Add($"    详细: {preview}");
-                    }
-                }
-            }
-
-            var allNewEvents = new List<CalendarEvent>();
-
-            // 如果有 RelatedSemesters 信息，按学期分别转换
-            if (schedule.RelatedSemesters != null && schedule.RelatedSemesters.Length == 2)
-            {
-                var semester1 = schedule.RelatedSemesters[0]; // 秋 或 春
-                var semester2 = schedule.RelatedSemesters[1]; // 冬 或 夏
-
-                debugLines.Add($"\n转换学期: {semester1}, {semester2}");
-
-                var events1 = await _zdbkConverter.ConvertToCalendarEventsAsync(
-                    schedule.SectionList,
-                    schedule.AcademicYear ?? "",
-                    semester1);
-
-                var events2 = await _zdbkConverter.ConvertToCalendarEventsAsync(
-                    schedule.SectionList,
-                    schedule.AcademicYear ?? "",
-                    semester2);
-
-                allNewEvents.AddRange(events1);
-                allNewEvents.AddRange(events2);
-
-                debugLines.Add($"转换后事件数: {semester1}={events1.Count}, {semester2}={events2.Count}");
+                debugLines.Add($"❌ 获取课表失败: {scheduleResult.Message}");
             }
             else
             {
-                debugLines.Add($"\n转换学期: {schedule.Semester}");
-                allNewEvents = await _zdbkConverter.ConvertToCalendarEventsAsync(
-                    schedule.SectionList,
-                    schedule.AcademicYear ?? "",
-                    schedule.Semester ?? "");
-                debugLines.Add($"转换后事件数: {allNewEvents.Count}");
+                var schedule = scheduleResult.Value;
+                debugLines.Add($"✅ 获取课表成功");
+                debugLines.Add($"学年: {schedule.AcademicYear ?? "无"}");
+                debugLines.Add($"学期: {schedule.Semester ?? "无"}");
+                debugLines.Add($"课程数量: {schedule.SectionList?.Count ?? 0}");
+
+                var allNewEvents = new List<CalendarEvent>();
+
+                // 如果有 RelatedSemesters 信息，按学期分别转换
+                if (schedule.RelatedSemesters != null && schedule.RelatedSemesters.Length == 2)
+                {
+                    var semester1 = schedule.RelatedSemesters[0]; // 秋 或 春
+                    var semester2 = schedule.RelatedSemesters[1]; // 冬 或 夏
+
+                    debugLines.Add($"\n转换学期: {semester1}, {semester2}");
+
+                    var events1 = await _zdbkConverter.ConvertToCalendarEventsAsync(
+                        schedule.SectionList,
+                        schedule.AcademicYear ?? "",
+                        semester1);
+
+                    var events2 = await _zdbkConverter.ConvertToCalendarEventsAsync(
+                        schedule.SectionList,
+                        schedule.AcademicYear ?? "",
+                        semester2);
+
+                    allNewEvents.AddRange(events1);
+                    allNewEvents.AddRange(events2);
+
+                    debugLines.Add($"转换后事件数: {semester1}={events1.Count}, {semester2}={events2.Count}");
+                }
+                else
+                {
+                    debugLines.Add($"\n转换学期: {schedule.Semester}");
+                    allNewEvents = await _zdbkConverter.ConvertToCalendarEventsAsync(
+                        schedule.SectionList,
+                        schedule.AcademicYear ?? "",
+                        schedule.Semester ?? "");
+                    debugLines.Add($"转换后事件数: {allNewEvents.Count}");
+                }
+
+                // 标记来源
+                foreach (var evt in allNewEvents)
+                    evt.IsFromZdbk = true;
+
+                // 删除旧课程，添加新课程
+                var existingZdbkEvents = _calendarService.GetAllEvents().Where(e => e.IsFromZdbk).ToList();
+                var newEventIds = allNewEvents.Select(e => e.Id).ToHashSet();
+
+                debugLines.Add($"\n删除旧课程: {existingZdbkEvents.Count}");
+                debugLines.Add($"添加新课程: {allNewEvents.Count}");
+
+                foreach (var existingEvent in existingZdbkEvents.Where(e => !newEventIds.Contains(e.Id)))
+                    _calendarService.DeleteEvent(existingEvent.Id);
+
+                foreach (var evt in allNewEvents)
+                    _calendarService.AddOrUpdateEvent(evt);
             }
 
-            // 标记来源
-            foreach (var evt in allNewEvents)
-                evt.IsFromZdbk = true;
+            // 2. 同步考试信息
+            debugLines.Add("\n正在获取考试信息...");
+            var examsResult = await _examService.GetExamsAsync();
 
-            // 删除旧课程，添加新课程
-            var existingZdbkEvents = _calendarService.GetAllEvents().Where(e => e.IsFromZdbk).ToList();
-            var newEventIds = allNewEvents.Select(e => e.Id).ToHashSet();
+            if (!examsResult.IsSuccess)
+            {
+                debugLines.Add($"❌ 获取考试失败: {examsResult.Message}");
+            }
+            else
+            {
+                var parsedExams = examsResult.Value;
+                debugLines.Add($"✅ 获取考试成功");
+                debugLines.Add($"考试数量: {parsedExams.Count}");
 
-            debugLines.Add($"\n删除旧课程: {existingZdbkEvents.Count}");
-            debugLines.Add($"添加新课程: {allNewEvents.Count}");
+                debugLines.Add("\n正在转换为日程事件...");
+                var calendarEvents = _zdbkConverter.ConvertExamsToCalendarEvents(parsedExams);
+                debugLines.Add($"转换后事件数: {calendarEvents.Count}");
 
-            foreach (var existingEvent in existingZdbkEvents.Where(e => !newEventIds.Contains(e.Id)))
-                _calendarService.DeleteEvent(existingEvent.Id);
+                // 标记来源为考试
+                foreach (var evt in calendarEvents)
+                    evt.IsFromZdbkExam = true;
 
-            foreach (var evt in allNewEvents)
-                _calendarService.AddOrUpdateEvent(evt);
+                // 删除旧考试，添加新考试
+                var existingExamEvents = _calendarService.GetAllEvents().Where(e => e.IsFromZdbkExam).ToList();
+                var newEventIds = calendarEvents.Select(e => e.Id).ToHashSet();
+
+                debugLines.Add($"\n删除旧考试: {existingExamEvents.Count}");
+                debugLines.Add($"添加新考试: {calendarEvents.Count}");
+
+                foreach (var existingEvent in existingExamEvents.Where(e => !newEventIds.Contains(e.Id)))
+                    _calendarService.DeleteEvent(existingEvent.Id);
+
+                foreach (var evt in calendarEvents)
+                    _calendarService.AddOrUpdateEvent(evt);
+            }
 
             Publisher.Publish(new CalendarSelectedDateChanged(SelectedDate));
 

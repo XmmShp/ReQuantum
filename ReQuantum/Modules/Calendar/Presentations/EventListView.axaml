@@ -35,7 +35,7 @@
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="📅" FontSize="14" IsVisible="{Binding !IsSyncingZdbk}"/>
               <TextBlock Text="⏳" FontSize="14" IsVisible="{Binding IsSyncingZdbk}"/>
-              <TextBlock Text="同步课程表" FontSize="14"/>
+              <TextBlock Text="同步课程表与考试" FontSize="14"/>
             </StackPanel>
           </Button>
           
