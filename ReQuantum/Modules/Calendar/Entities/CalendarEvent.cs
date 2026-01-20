@@ -13,6 +13,7 @@ public class CalendarEvent
     public DateTime EndTime { get; set; }
     public DateTime CreatedAt { get; set; }
     public string From { get; set; } = string.Empty;
+    public string Note { get; set; } = string.Empty;
 
     public CalendarEvent()
     {

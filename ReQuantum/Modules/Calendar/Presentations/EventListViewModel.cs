@@ -42,6 +42,13 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 	}
 	public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
 
+	private string _newEventNote;
+	public string NewEventNote
+	{
+		get => _newEventNote;
+		set => SetProperty(ref _newEventNote, value);
+	}
+
 	//ddd
 	/// <summary>
 	/// 动态标题：日程 - 日期
@@ -209,6 +216,8 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 
     #region 日程管理
 
+
+
     [RelayCommand]
     private void ShowAddDialog()
     {
@@ -222,7 +231,9 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IsRepeating = false;
         //dd
         IsAddDialogOpen = true;
-    }
+		NewEventNote = string.Empty;
+
+	}
 	//ddd
 	[RelayCommand]
 	private void AddEvent()
@@ -244,7 +255,8 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 			{
 				Content = NewEventContent.Trim(),
 				StartTime = NewEventStartTime,
-				EndTime = NewEventEndTime
+				EndTime = NewEventEndTime,
+                Note = NewEventNote?.Trim()
 			};
 
 			_calendarService.AddOrUpdateEvent(calendarEvent);
@@ -268,7 +280,8 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 				{
 					Content = content,
 					StartTime = occurrenceDate,
-					EndTime = endDate.AddDays(i * 7)
+					EndTime = endDate.AddDays(i * 7),
+					Note = NewEventNote?.Trim()
 				};
 
 				_calendarService.AddOrUpdateEvent(calendarEvent);
@@ -288,6 +301,8 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 		IsRepeating = false; // 重置重复选项
 		WarningMessage = string.Empty;
 		IsAddDialogOpen = false;
+		NewEventNote = string.Empty;
+
 	}
 
 
