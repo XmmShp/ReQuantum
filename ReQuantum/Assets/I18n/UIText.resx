@@ -336,7 +336,15 @@
   <data name="SyncCoursesZju" xml:space="preserve">
     <value>Sync ZJU</value>
   </data>
+<<<<<<< HEAD
   <data name="NotesWall" xml:space="preserve">
     <value>Notes Wall</value>
+=======
+  <data name="RepeatWeekly" xml:space="preserve">
+    <value>🔁 Repeat eveyweek</value>
+  </data>
+  <data name="RepeatTimes" xml:space="preserve">
+    <value> Repeat Times：</value>
+>>>>>>> 786f8129a4ae58080b5a09cee52d9cb6e27f363b
   </data>
 </root>

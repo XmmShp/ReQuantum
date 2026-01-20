@@ -493,6 +493,7 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+<<<<<<< HEAD
         ///   查找类似 Notes Wall 的本地化字符串。
         /// </summary>
         public static string NotesWall {
@@ -502,6 +503,8 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+=======
+>>>>>>> 786f8129a4ae58080b5a09cee52d9cb6e27f363b
         ///   查找类似 User is not logged in. 的本地化字符串。
         /// </summary>
         public static string NotLoggedIn {
@@ -547,6 +550,27 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+<<<<<<< HEAD
+=======
+        ///   查找类似  Repeat Times 的本地化字符串。
+        /// </summary>
+        public static string RepeatTimes {
+            get {
+                return ResourceManager.GetString("RepeatTimes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 🔁 Repeat eveyweek 的本地化字符串。
+        /// </summary>
+        public static string RepeatWeekly {
+            get {
+                return ResourceManager.GetString("RepeatWeekly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+>>>>>>> 786f8129a4ae58080b5a09cee52d9cb6e27f363b
         ///   查找类似 Sat 的本地化字符串。
         /// </summary>
         public static string Saturday {
