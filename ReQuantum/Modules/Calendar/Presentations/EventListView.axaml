@@ -21,24 +21,24 @@
       <StackPanel Spacing="12">
         <Grid ColumnDefinitions="*,Auto,Auto">
           <TextBlock Grid.Column="0"
-                   Text="{Binding EventsTitle.Text}" 
-                   FontSize="18" 
+                   Text="{Binding EventsTitle.Text}"
+                   FontSize="18"
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
-          
-          <!-- 教务网课程表同步按钮 -->
+
+          <!-- 一键同步按钮 -->
           <Button Grid.Column="1"
-                Command="{Binding SyncZdbkScheduleCommand}"
-                IsVisible="{Binding ShowZdbkSyncButton}"
+                Command="{Binding SyncAllCommand}"
+                IsVisible="{Binding ShowSyncAllButton}"
                 Padding="12,6"
                 Margin="0,0,8,0">
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="📅" FontSize="14" IsVisible="{Binding !IsSyncingZdbk}"/>
-              <TextBlock Text="⏳" FontSize="14" IsVisible="{Binding IsSyncingZdbk}"/>
-              <TextBlock Text="同步课程表" FontSize="14"/>
+              <TextBlock Text="🔄" FontSize="14" IsVisible="{Binding !IsSyncingAll}"/>
+              <TextBlock Text="⏳" FontSize="14" IsVisible="{Binding IsSyncingAll}"/>
+              <TextBlock Text="{Binding Localizer[SyncAll]}" FontSize="14"/>
             </StackPanel>
           </Button>
-          
+
           <Button Grid.Column="2"
                 Command="{Binding ShowAddDialogCommand}"
                 Padding="12,6">
@@ -94,6 +94,43 @@
                  HorizontalAlignment="Center"
                  Margin="0,16"
                  IsVisible="{Binding !Events.Count}"/>
+
+        <!-- 同步错误信息 -->
+        <Border BorderThickness="1"
+                BorderBrush="Orange"
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,12,0,0"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                IsVisible="{Binding ShowSyncError}">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         Foreground="Orange">
+                <Run Text="⚠️ "/>
+                <Run Text="{Binding Localizer[SyncErrorOccurred]}"/>
+              </TextBlock>
+              <Button Grid.Column="1"
+                      Command="{Binding CloseSyncErrorCommand}"
+                      Padding="4"
+                      Background="Transparent">
+                <TextBlock Text="✕" FontSize="12"/>
+              </Button>
+            </Grid>
+
+            <ScrollViewer MaxHeight="200"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+              <TextBlock Text="{Binding SyncErrorMessage}"
+                         FontFamily="Consolas"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         Opacity="0.8"/>
+            </ScrollViewer>
+          </StackPanel>
+        </Border>
       </StackPanel>
     </Border>
   </Grid>

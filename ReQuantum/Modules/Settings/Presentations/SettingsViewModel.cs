@@ -27,6 +27,9 @@ public partial class SettingsViewModel : ViewModelBase<SettingsView>, IMenuItemP
     private ZjuSsoLoginViewModel _zjuSsoLoginViewModel;
 
     [ObservableProperty]
+    private PtaLoginViewModel _ptaLoginViewModel;
+
+    [ObservableProperty]
     private LanguageOption _selectedLanguage;
 
     public List<LanguageOption> AvailableLanguages { get; } =
@@ -35,7 +38,7 @@ public partial class SettingsViewModel : ViewModelBase<SettingsView>, IMenuItemP
         new("中文", "zh-CN")
     ];
 
-    public SettingsViewModel(ZjuSsoLoginViewModel zjuSsoLoginViewModel)
+    public SettingsViewModel(ZjuSsoLoginViewModel zjuSsoLoginViewModel, PtaLoginViewModel ptaLoginViewModel)
     {
         MenuItem = new MenuItem()
         {
@@ -44,6 +47,7 @@ public partial class SettingsViewModel : ViewModelBase<SettingsView>, IMenuItemP
             OnSelected = () => Navigator.NavigateTo<SettingsViewModel>()
         };
         ZjuSsoLoginViewModel = zjuSsoLoginViewModel;
+        PtaLoginViewModel = ptaLoginViewModel;
 
         // Set current language
         var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;

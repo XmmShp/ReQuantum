@@ -60,9 +60,24 @@
           <TextBlock Text="{Binding Localizer[ZjuSsoAccountManagement]}"
                      FontSize="20"
                      FontWeight="SemiBold"/>
-          
+
           <!-- Embedded ZjuSsoLoginView -->
           <views:ZjuSsoLoginView DataContext="{Binding ZjuSsoLoginViewModel}"/>
+        </StackPanel>
+      </Border>
+
+      <!-- PTA Login Section -->
+      <Border BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="20">
+        <StackPanel Spacing="16">
+          <TextBlock Text="{Binding Localizer[PtaLogin]}"
+                     FontSize="20"
+                     FontWeight="SemiBold"/>
+
+          <!-- Embedded PtaLoginView -->
+          <views:PtaLoginView DataContext="{Binding PtaLoginViewModel}"/>
         </StackPanel>
       </Border>
 

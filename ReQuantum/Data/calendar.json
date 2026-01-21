@@ -4,23 +4,54 @@
   "end_date": "2026-01-12",
   "course_adjustments": [
     {
-      "original_date": "2025-10-01",
-      "target_date": "2025-09-27",
-      "reason": "国庆节调休"
+      "original_date": "2025-10-07",
+      "target_date": "2025-09-28",
+      "reason": "国庆中秋对调"
     },
     {
-      "original_date": "2025-10-02",
-      "target_date": "2025-09-28",
-      "reason": "国庆节调休"
+      "original_date": "2025-10-08",
+      "target_date": "2025-10-11",
+      "reason": "国庆中秋对调"
+    },
+    {
+      "original_date": "2025-10-24",
+      "target_date": "2025-10-18",
+      "reason": "秋季校运会补课"
+    },
+    {
+      "original_date": "2025-12-31",
+      "target_date": "2026-01-05",
+      "reason": "学生节补课"
+    },
+    {
+      "original_date": "2026-01-01",
+      "target_date": "2026-01-06",
+      "reason": "元旦补课"
+    },
+    {
+      "original_date": "2026-01-02",
+      "target_date": "2026-01-04",
+      "reason": "元旦对调"
+    },
+    {
+      "original_date": "2026-01-04",
+      "target_date": "2026-01-02",
+      "reason": "元旦对调"
     }
   ],
   "class_suspension_dates": [
+    "2025-10-01",
+    "2025-10-02",
     "2025-10-03",
     "2025-10-04",
     "2025-10-05",
     "2025-10-06",
-    "2025-10-07"
+    "2025-10-07",
+    "2025-10-08",
+    "2025-10-24",
+    "2025-12-31",
+    "2026-01-01"
   ],
-  "version": "2025.1.0",
+  "version": "2026.01.20",
   "is_short_semester": false
 }

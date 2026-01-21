@@ -229,6 +229,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 public static class CalendarEventExtensions
 {
     private const string Zdbk = "Zdbk";
+    private const string ZdbkExam = "ZdbkExam";
 
     extension(CalendarEvent evt)
     {
@@ -239,6 +240,16 @@ public static class CalendarEventExtensions
             {
                 if (evt.From == Zdbk && !value) evt.From = string.Empty;
                 else if (evt.From != Zdbk && value) evt.From = Zdbk;
+            }
+        }
+
+        public bool IsFromZdbkExam
+        {
+            get => evt.From == ZdbkExam;
+            set
+            {
+                if (evt.From == ZdbkExam && !value) evt.From = string.Empty;
+                else if (evt.From != ZdbkExam && value) evt.From = ZdbkExam;
             }
         }
     }
