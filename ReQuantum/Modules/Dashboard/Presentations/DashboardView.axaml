@@ -17,31 +17,33 @@
   <StackPanel Spacing="16" Margin="16">
       <TextBlock Text="{Binding Welcome}"
                  FontSize="16"
+                 Foreground="{DynamicResource PrimaryTextBrush}"
                  TextWrapping="Wrap"/>
       <Button Command="{Binding UpdateWelcomeCommand}"
               HorizontalAlignment="Left"
               Padding="16,8">
         <TextBlock Text="点我"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
                     FontSize="14"/>
       </Button>
 	  
 	  <!-- 分割线 -->
-	  <Rectangle Height="1" Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}" Opacity="0.2" Margin="0,16,0,16"/>
+	  <Rectangle Height="1" Fill="{DynamicResource RegionBorderBrush}" Opacity="0.2" Margin="0,16,0,16"/>
 
 	  <TextBlock Text="{Binding LastUpdateTimeString}" FontSize="12" Foreground="#888" Margin="0,4,0,0"/>
 
 	  <!-- 近期日程 -->
-	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+	  <Border Padding="12" Background="{DynamicResource NestedRegionBackgroundBrush}" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
 		  <StackPanel Spacing="8">
-			  <TextBlock Text="近期日程" FontSize="16" FontWeight="SemiBold"/>
+			  <TextBlock Text="近期日程" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
 			  <ItemsControl ItemsSource="{Binding RecentEvents}">
 				  <ItemsControl.ItemTemplate>
 					  <DataTemplate>
 						  <StackPanel Spacing="2" >
-							  <TextBlock Text="{Binding Content}" FontWeight="Medium"/>
+							  <TextBlock Text="{Binding Content}"  Foreground="{DynamicResource PrimaryTextBrush}" FontWeight="Medium" />
 							  <TextBlock Text="{Binding StartTime, StringFormat='{}{0:g}'}"
-										 FontSize="12" Foreground="#555"/>
+										 FontSize="12" Foreground="{DynamicResource SmallTextBrush}"/>
 						  </StackPanel>
 					  </DataTemplate>
 				  </ItemsControl.ItemTemplate>
@@ -51,15 +53,15 @@
 			  <TextBlock Text="暂无近期日程"
 						 FontStyle="Italic"
 						 FontSize="13"
-						 Foreground="#888"
+                         Foreground="{DynamicResource SmallTextBrush}"
 						 IsVisible="{Binding !RecentEvents.Count}"/>
 		  </StackPanel>
 	  </Border>
 
 	  <!-- 近期待办 -->
-	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+	  <Border Padding="12" Background="{DynamicResource NestedRegionBackgroundBrush}" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
 		  <StackPanel Spacing="8">
-			  <TextBlock Text="近期待办" FontSize="16" FontWeight="SemiBold"/>
+			  <TextBlock Text="近期待办" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="16" FontWeight="SemiBold"/>
 
 			  <ItemsControl ItemsSource="{Binding RecentTodos}">
 				  <ItemsControl.ItemTemplate>
@@ -67,7 +69,7 @@
 						  <StackPanel Spacing="2" >
 							  <TextBlock Text="{Binding Content}" FontWeight="Medium"/>
 							  <TextBlock Text="{Binding DueTime, StringFormat='{}截止: {0:d}'}"
-										 FontSize="12" Foreground="#555"/>
+										 FontSize="12" Foreground="{DynamicResource SmallTextBrush}"/>
 						  </StackPanel>
 					  </DataTemplate>
 				  </ItemsControl.ItemTemplate>
@@ -77,15 +79,15 @@
 			  <TextBlock Text="暂无待办事项"
 						FontStyle="Italic"
 						FontSize="13"
-						Foreground="#888"
+                        Foreground="{DynamicResource SmallTextBrush}"
 						IsVisible="{Binding !RecentTodos.Count}"/>
 		  </StackPanel>
 	  </Border>
 
 	  <!-- 最近便签 -->
-	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+	  <Border Padding="12" Background="{DynamicResource NestedRegionBackgroundBrush}" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
 		  <StackPanel Spacing="8">
-			  <TextBlock Text="最近便签" FontSize="16" FontWeight="SemiBold"/>
+			  <TextBlock Text="最近便签" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
 			  <ItemsControl ItemsSource="{Binding RecentNotes}">
 				  <ItemsControl.ItemTemplate>
@@ -93,6 +95,7 @@
 						  <TextBlock Text="{Binding Content}"
 									 TextWrapping="Wrap"
 									 FontSize="13"
+                                     Foreground="{DynamicResource PrimaryTextBrush}"
 									 MaxLines="3"
 									 TextTrimming="CharacterEllipsis"/>
 					  </DataTemplate>
@@ -103,7 +106,7 @@
 			  <TextBlock Text="还没有便签哦"
 						 FontStyle="Italic"
 						 FontSize="13"
-					     Foreground="#888"
+                         Foreground="{DynamicResource SmallTextBrush}"
 					     IsVisible="{Binding !RecentNotes.Count}"/>
 
 		  </StackPanel>

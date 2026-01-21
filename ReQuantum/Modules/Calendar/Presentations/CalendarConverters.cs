@@ -24,8 +24,8 @@ public static class CalendarConverters
     {
         if (!isSelected) return Brushes.Transparent;
         var isDark = Application.Current?.ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark;
-        return isDark 
-            ? new SolidColorBrush(Color.Parse("#332196F3")) 
+        return isDark
+            ? new SolidColorBrush(Color.Parse("#332196F3"))
             : new SolidColorBrush(Color.Parse("#E3F2FD"));
     });
 

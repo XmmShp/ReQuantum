@@ -1,0 +1,39 @@
+﻿using Avalonia;
+using Avalonia.Styling;
+using CommunityToolkit.Mvvm.ComponentModel;
+using ReQuantum.Infrastructure.Abstractions;
+using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Views;
+using System.Linq;
+
+namespace ReQuantum.ViewModels;
+
+[AutoInject(Lifetime.Singleton, RegisterTypes = [typeof(GeneralSettingsViewModel)])]
+public partial class GeneralSettingsViewModel : ViewModelBase<GeneralSettingsView>
+{
+    public record ThemeOption(string Name, ThemeVariant Variant);
+
+    public ThemeOption[] ThemeOptions { get; } =
+    [
+        new("跟随系统", ThemeVariant.Default),
+        new("浅色", ThemeVariant.Light),
+        new("深色", ThemeVariant.Dark)
+    ];
+
+    [ObservableProperty]
+    private ThemeOption _selectedThemeOption;
+
+    partial void OnSelectedThemeOptionChanged(ThemeOption value)
+    {
+        if (Application.Current != null)
+        {
+            Application.Current.RequestedThemeVariant = value.Variant;
+        }
+    }
+
+    public GeneralSettingsViewModel()
+    {
+        var current = Application.Current?.RequestedThemeVariant ?? ThemeVariant.Default;
+        _selectedThemeOption = ThemeOptions.FirstOrDefault(x => x.Variant == current) ?? ThemeOptions[0];
+    }
+}

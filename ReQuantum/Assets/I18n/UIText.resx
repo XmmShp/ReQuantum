@@ -453,4 +453,10 @@
   <data name="SyncPTA" xml:space="preserve">
     <value>SyncPTA</value>
   </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
 </root>

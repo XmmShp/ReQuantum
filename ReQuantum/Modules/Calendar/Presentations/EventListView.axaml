@@ -15,8 +15,9 @@
 
   <Grid>
     <!-- 日程区域 -->
-    <Border BorderThickness="1"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+    <Border BorderThickness="2"
+            Background="{DynamicResource RegionBackgroundBrush}"
+            BorderBrush="{DynamicResource EventBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -26,6 +27,7 @@
           <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0"
                    Text="{Binding EventsTitle.Text}"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
                    FontSize="18"
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
@@ -58,7 +60,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
               <Border BorderThickness="1"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      Background="{DynamicResource LightEventBrush}"
                       CornerRadius="4"
                       Padding="12"
                       Margin="0,4">
@@ -80,7 +82,8 @@
                             FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
                         Padding="8,4"
-                        VerticalAlignment="Top">
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource ButtonBrush}">
                     <TextBlock Text="{Binding ((presentations:EventListViewModel)DataContext).Localizer[Delete],
                                         RelativeSource={RelativeSource AncestorType=UserControl}, 
                                         FallbackValue=Delete}" 

@@ -199,29 +199,29 @@
                         <Panel>
                           <!-- 待办事项 - 桌面端 -->
                           <Border IsVisible="{Binding IsTodo}"
-                                  Background="#FFEBEE"
-                                  BorderBrush="#F44336"
+                                  Background="{DynamicResource LightTodoBrush}"
+                                  BorderBrush="{DynamicResource TodoBrush}"
                                   BorderThickness="2,0,0,0"
                                   CornerRadius="2"
                                   Padding="4,2"
                                   Margin="0,1">
                             <TextBlock Text="{Binding Content}"
                                      FontSize="12"
-                                     Foreground="#D32F2F"
+                                     Foreground="{DynamicResource TodoTextBrush}"
                                      TextTrimming="CharacterEllipsis"
                                      MaxLines="1"/>
                           </Border>
                           <!-- 日程事项 - 桌面端 -->
                           <Border IsVisible="{Binding IsEvent}"
-                                  Background="#E3F2FD"
-                                  BorderBrush="#2196F3"
+                                  Background="{DynamicResource LightEventBrush}"
+                                  BorderBrush="{DynamicResource EventBrush}"
                                   BorderThickness="2,0,0,0"
                                   CornerRadius="2"
                                   Padding="4,2"
                                   Margin="0,1">
                             <TextBlock Text="{Binding Content}"
                                      FontSize="12"
-                                     Foreground="#1976D2"
+                                     Foreground="{DynamicResource EventTextBrush}"
                                      TextTrimming="CharacterEllipsis"
                                      MaxLines="1"/>
                           </Border>
