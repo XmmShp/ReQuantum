@@ -1,0 +1,11 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ReQuantum.Views.MainWindow"
+        Title="Hello Avalonia">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="Enter your name:" />
+        <TextBox x:Name="NameInput" Watermark="Your name here..." />
+        <Button Content="Say Hello" Click="OnButtonClick"/>
+        <TextBlock x:Name="GreetingText" FontSize="20"/>
+    </StackPanel>
+</Window>

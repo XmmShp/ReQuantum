@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+			 xmlns:controls="https://github.com/avaloniaui/lib/controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ReQuantum.Views.DashboardView"
              x:DataType="viewModels:DashboardViewModel">
@@ -23,18 +24,90 @@
         <TextBlock Text="点我"
                     FontSize="14"/>
       </Button>
+	  
+	  <!-- 分割线 -->
+	  <Rectangle Height="1" Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}" Opacity="0.2" Margin="0,16,0,16"/>
 
-      <Button Command="{Binding ClickCommand}">
-          <TextBlock Text="Don't hit me.Please">
+	  <TextBlock Text="{Binding LastUpdateTimeString}" FontSize="12" Foreground="#888" Margin="0,4,0,0"/>
 
-          </TextBlock>
-      </Button>
+	  <!-- 近期日程 -->
+	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+		  <StackPanel Spacing="8">
+			  <TextBlock Text="近期日程" FontSize="16" FontWeight="SemiBold"/>
 
-      <TextBlock IsVisible="{Binding IsClick}"
-                 Text="Why do you still click..."
-                 FontSize="48"
-                 Foreground="Aquamarine"></TextBlock>
+			  <ItemsControl ItemsSource="{Binding RecentEvents}">
+				  <ItemsControl.ItemTemplate>
+					  <DataTemplate>
+						  <StackPanel Spacing="2" >
+							  <TextBlock Text="{Binding Content}" FontWeight="Medium"/>
+							  <TextBlock Text="{Binding StartTime, StringFormat='{}{0:g}'}"
+										 FontSize="12" Foreground="#555"/>
+						  </StackPanel>
+					  </DataTemplate>
+				  </ItemsControl.ItemTemplate>
+			  </ItemsControl>
 
+			  <!-- 空状态提示 -->
+			  <TextBlock Text="暂无近期日程"
+						 FontStyle="Italic"
+						 FontSize="13"
+						 Foreground="#888"
+						 IsVisible="{Binding !RecentEvents.Count}"/>
+		  </StackPanel>
+	  </Border>
+
+	  <!-- 近期待办 -->
+	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+		  <StackPanel Spacing="8">
+			  <TextBlock Text="近期待办" FontSize="16" FontWeight="SemiBold"/>
+
+			  <ItemsControl ItemsSource="{Binding RecentTodos}">
+				  <ItemsControl.ItemTemplate>
+					  <DataTemplate>
+						  <StackPanel Spacing="2" >
+							  <TextBlock Text="{Binding Content}" FontWeight="Medium"/>
+							  <TextBlock Text="{Binding DueTime, StringFormat='{}截止: {0:d}'}"
+										 FontSize="12" Foreground="#555"/>
+						  </StackPanel>
+					  </DataTemplate>
+				  </ItemsControl.ItemTemplate>
+			  </ItemsControl>
+
+			  <!-- 空状态提示 -->
+			  <TextBlock Text="暂无待办事项"
+						FontStyle="Italic"
+						FontSize="13"
+						Foreground="#888"
+						IsVisible="{Binding !RecentTodos.Count}"/>
+		  </StackPanel>
+	  </Border>
+
+	  <!-- 最近便签 -->
+	  <Border Padding="12" Background="#F8F9FA" BorderThickness="1" BorderBrush="#E9ECEF" CornerRadius="8">
+		  <StackPanel Spacing="8">
+			  <TextBlock Text="最近便签" FontSize="16" FontWeight="SemiBold"/>
+
+			  <ItemsControl ItemsSource="{Binding RecentNotes}">
+				  <ItemsControl.ItemTemplate>
+					  <DataTemplate>
+						  <TextBlock Text="{Binding Content}"
+									 TextWrapping="Wrap"
+									 FontSize="13"
+									 MaxLines="3"
+									 TextTrimming="CharacterEllipsis"/>
+					  </DataTemplate>
+				  </ItemsControl.ItemTemplate>
+			  </ItemsControl>
+
+			  <!-- 空状态提示 -->
+			  <TextBlock Text="还没有便签哦"
+						 FontStyle="Italic"
+						 FontSize="13"
+					     Foreground="#888"
+					     IsVisible="{Binding !RecentNotes.Count}"/>
+
+		  </StackPanel>
+	  </Border>
   </StackPanel>
 
 </UserControl>

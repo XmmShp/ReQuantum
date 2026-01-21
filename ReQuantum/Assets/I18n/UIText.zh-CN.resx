@@ -350,5 +350,10 @@
   </data>
   <data name="CourseSelection" xml:space="preserve">
     <value>选课</value>
+  <data name="Note" xml:space="preserve">
+    <value>备注</value>
+  </data>
+  <data name="EnterNote" xml:space="preserve">
+    <value>输入备注...</value>
   </data>
 </root>

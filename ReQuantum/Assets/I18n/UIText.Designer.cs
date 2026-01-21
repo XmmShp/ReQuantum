@@ -223,6 +223,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   查找类似 Enter note... 的本地化字符串。
+        /// </summary>
+        public static string EnterNote {
+            get {
+                return ResourceManager.GetString("EnterNote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Enter note content... 的本地化字符串。
         /// </summary>
         public static string EnterNoteContent {
@@ -489,6 +498,15 @@ namespace ReQuantum.Assets.I18n {
         public static string NoNotes {
             get {
                 return ResourceManager.GetString("NoNotes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Note 的本地化字符串。
+        /// </summary>
+        public static string Note {
+            get {
+                return ResourceManager.GetString("Note", resourceCulture);
             }
         }
         
