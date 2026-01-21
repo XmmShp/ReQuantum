@@ -342,6 +342,14 @@
   <data name="RepeatTimes" xml:space="preserve">
     <value>重复次数：</value>
   </data>
+  <data name="PintiaLogin" xml:space="preserve">
+    <value>拼题A登录</value>
+  </data>
+  <data name="SyncCoursesTable" xml:space="preserve">
+    <value>同步课程表</value>
+  </data>
+  <data name="CourseSelection" xml:space="preserve">
+    <value>选课</value>
   <data name="Note" xml:space="preserve">
     <value>备注</value>
   </data>

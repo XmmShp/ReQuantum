@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using IconPacks.Avalonia.Material;
@@ -39,6 +40,10 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     private DateTime _lastUpdateTime;
 
     public string Welcome => _localizer[UIText.HelloWorld];
+    public string aSentence => "This is an attempt";
+
+    [ObservableProperty]
+    private bool _isClick;
 
     public DashboardViewModel(ILocalizer localizer,
         EventListViewModel eventListViewModel,

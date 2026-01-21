@@ -342,6 +342,14 @@
   <data name="RepeatTimes" xml:space="preserve">
     <value> Repeat Times：</value>
   </data>
+  <data name="PintiaLogin" xml:space="preserve">
+    <value>Pintia Login</value>
+  </data>
+  <data name="SyncCoursesTable" xml:space="preserve">
+    <value>Sync courses table</value>
+  </data>
+  <data name="CourseSelection" xml:space="preserve">
+    <value>Course Selection</value>
   <data name="Note" xml:space="preserve">
     <value>Note</value>
   </data>

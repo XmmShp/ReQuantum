@@ -151,6 +151,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   查找类似 Course Selection 的本地化字符串。
+        /// </summary>
+        public static string CourseSelection {
+            get {
+                return ResourceManager.GetString("CourseSelection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Delete 的本地化字符串。
         /// </summary>
         public static string Delete {
@@ -538,6 +547,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   查找类似 Pintia Login 的本地化字符串。
+        /// </summary>
+        public static string PintiaLogin {
+            get {
+                return ResourceManager.GetString("PintiaLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Please enter password 的本地化字符串。
         /// </summary>
         public static string PleaseEnterPassword {
@@ -615,6 +633,15 @@ namespace ReQuantum.Assets.I18n {
         public static string Sunday {
             get {
                 return ResourceManager.GetString("Sunday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Sync courses table 的本地化字符串。
+        /// </summary>
+        public static string SyncCoursesTable {
+            get {
+                return ResourceManager.GetString("SyncCoursesTable", resourceCulture);
             }
         }
         

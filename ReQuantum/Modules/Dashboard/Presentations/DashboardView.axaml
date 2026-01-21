@@ -12,6 +12,8 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <viewModels:DashboardViewModel />
   </Design.DataContext>
+
+
   <StackPanel Spacing="16" Margin="16">
       <TextBlock Text="{Binding Welcome}"
                  FontSize="16"
@@ -107,4 +109,5 @@
 		  </StackPanel>
 	  </Border>
   </StackPanel>
+
 </UserControl>

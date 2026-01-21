@@ -3,52 +3,52 @@ using System;
 namespace ReQuantum.Modules.Zdbk.Models;
 
 /// <summary>
-/// ½âÎöºóµÄ¿Î³ÌĞÅÏ¢ (´Ó kcb ×Ö¶Î½âÎö¶øÀ´)
+/// è§£æåçš„è¯¾ç¨‹ä¿¡æ¯ (ä» kcb å­—æ®µè§£æè€Œæ¥)
 /// </summary>
 public class ParsedCourseInfo
 {
     /// <summary>
-    /// ¿Î³ÌÃû³Æ
+    /// è¯¾ç¨‹åç§°
     /// </summary>
     public string CourseName { get; set; } = string.Empty;
 
     /// <summary>
-    /// ½ÌÊ¦ĞÕÃû
+    /// æ•™å¸ˆå§“å
     /// </summary>
     public string Teacher { get; set; } = string.Empty;
 
     /// <summary>
-    /// ½ÌÊÒµØµã
+    /// æ•™å®¤åœ°ç‚¹
     /// </summary>
     public string Location { get; set; } = string.Empty;
 
     /// <summary>
-    /// ÖÜ´ÎÆğÊ¼
+    /// å‘¨æ¬¡èµ·å§‹
     /// </summary>
     public int WeekStart { get; set; }
 
     /// <summary>
-    /// ÖÜ´Î½áÊø
+    /// å‘¨æ¬¡ç»“æŸ
     /// </summary>
     public int WeekEnd { get; set; }
 
     /// <summary>
-    /// ¿¼ÊÔÈÕÆÚ
+    /// è€ƒè¯•æ—¥æœŸ
     /// </summary>
     public DateTime? ExamDate { get; set; }
 
     /// <summary>
-    /// ¿¼ÊÔ¿ªÊ¼Ê±¼ä
+    /// è€ƒè¯•å¼€å§‹æ—¶é—´
     /// </summary>
     public TimeOnly? ExamStartTime { get; set; }
 
     /// <summary>
-    /// ¿¼ÊÔ½áÊøÊ±¼ä
+    /// è€ƒè¯•ç»“æŸæ—¶é—´
     /// </summary>
     public TimeOnly? ExamEndTime { get; set; }
 
     /// <summary>
-    /// Ô­Ê¼µÄ kcb ×Ö¶ÎÄÚÈİ
+    /// åŸå§‹çš„ kcb å­—æ®µå†…å®¹
     /// </summary>
     public string RawInfo { get; set; } = string.Empty;
 }

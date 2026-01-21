@@ -11,8 +11,8 @@ public static class CalendarConverters
     public static readonly IValueConverter IsTodayToBackgroundConverter = new FuncValueConverter<bool, IBrush?>(isToday =>
         isToday ? new SolidColorBrush(Color.Parse("#2196F3")) : Brushes.Transparent);
 
-    public static readonly IValueConverter IsTodayToForegroundConverter = new FuncValueConverter<bool, IBrush?>(isToday =>
-        isToday ? Brushes.White : Brushes.Black);
+    public static readonly IValueConverter IsTodayToForegroundConverter = new FuncValueConverter<bool, object>(isToday =>
+        isToday ? Brushes.White : AvaloniaProperty.UnsetValue);
 
     public static readonly IValueConverter IsCurrentMonthToOpacityConverter = new FuncValueConverter<bool, double>(isCurrentMonth =>
         isCurrentMonth ? 1.0 : 0.3);
@@ -21,7 +21,13 @@ public static class CalendarConverters
         isToday ? FontWeight.Bold : FontWeight.Normal);
 
     public static readonly IValueConverter IsSelectedToBackgroundConverter = new FuncValueConverter<bool, IBrush?>(isSelected =>
-        isSelected ? new SolidColorBrush(Color.Parse("#E3F2FD")) : Brushes.Transparent);
+    {
+        if (!isSelected) return Brushes.Transparent;
+        var isDark = Application.Current?.ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark;
+        return isDark 
+            ? new SolidColorBrush(Color.Parse("#332196F3")) 
+            : new SolidColorBrush(Color.Parse("#E3F2FD"));
+    });
 
     public static readonly IValueConverter IsSelectedToBorderBrushConverter = new FuncValueConverter<bool, IBrush?>(isSelected =>
         isSelected ? new SolidColorBrush(Color.Parse("#2196F3")) : Brushes.Transparent);

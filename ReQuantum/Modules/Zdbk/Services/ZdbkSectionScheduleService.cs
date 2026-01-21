@@ -93,7 +93,6 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (result1.IsSuccess) combinedSections.AddRange(result1.Value.SectionList);
             if (result2.IsSuccess) combinedSections.AddRange(result2.Value.SectionList);
-
             if (combinedSections.Count == 0)
             {
                 return Result.Fail(_localizer[nameof(UIText.AllSemestersFailed)]);

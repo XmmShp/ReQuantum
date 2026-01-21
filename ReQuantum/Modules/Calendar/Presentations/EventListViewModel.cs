@@ -691,4 +691,5 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     {
         SelectedDate = @event.Date;
     }
+
 }

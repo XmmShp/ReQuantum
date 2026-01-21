@@ -6,22 +6,22 @@ using System.Text.RegularExpressions;
 namespace ReQuantum.Modules.Zdbk.Parsers;
 
 /// <summary>
-/// ¿Î³ÌĞÅÏ¢½âÎöÆ÷£¬ÓÃÓÚ½âÎö½ÌÎñÍø·µ»ØµÄ kcb ×Ö¶Î£¨HTML ¸ñÊ½£©
+/// è¯¾ç¨‹ä¿¡æ¯è§£æå™¨ï¼Œç”¨äºè§£ææ•™åŠ¡ç½‘è¿”å›çš„ kcb å­—æ®µï¼ˆHTML æ ¼å¼ï¼‰
 /// </summary>
 public static class CourseInfoParser
 {
-    // ÕıÔò±í´ïÊ½£ºÆ¥ÅäÖÜ´Î·¶Î§ "µÚX-YÖÜ" »ò "µÚXÖÜ"
-    private static readonly Regex WeekRangeRegex = new(@"µÚ(\d+)(?:-(\d+))?ÖÜ", RegexOptions.Compiled);
+    // æ­£åˆ™è¡¨è¾¾å¼ï¼šåŒ¹é…å‘¨æ¬¡èŒƒå›´ "ç¬¬X-Yå‘¨" æˆ– "ç¬¬Xå‘¨"
+    private static readonly Regex WeekRangeRegex = new(@"ç¬¬(\d+)(?:-(\d+))?å‘¨", RegexOptions.Compiled);
 
-    // ÕıÔò±í´ïÊ½£ºÆ¥Åä¿¼ÊÔÈÕÆÚÊ±¼ä "YYYYÄêMMÔÂDDÈÕ(HH:MM-HH:MM)"
-    private static readonly Regex ExamDateTimeRegex = new(@"(\d{4})Äê(\d{2})ÔÂ(\d{2})ÈÕ\((\d{2}:\d{2})-(\d{2}:\d{2})\)", RegexOptions.Compiled);
+    // æ­£åˆ™è¡¨è¾¾å¼ï¼šåŒ¹é…è€ƒè¯•æ—¥æœŸæ—¶é—´ "YYYYå¹´MMæœˆDDæ—¥(HH:MM-HH:MM)"
+    private static readonly Regex ExamDateTimeRegex = new(@"(\d{4})å¹´(\d{2})æœˆ(\d{2})æ—¥\((\d{2}:\d{2})-(\d{2}:\d{2})\)", RegexOptions.Compiled);
 
     /// <summary>
-    /// ½âÎö kcb ×Ö¶ÎÖĞµÄ¿Î³ÌĞÅÏ¢
+    /// è§£æ kcb å­—æ®µä¸­çš„è¯¾ç¨‹ä¿¡æ¯
     /// </summary>
-    /// <param name="kcb">Ô­Ê¼¿Î³ÌĞÅÏ¢×Ö·û´®
+    /// <param name="kcb">åŸå§‹è¯¾ç¨‹ä¿¡æ¯å­—ç¬¦ä¸²
     /// </param>
-    /// <returns>½âÎöºóµÄ¿Î³ÌĞÅÏ¢</returns>
+    /// <returns>è§£æåçš„è¯¾ç¨‹ä¿¡æ¯</returns>
     public static ParsedCourseInfo Parse(string kcb)
     {
         var result = new ParsedCourseInfo
@@ -34,30 +34,30 @@ public static class CourseInfoParser
             return result;
         }
 
-        // °´ <br> ·Ö¸îĞĞ
+        // æŒ‰ <br> åˆ†å‰²è¡Œ
         var lines = kcb.Split(new[] { "<br>", "<br/>", "<BR>" }, StringSplitOptions.RemoveEmptyEntries);
 
         if (lines.Length >= 1)
         {
-            // µÚ1ĞĞ£º¿Î³ÌÃû³Æ
+            // ç¬¬1è¡Œï¼šè¯¾ç¨‹åç§°
             result.CourseName = lines[0].Trim();
         }
 
         if (lines.Length >= 2)
         {
-            // µÚ2ĞĞ£ºÖÜ´ÎĞÅÏ¢£¬¸ñÊ½Èç "Çï¶¬{µÚ1-8ÖÜ|3½Ú/µ¥ÖÜ}"
+            // ç¬¬2è¡Œï¼šå‘¨æ¬¡ä¿¡æ¯ï¼Œæ ¼å¼å¦‚ "ç§‹å†¬{ç¬¬1-8å‘¨|3èŠ‚/å•å‘¨}"
             ParseWeekInfo(lines[1], result);
         }
 
         if (lines.Length >= 3)
         {
-            // µÚ3ĞĞ£º½ÌÊ¦ĞÕÃû
+            // ç¬¬3è¡Œï¼šæ•™å¸ˆå§“å
             result.Teacher = lines[2].Trim();
         }
 
         if (lines.Length >= 4)
         {
-            // µÚ4ĞĞ£º½ÌÊÒ + ¿¼ÊÔÊ±¼ä£¨Èç¹ûÓĞ£©
+            // ç¬¬4è¡Œï¼šæ•™å®¤ + è€ƒè¯•æ—¶é—´ï¼ˆå¦‚æœæœ‰ï¼‰
             ParseLocationAndExam(lines[3], result);
         }
 
@@ -65,11 +65,11 @@ public static class CourseInfoParser
     }
 
     /// <summary>
-    /// ½âÎöÖÜ´ÎĞÅÏ¢
+    /// è§£æå‘¨æ¬¡ä¿¡æ¯
     /// </summary>
     private static void ParseWeekInfo(string weekInfoLine, ParsedCourseInfo result)
     {
-        // ÕıÔòÆ¥Åä£ºµÚX-YÖÜ »ò µÚXÖÜ
+        // æ­£åˆ™åŒ¹é…ï¼šç¬¬X-Yå‘¨ æˆ– ç¬¬Xå‘¨
         var weekMatch = WeekRangeRegex.Match(weekInfoLine);
         if (weekMatch.Success)
         {
@@ -81,18 +81,18 @@ public static class CourseInfoParser
             }
             else
             {
-                // Ö»ÓĞµ¥ÖÜ£¬Èç"µÚ5ÖÜ"
+                // åªæœ‰å•å‘¨ï¼Œå¦‚"ç¬¬5å‘¨"
                 result.WeekEnd = result.WeekStart;
             }
         }
     }
 
     /// <summary>
-    /// ½âÎö½ÌÊÒºÍ¿¼ÊÔÊ±¼ä
+    /// è§£ææ•™å®¤å’Œè€ƒè¯•æ—¶é—´
     /// </summary>
     private static void ParseLocationAndExam(string locationLine, ParsedCourseInfo result)
     {
-        //µÚÒ»²¿·ÖÊÇ½ÌÊÒ£¬ºóÃæ¿ÉÄÜÊÇ¿¼ÊÔÊ±¼ä
+        //ç¬¬ä¸€éƒ¨åˆ†æ˜¯æ•™å®¤ï¼Œåé¢å¯èƒ½æ˜¯è€ƒè¯•æ—¶é—´
         var parts = locationLine.Split(new[] { "zwf" }, StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length >= 1)
@@ -100,7 +100,7 @@ public static class CourseInfoParser
             result.Location = parts[0].Trim();
         }
 
-        // ³¢ÊÔ½âÎö¿¼ÊÔÊ±¼ä
+        // å°è¯•è§£æè€ƒè¯•æ—¶é—´
         if (parts.Length >= 2)
         {
             var examMatch = ExamDateTimeRegex.Match(parts[1]);
@@ -114,7 +114,7 @@ public static class CourseInfoParser
 
                     result.ExamDate = new DateTime(year, month, day);
 
-                    // ½âÎöÊ±¼ä
+                    // è§£ææ—¶é—´
                     var startTime = TimeOnly.Parse(examMatch.Groups[4].Value, CultureInfo.InvariantCulture);
                     var endTime = TimeOnly.Parse(examMatch.Groups[5].Value, CultureInfo.InvariantCulture);
 
@@ -123,7 +123,7 @@ public static class CourseInfoParser
                 }
                 catch
                 {
-                    // ½âÎöÊ§°Ü£¬ºöÂÔ¿¼ÊÔÊ±¼ä
+                    // è§£æå¤±è´¥ï¼Œå¿½ç•¥è€ƒè¯•æ—¶é—´
                 }
             }
         }

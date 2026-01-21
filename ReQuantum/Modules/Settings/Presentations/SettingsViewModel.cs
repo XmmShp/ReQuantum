@@ -32,6 +32,7 @@ public partial class SettingsViewModel : ViewModelBase<SettingsView>, IMenuItemP
     [ObservableProperty]
     private LanguageOption _selectedLanguage;
 
+
     public List<LanguageOption> AvailableLanguages { get; } =
     [
         new("English", "en-US"),

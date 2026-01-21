@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
              xmlns:entities="clr-namespace:ReQuantum.Modules.Calendar.Entities"
              xmlns:presentations="clr-namespace:ReQuantum.Modules.Calendar.Presentations"
+             xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
              x:Class="ReQuantum.Views.TodoListView"
              x:DataType="viewModels:TodoListViewModel">
@@ -19,34 +20,31 @@
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
-        <Grid ColumnDefinitions="*,Auto,Auto">
+        <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0"
                    Text="{Binding Localizer[Todos]}" 
                    FontSize="18" 
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
-          
-          <!-- 学在浙大同步按钮 -->
-          <Button Grid.Column="1"
-                Command="{Binding SyncCoursesZjuTodosCommand}"
-                IsVisible="{Binding ShowCoursesZjuSyncButton}"
-                Padding="12,6"
-                Margin="0,0,8,0">
-            <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="🔄" FontSize="14" IsVisible="{Binding !IsSyncingCoursesZju}"/>
-              <TextBlock Text="⏳" FontSize="14" IsVisible="{Binding IsSyncingCoursesZju}"/>
-              <TextBlock Text="{Binding Localizer[SyncCoursesZju]}" FontSize="14"/>
-            </StackPanel>
+          <Button Grid.Column="1" 
+                  Click="UnfoldList"
+                  Background="White">
+              <iconPacks:PackIconMaterial Kind="DotsVertical" />
+              <Button.ContextMenu>
+                  <ContextMenu>
+                      <!-- 学在浙大同步按钮 -->
+                      <MenuItem Header="🔁{Binding Localizer[SyncCoursesZju]}"
+                                FontSize="14"
+                                Command="{Binding SyncCoursesZjuTodosCommand}"
+                                IsVisible="{Binding ShowCoursesZjuSyncButton}"></MenuItem>
+
+                      <MenuItem Header="➕{Binding Localizer[AddTodo]}"
+                                Command="{Binding ShowAddDialogCommand}"></MenuItem>
+                  </ContextMenu>
+                  
+              </Button.ContextMenu>
           </Button>
-          
-          <Button Grid.Column="2"
-                Command="{Binding ShowAddDialogCommand}"
-                Padding="12,6">
-            <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="+" FontSize="16" FontWeight="Bold"/>
-              <TextBlock Text="{Binding Localizer[AddTodo]}" FontSize="14"/>
-            </StackPanel>
-          </Button>
+
         </Grid>
 
         <!-- 待办列表 -->

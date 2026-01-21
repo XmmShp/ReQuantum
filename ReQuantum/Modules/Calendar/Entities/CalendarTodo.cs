@@ -18,7 +18,11 @@ public partial class CalendarTodo : ObservableObject
 
     public DateTime CreatedAt { get; set; }
 
-    public Dictionary<string, object?> Properties { get; init; }
+    public Dictionary<string, object?> Properties
+    {
+        get => field ??= new Dictionary<string, object?>();
+        init;
+    }
 
     public CalendarTodo()
     {
