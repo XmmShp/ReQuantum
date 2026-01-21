@@ -213,7 +213,8 @@ public class PtaPlaywrightService : IPtaPlaywrightService
 
     public async Task<Result<string>> WaitForLoginSuccessAsync(int timeoutSeconds = 200)
     {
-        if (!_isInitialized || _page == null) return Result.Fail("服务未初始化");
+        if (!_isInitialized || _page == null)
+            return Result.Fail("服务未初始化");
 
         try
         {
@@ -224,10 +225,22 @@ public class PtaPlaywrightService : IPtaPlaywrightService
             });
 
             // 跳转成功后，稍等片刻确保 Cookie 已写入
-            await Task.Delay(500);
+            await Task.Delay(1000);
+
+            // 检查 Context 是否为 null
+            if (_page.Context == null)
+            {
+                return Result.Fail("浏览器上下文为空，无法获取 Cookie");
+            }
 
             // 获取 PTASession Cookie
             var cookies = await _page.Context.CookiesAsync();
+
+            if (cookies == null || cookies.Count == 0)
+            {
+                return Result.Fail("未获取到任何 Cookie");
+            }
+
             var session = cookies.FirstOrDefault(c => c.Name == "PTASession");
 
             if (session != null && !string.IsNullOrWhiteSpace(session.Value))
@@ -235,15 +248,21 @@ public class PtaPlaywrightService : IPtaPlaywrightService
                 return Result.Success<string>(session.Value);
             }
 
-            return Result.Fail("登录失败：已跳转到 dashboard 但未获取到 PTASession Cookie");
+            return Result.Fail($"登录失败：已跳转到 dashboard 但未获取到 PTASession Cookie（共 {cookies.Count} 个 Cookie）");
         }
         catch (TimeoutException)
         {
-            return Result.Fail($"登录超时（{timeoutSeconds}秒内未跳转到 dashboard，请确认是否已扫码）");
+            var currentUrl = _page?.Url ?? "unknown";
+            return Result.Fail($"登录超时（{timeoutSeconds}秒内未跳转到 dashboard）。当前页面: {currentUrl}");
+        }
+        catch (NullReferenceException ex)
+        {
+            return Result.Fail($"空引用异常: {ex.Message}");
         }
         catch (Exception ex)
         {
-            return Result.Fail($"等待登录结果失败: {ex.Message}");
+            var currentUrl = _page?.Url ?? "unknown";
+            return Result.Fail($"等待登录结果失败: {ex.Message}。当前页面: {currentUrl}");
         }
     }
 
