@@ -342,4 +342,58 @@
   <data name="RepeatTimes" xml:space="preserve">
     <value>重复次数：</value>
   </data>
+  <data name="ExamsOnDate" xml:space="preserve">
+    <value>考试 - {0:M月d日 yyyy}</value>
+  </data>
+  <data name="NoExams" xml:space="preserve">
+    <value>该日期没有考试</value>
+  </data>
+  <data name="PtaLogin" xml:space="preserve">
+    <value>PTA 登录</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>邮箱</value>
+  </data>
+  <data name="EnterPtaEmail" xml:space="preserve">
+    <value>请输入 PTA 账号邮箱</value>
+  </data>
+  <data name="NeedCaptchaUseBrowser" xml:space="preserve">
+    <value>需要验证码，点击此处使用浏览器登录</value>
+  </data>
+  <data name="EnterPtaSessionCookie" xml:space="preserve">
+    <value>输入 PTASession Cookie</value>
+  </data>
+  <data name="PastePtaSessionValue" xml:space="preserve">
+    <value>粘贴 PTASession 值（UUID 格式）</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>提交</value>
+  </data>
+  <data name="PtaLoggedIn" xml:space="preserve">
+    <value>PTA 已登录</value>
+  </data>
+  <data name="SyncAll" xml:space="preserve">
+    <value>一键同步</value>
+  </data>
+  <data name="SyncErrorOccurred" xml:space="preserve">
+    <value>同步过程中出现问题</value>
+  </data>
+  <data name="CourseSyncFailed" xml:space="preserve">
+    <value>课程表同步失败</value>
+  </data>
+  <data name="ExamSyncFailed" xml:space="preserve">
+    <value>考试信息同步失败</value>
+  </data>
+  <data name="PtaSyncFailed" xml:space="preserve">
+    <value>PTA 作业同步失败</value>
+  </data>
+  <data name="ZdbkSyncException" xml:space="preserve">
+    <value>教务网同步异常</value>
+  </data>
+  <data name="PtaSyncException" xml:space="preserve">
+    <value>PTA 同步异常</value>
+  </data>
+  <data name="PtaAccountLogin" xml:space="preserve">
+    <value>PTA 账号登录</value>
+  </data>
 </root>

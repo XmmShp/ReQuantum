@@ -86,6 +86,7 @@ public class RequestClient : HttpClient
             UseCookies = true,
             ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
             AllowAutoRedirect = options?.AllowRedirects ?? true,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
         };
 
         return new RequestClient(handler, cookieContainer, options);

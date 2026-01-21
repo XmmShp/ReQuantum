@@ -342,4 +342,58 @@
   <data name="RepeatTimes" xml:space="preserve">
     <value> Repeat Times：</value>
   </data>
+  <data name="ExamsOnDate" xml:space="preserve">
+    <value>Exams - {0:MMM dd, yyyy}</value>
+  </data>
+  <data name="NoExams" xml:space="preserve">
+    <value>No exams on this date</value>
+  </data>
+  <data name="PtaLogin" xml:space="preserve">
+    <value>PTA Login</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EnterPtaEmail" xml:space="preserve">
+    <value>Enter PTA email</value>
+  </data>
+  <data name="NeedCaptchaUseBrowser" xml:space="preserve">
+    <value>Captcha required, click here to login via browser</value>
+  </data>
+  <data name="EnterPtaSessionCookie" xml:space="preserve">
+    <value>Enter PTASession Cookie</value>
+  </data>
+  <data name="PastePtaSessionValue" xml:space="preserve">
+    <value>Paste PTASession value (UUID format)</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="PtaLoggedIn" xml:space="preserve">
+    <value>PTA Logged In</value>
+  </data>
+  <data name="SyncAll" xml:space="preserve">
+    <value>Sync All</value>
+  </data>
+  <data name="SyncErrorOccurred" xml:space="preserve">
+    <value>Errors occurred during synchronization</value>
+  </data>
+  <data name="CourseSyncFailed" xml:space="preserve">
+    <value>Course sync failed</value>
+  </data>
+  <data name="ExamSyncFailed" xml:space="preserve">
+    <value>Exam sync failed</value>
+  </data>
+  <data name="PtaSyncFailed" xml:space="preserve">
+    <value>PTA assignment sync failed</value>
+  </data>
+  <data name="ZdbkSyncException" xml:space="preserve">
+    <value>ZJU sync exception</value>
+  </data>
+  <data name="PtaSyncException" xml:space="preserve">
+    <value>PTA sync exception</value>
+  </data>
+  <data name="PtaAccountLogin" xml:space="preserve">
+    <value>PTA Account Login</value>
+  </data>
 </root>

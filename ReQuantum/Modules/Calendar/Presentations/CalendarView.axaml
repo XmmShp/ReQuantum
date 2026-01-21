@@ -34,7 +34,7 @@
       <Border Grid.Column="2" Padding="16">
         <ScrollViewer VerticalScrollBarVisibility="Hidden">
           <StackPanel Spacing="24">
-            
+
             <!-- 日程区域（上部） -->
             <views:EventListView DataContext="{Binding EventListViewModel}"/>
 
@@ -64,7 +64,7 @@
 
         <!-- 内容区域 -->
         <StackPanel Spacing="16">
-          
+
           <!-- 日程区域 -->
           <views:EventListView DataContext="{Binding EventListViewModel}"/>
 

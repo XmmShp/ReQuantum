@@ -26,6 +26,13 @@ public interface IZdbkCalendarConverter
         IEnumerable<ZdbkSectionDto> sections,
         string academicYear,
         string semester);
+
+    /// <summary>
+    /// 将考试信息转换为日历事件列表
+    /// </summary>
+    /// <param name="exams">考试信息列表</param>
+    /// <returns>日历事件列表</returns>
+    List<CalendarEvent> ConvertExamsToCalendarEvents(List<ParsedExamInfo> exams);
 }
 
 [AutoInject(Lifetime.Singleton)]
@@ -282,5 +289,45 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
     {
         var daysToAdd = (weekNumber - 1) * 7 + (dayOfWeek - 1);
         return semesterStartDate.AddDays(daysToAdd);
+    }
+
+    /// <summary>
+    /// 将考试信息转换为日历事件
+    /// </summary>
+    public List<CalendarEvent> ConvertExamsToCalendarEvents(List<ParsedExamInfo> exams)
+    {
+        var events = new List<CalendarEvent>();
+
+        foreach (var exam in exams)
+        {
+            // 跳过无考试和时间未确定的考试
+            if (exam.ExamType == ExamType.NoExam || exam.StartTime == null || exam.EndTime == null)
+            {
+                continue;
+            }
+
+            var examTypeText = exam.ExamType == ExamType.MidTerm ? "期中考试" : "期末考试";
+            var locationText = !string.IsNullOrEmpty(exam.Location)
+                ? exam.Location
+                : "地点待定";
+
+            if (!string.IsNullOrEmpty(exam.Seat))
+            {
+                locationText += $" (座位号: {exam.Seat})";
+            }
+
+            var eventId = $"{exam.ClassId}_{exam.ExamType}_{exam.StartTime:yyyyMMddHHmm}".ToGuid();
+
+            events.Add(new CalendarEvent
+            {
+                Id = eventId,
+                Content = $"[务必核对!] {exam.CourseName} {examTypeText}\n学分: {exam.Credit:F1}",
+                StartTime = exam.StartTime.Value,
+                EndTime = exam.EndTime.Value,
+                CreatedAt = DateTime.Now
+            });
+        }
+
+        return events;
     }
 }

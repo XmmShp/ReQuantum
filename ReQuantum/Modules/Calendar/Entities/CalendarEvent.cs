@@ -13,6 +13,15 @@ public class CalendarEvent
     public DateTime EndTime { get; set; }
     public DateTime CreatedAt { get; set; }
     public string From { get; set; } = string.Empty;
+    
+    // 标识是否来自教务网课程表
+    public bool IsFromZdbk { get; set; }
+
+    // 标识是否来自教务网考试
+    public bool IsFromZdbkExam { get; set; }
+
+    // 标识是否来自 PTA
+    public bool IsFromPta { get; set; }
 
     public CalendarEvent()
     {

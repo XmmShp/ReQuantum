@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ReQuantum.Views.PtaLoginView"
+             x:DataType="viewModels:PtaLoginViewModel">
+  <Design.DataContext>
+    <viewModels:PtaLoginViewModel />
+  </Design.DataContext>
+
+  <StackPanel Spacing="16">
+      <!-- Login Form (visible when not logged in) -->
+      <StackPanel Spacing="16" IsVisible="{Binding !IsLoggedIn}">
+
+        <!-- Login Form -->
+        <Border BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                CornerRadius="8"
+                Padding="20">
+          <StackPanel Spacing="16">
+            <TextBlock Text="{Binding Localizer[PtaAccountLogin]}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Email Input -->
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[Email]}"
+                         FontSize="14"
+                         FontWeight="Medium"/>
+              <TextBox Text="{Binding Email}"
+                       Watermark="{Binding Localizer[EnterPtaEmail]}"
+                       FontSize="14"
+                       Padding="12,8"/>
+            </StackPanel>
+
+            <!-- Password Input -->
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Localizer[Password]}"
+                         FontSize="14"
+                         FontWeight="Medium"/>
+              <TextBox Text="{Binding Password}"
+                       PasswordChar="●"
+                       Watermark="{Binding Localizer[EnterPassword]}"
+                       FontSize="14"
+                       Padding="12,8"/>
+            </StackPanel>
+
+            <!-- Status Message -->
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="12"
+                       Opacity="0.7"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+            <!-- Login Button -->
+            <Button Command="{Binding LoginCommand}"
+                    HorizontalAlignment="Stretch"
+                    Padding="16,12"
+                    IsEnabled="{Binding !IsLoading}">
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                <TextBlock Text="🔐" FontSize="16" IsVisible="{Binding !IsLoading}"/>
+                <TextBlock Text="{Binding Localizer[Login]}"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           IsVisible="{Binding !IsLoading}"/>
+                <TextBlock Text="{Binding Localizer[LoggingIn]}"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           IsVisible="{Binding IsLoading}"/>
+              </StackPanel>
+            </Button>
+
+            <!-- Captcha Required Button -->
+            <Button Command="{Binding OpenBrowserLoginCommand}"
+                    HorizontalAlignment="Stretch"
+                    Padding="16,12"
+                    IsVisible="{Binding NeedsCaptcha}"
+                    Background="Orange">
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                <TextBlock Text="⚠" FontSize="16"/>
+                <TextBlock Text="{Binding Localizer[NeedCaptchaUseBrowser]}"
+                           FontSize="14"
+                           FontWeight="SemiBold"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <!-- Cookie Input (visible when ShowCookieInput is true) -->
+        <Border BorderThickness="1"
+                BorderBrush="Orange"
+                CornerRadius="8"
+                Padding="20"
+                IsVisible="{Binding ShowCookieInput}">
+          <StackPanel Spacing="16">
+            <TextBlock Text="{Binding Localizer[EnterPtaSessionCookie]}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock Text="{Binding DebugInfo}"
+                       FontFamily="Consolas"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Opacity="0.7"
+                       Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                       Padding="12"/>
+
+            <TextBox Text="{Binding PtaSessionInput}"
+                     Watermark="{Binding Localizer[PastePtaSessionValue]}"
+                     FontSize="12"
+                     FontFamily="Consolas"
+                     Padding="12,8"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+              <Button Command="{Binding SubmitCookieCommand}"
+                      Padding="24,10">
+                <TextBlock FontSize="14"
+                           FontWeight="SemiBold">
+                  <Run Text="✓ "/>
+                  <Run Text="{Binding Localizer[Submit]}"/>
+                </TextBlock>
+              </Button>
+              <Button Command="{Binding CancelCookieInputCommand}"
+                      Padding="24,10">
+                <TextBlock FontSize="14">
+                  <Run Text="✕ "/>
+                  <Run Text="{Binding Localizer[Cancel]}"/>
+                </TextBlock>
+              </Button>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+
+      <!-- Logged In Status (visible when logged in) -->
+      <StackPanel Spacing="16" IsVisible="{Binding IsLoggedIn}">
+        <Border BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                CornerRadius="8"
+                Padding="20"
+                HorizontalAlignment="Center">
+          <StackPanel Spacing="12">
+            <TextBlock FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="Green"
+                       HorizontalAlignment="Center">
+              <Run Text="✓ "/>
+              <Run Text="{Binding Localizer[PtaLoggedIn]}"/>
+            </TextBlock>
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="14"
+                       Opacity="0.8"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Logout Button -->
+        <Button Command="{Binding LogoutCommand}"
+                HorizontalAlignment="Center"
+                Padding="24,12">
+          <TextBlock Text="{Binding Localizer[Logout]}"
+                     FontSize="14"
+                     FontWeight="SemiBold"/>
+        </Button>
+      </StackPanel>
+
+      <!-- Loading Indicator -->
+      <ProgressBar IsIndeterminate="True"
+                   IsVisible="{Binding IsLoading}"
+                   Height="4"
+                   Margin="0,8,0,0"/>
+
+  </StackPanel>
+</UserControl>
