@@ -1,3 +1,4 @@
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Infrastructure.Abstractions;
@@ -14,6 +15,7 @@ namespace ReQuantum.ViewModels;
 public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 {
     private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaPlaywrightService _playwrightService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -45,9 +47,25 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     [ObservableProperty]
     private string _ptaSessionInput = string.Empty;
 
-    public PtaLoginViewModel(IPtaAuthService ptaAuthService)
+    [ObservableProperty]
+    private Bitmap? _qrCodeBitmap;
+
+    [ObservableProperty]
+    private Bitmap? _captchaBitmap;
+
+    [ObservableProperty]
+    private string _captchaCode = string.Empty;
+
+    [ObservableProperty]
+    private bool _isQrLoginMode;
+
+    [ObservableProperty]
+    private bool _isCaptchaVisible;
+
+    public PtaLoginViewModel(IPtaAuthService ptaAuthService, IPtaPlaywrightService playwrightService)
     {
         _ptaAuthService = ptaAuthService;
+        _playwrightService = playwrightService;
         _isLoggedIn = _ptaAuthService.IsAuthenticated;
 
         // 订阅登录/登出事件
@@ -79,35 +97,35 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
         IsLoading = true;
         NeedsCaptcha = false;
+        IsCaptchaVisible = false;
         StatusMessage = "正在登录...";
         DebugInfo = $"[{DateTime.Now:HH:mm:ss}] 开始登录\n邮箱: {Email}\n";
 
         try
         {
+            // 优先尝试普通 API 登录（速度快）
             var result = await _ptaAuthService.LoginAsync(Email, Password);
 
             if (result.IsSuccess)
             {
                 StatusMessage = "登录成功";
                 DebugInfo += $"✓ 登录成功\n{result.Message}";
-
-                // 清空密码
                 Password = string.Empty;
             }
             else
             {
-                // 检查是否需要验证码
                 var errorMessage = result.Message.ToString();
                 if (errorMessage.Contains("Wrong Captcha") || errorMessage.Contains("captcha"))
                 {
-                    NeedsCaptcha = true;
-                    StatusMessage = "需要验证码，请使用浏览器登录";
-                    DebugInfo += $"⚠ 需要验证码\n点击下方按钮使用浏览器完成登录";
+                    StatusMessage = "需要验证码，正在启动智能登录...";
+                    DebugInfo += $"⚠ 需要验证码，切换到 Playwright 登录";
+                    await StartPlaywrightPasswordLoginAsync();
                 }
                 else
                 {
                     StatusMessage = $"登录失败: {errorMessage}";
                     DebugInfo += $"✗ 登录失败\n{errorMessage}";
+                    IsLoading = false;
                 }
             }
         }
@@ -115,10 +133,155 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
         {
             StatusMessage = $"登录异常: {ex.Message}";
             DebugInfo += $"✗ 异常: {ex.GetType().Name}\n{ex.Message}";
-        }
-        finally
-        {
             IsLoading = false;
+        }
+    }
+
+    private async Task StartPlaywrightPasswordLoginAsync()
+    {
+        try
+        {
+            StatusMessage = "正在初始化浏览器环境...";
+            var initResult = await _playwrightService.InitializeAsync();
+            if (!initResult.IsSuccess)
+            {
+                StatusMessage = $"初始化失败: {initResult.Message}";
+                IsLoading = false;
+                return;
+            }
+
+            StatusMessage = "正在提交登录信息...";
+            var loginResult = await _playwrightService.SubmitPasswordLoginAsync(Email, Password);
+            if (!loginResult.IsSuccess)
+            {
+                StatusMessage = $"提交失败: {loginResult.Message}";
+                IsLoading = false;
+                return;
+            }
+
+            // 检查验证码
+            var captchaResult = await _playwrightService.CheckForCaptchaAsync();
+            if (captchaResult.IsSuccess && captchaResult.Value != null)
+            {
+                CaptchaBitmap = new Bitmap(captchaResult.Value);
+                IsCaptchaVisible = true;
+                NeedsCaptcha = true; // 复用这个属性来控制一些UI显示
+                StatusMessage = "请输入图片验证码";
+                IsLoading = false; // 暂停 Loading 状态等待用户输入
+            }
+            else
+            {
+                // 没有验证码，可能直接成功了，或者失败了
+                // 开始等待 Session
+                StatusMessage = "等待登录结果...";
+                _ = WaitForPlaywrightLoginResultAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"智能登录异常: {ex.Message}";
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SubmitCaptchaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CaptchaCode)) return;
+
+        IsLoading = true;
+        StatusMessage = "正在提交验证码...";
+
+        var result = await _playwrightService.SubmitCaptchaAsync(CaptchaCode);
+        if (result.IsSuccess)
+        {
+            IsCaptchaVisible = false;
+            StatusMessage = "验证码已提交，等待结果...";
+            _ = WaitForPlaywrightLoginResultAsync();
+        }
+        else
+        {
+            StatusMessage = $"验证码提交失败: {result.Message}";
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SwitchToQrLoginAsync()
+    {
+        if (IsQrLoginMode) return;
+
+        IsQrLoginMode = true;
+        IsLoading = true;
+        StatusMessage = "正在获取二维码...";
+        
+        try
+        {
+            var initResult = await _playwrightService.InitializeAsync();
+            if (!initResult.IsSuccess)
+            {
+                StatusMessage = $"初始化失败: {initResult.Message}";
+                IsLoading = false;
+                return;
+            }
+
+            var qrResult = await _playwrightService.GetQrCodeAsync();
+            
+            if (qrResult.IsSuccess)
+            {
+                QrCodeBitmap = new Bitmap(qrResult.Value);
+                StatusMessage = "请使用微信扫描二维码";
+                IsLoading = false;
+                
+                // 开始后台等待登录
+                _ = WaitForPlaywrightLoginResultAsync();
+            }
+            else
+            {
+                StatusMessage = $"获取二维码失败: {qrResult.Message}";
+                IsLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"QR模式异常: {ex.Message}";
+            IsLoading = false;
+        }
+    }
+    
+    [RelayCommand]
+    private async Task SwitchToPasswordModeAsync()
+    {
+        IsQrLoginMode = false;
+        IsCaptchaVisible = false;
+        QrCodeBitmap = null;
+        CaptchaBitmap = null;
+        await _playwrightService.CleanupAsync();
+        StatusMessage = "已切换到密码登录";
+    }
+
+    private async Task WaitForPlaywrightLoginResultAsync()
+    {
+        var result = await _playwrightService.WaitForLoginSuccessAsync();
+        
+        IsLoading = false; // 无论成功失败，停止 Loading 
+        
+        if (result.IsSuccess)
+        {
+            var session = result.Value;
+            // 登录成功
+            // 如果是二维码登录，Email/Password 可能是空的，使用占位符
+            var email = !string.IsNullOrEmpty(Email) ? Email : "WeChatUser";
+            var password = !string.IsNullOrEmpty(Password) ? Password : "QrLogin";
+            
+            _ptaAuthService.LoginWithSession(email, password, session);
+            
+            StatusMessage = "登录成功";
+            await _playwrightService.CleanupAsync();
+        }
+        else
+        {
+            StatusMessage = $"登录超时或失败: {result.Message}";
         }
     }
 
@@ -207,6 +370,11 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     private void Logout()
     {
         _ptaAuthService.Logout();
+        IsQrLoginMode = false;
+        IsCaptchaVisible = false;
+        QrCodeBitmap = null;
+        CaptchaBitmap = null;
+        _playwrightService.CleanupAsync();
     }
 
     private void HandleLogin()
