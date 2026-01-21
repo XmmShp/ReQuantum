@@ -453,4 +453,106 @@
   <data name="SyncPTA" xml:space="preserve">
     <value>同步PTA</value>
   </data>
+  <data name="PtaQrCodeLoading" xml:space="preserve">
+    <value>正在获取二维码...</value>
+  </data>
+  <data name="PtaScanQrCode" xml:space="preserve">
+    <value>请使用微信扫描二维码</value>
+  </data>
+  <data name="PtaInitFailed" xml:space="preserve">
+    <value>初始化失败: {0}</value>
+  </data>
+  <data name="PtaGetQrCodeFailed" xml:space="preserve">
+    <value>获取二维码失败: {0}</value>
+  </data>
+  <data name="PtaLoadQrCodeException" xml:space="preserve">
+    <value>加载二维码异常: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterEmail" xml:space="preserve">
+    <value>请输入邮箱</value>
+  </data>
+  <data name="PtaLoggingIn" xml:space="preserve">
+    <value>正在登录...</value>
+  </data>
+  <data name="PtaLoginSuccess" xml:space="preserve">
+    <value>登录成功</value>
+  </data>
+  <data name="PtaNeedCaptchaStartingPlaywright" xml:space="preserve">
+    <value>需要验证码，正在启动智能登录...</value>
+  </data>
+  <data name="PtaLoginFailedWithReason" xml:space="preserve">
+    <value>登录失败: {0}</value>
+  </data>
+  <data name="PtaLoginException" xml:space="preserve">
+    <value>登录异常: {0}</value>
+  </data>
+  <data name="PtaInitializingBrowser" xml:space="preserve">
+    <value>正在初始化浏览器环境...</value>
+  </data>
+  <data name="PtaSubmittingLogin" xml:space="preserve">
+    <value>正在提交登录信息...</value>
+  </data>
+  <data name="PtaSubmitFailed" xml:space="preserve">
+    <value>提交失败: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterCaptcha" xml:space="preserve">
+    <value>请输入图片验证码</value>
+  </data>
+  <data name="PtaWaitingForResult" xml:space="preserve">
+    <value>等待登录结果...</value>
+  </data>
+  <data name="PtaPlaywrightLoginException" xml:space="preserve">
+    <value>智能登录异常: {0}</value>
+  </data>
+  <data name="PtaSubmittingCaptcha" xml:space="preserve">
+    <value>正在提交验证码...</value>
+  </data>
+  <data name="PtaCaptchaSubmittedWaiting" xml:space="preserve">
+    <value>验证码已提交，等待结果...</value>
+  </data>
+  <data name="PtaCaptchaSubmitFailed" xml:space="preserve">
+    <value>验证码提交失败: {0}</value>
+  </data>
+  <data name="PtaQrModeException" xml:space="preserve">
+    <value>QR模式异常: {0}</value>
+  </data>
+  <data name="PtaSwitchedToPasswordMode" xml:space="preserve">
+    <value>已切换到密码登录</value>
+  </data>
+  <data name="PtaLoginTimeoutOrFailed" xml:space="preserve">
+    <value>登录超时或失败: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterEmailAndPassword" xml:space="preserve">
+    <value>请先输入邮箱和密码</value>
+  </data>
+  <data name="PtaBrowserLoginInstructions" xml:space="preserve">
+    <value>请在浏览器中完成登录，然后复制 PTASession Cookie 值</value>
+  </data>
+  <data name="PtaHowToGetSession" xml:space="preserve">
+    <value>如何获取 PTASession:
+1. 在浏览器中完成登录（包括验证码）
+2. 按 F12 打开开发者工具
+3. 切换到 Application/存储 标签
+4. 左侧选择 Cookies → https://pintia.cn
+5. 找到 PTASession，复制其值
+6. 粘贴到下方输入框中</value>
+  </data>
+  <data name="PtaOpenBrowserFailed" xml:space="preserve">
+    <value>打开浏览器失败: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterSessionValue" xml:space="preserve">
+    <value>请输入 PTASession 值</value>
+  </data>
+  <data name="PtaLoggingInWithCookie" xml:space="preserve">
+    <value>正在使用 Cookie 登录...</value>
+  </data>
+  <data name="PtaLoggedOut" xml:space="preserve">
+    <value>已登出</value>
+  </data>
+  <data name="PtaLoggedInAs" xml:space="preserve">
+    <value>已登录: {0}</value>
+  </data>
+  <data name="PtaCookieLoginSuccess" xml:space="preserve">
+    <value>Cookie 登录成功</value>
+  </data>
 </root>

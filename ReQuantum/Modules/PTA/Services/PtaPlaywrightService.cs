@@ -116,20 +116,24 @@ public class PtaPlaywrightService : IPtaPlaywrightService
             await _page.GotoAsync("https://pintia.cn/auth/login");
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-            // 填写邮箱和密码
-            await _page.FillAsync("input[type='email']", email);
-            await _page.FillAsync("input[type='password']", password);
+            // 等待登录表单加载完成，增加超时时间到 60 秒
+            var emailInput = _page.Locator("input[type='email'], input[placeholder*='邮箱'], input[name*='email'], input[placeholder*='Email']").First;
+            await emailInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 60000, State = WaitForSelectorState.Visible });
 
-            // 点击登录按钮
-            // 假设按钮文本包含 "登录" 或者 type="submit"
-            var loginBtn = _page.Locator("button[type='submit']");
-            if (await loginBtn.CountAsync() == 0)
-            {
-                loginBtn = _page.GetByText("登录");
-            }
+            // 填写邮箱
+            await emailInput.FillAsync(email);
 
+            // 填写密码
+            var passwordInput = _page.Locator("input[type='password']").First;
+            await passwordInput.FillAsync(password);
+
+            // 等待一小段时间确保输入完成
+            await Task.Delay(500);
+
+            // 点击登录按钮 - 使用多种选择器尝试
+            var loginBtn = _page.Locator("button[type='submit'], button:has-text('登录'), button:has-text('Login')").First;
             await loginBtn.ClickAsync();
-            
+
             return Result.Success("提交成功");
         }
         catch (Exception ex)
