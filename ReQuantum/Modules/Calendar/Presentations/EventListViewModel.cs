@@ -34,6 +34,8 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 
     public string SyncCoursesTableText => "📅" + UIText.SyncCoursesTable;
     public string AddEventText => "➕" + UIText.AddEvent;
+
+    public string SyncPTAText => "📅" + UIText.SyncPTA;
     //ddd
     private bool _isRepeating;
     public bool IsRepeating
