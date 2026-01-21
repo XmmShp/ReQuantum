@@ -1,3 +1,5 @@
+using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -13,6 +15,7 @@ using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.Calendar.Presentations;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
+using ReQuantum.Modules.PTA.Service;
 using ReQuantum.Services;
 using ReQuantum.Views;
 
@@ -31,6 +34,7 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     #endregion
 
     private readonly ILocalizer _localizer;
+    private readonly IQRcodeGettingService _qRcodeGettingService;
 	private readonly EventListViewModel _eventListViewModel;
 	private readonly TodoListViewModel _todoListViewModel;
 	private readonly NoteListViewModel _noteListViewModel;
@@ -52,26 +56,31 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
             OnSelected = () => Navigator.NavigateTo<DashboardViewModel>()
         };
         _localizer = localizer;
-		// ±£´æÈı¸ö ViewModel
+       
+    }
+
+
+    [RelayCommand]
+		// ä¿å­˜ä¸‰ä¸ª ViewModel
 		_eventListViewModel = eventListViewModel;
 		_todoListViewModel = todoListViewModel;
 		_noteListViewModel = noteListViewModel;
 
-		// ¼ÓÔØ×î½üÈÎÎñ
+		// åŠ è½½æœ€è¿‘ä»»åŠ¡
 		LoadRecentItems();
-		// ´´½¨²¢Æô¶¯¶¨Ê±Æ÷£ºÃ¿5ÃëË¢ĞÂÒ»´Î
+		// åˆ›å»ºå¹¶å¯åŠ¨å®šæ—¶å™¨ï¼šæ¯5ç§’åˆ·æ–°ä¸€æ¬¡
 		_refreshTimer = new DispatcherTimer
 		{
-			Interval = TimeSpan.FromSeconds(5), // ¿É¸ÄÎª 3 »ò 10 Ãë
+			Interval = TimeSpan.FromSeconds(5), // å¯æ”¹ä¸º 3 æˆ– 10 ç§’
 			IsEnabled = true
 		};
 
-		// °ó¶¨ÊÂ¼ş£ºÃ¿´Î´¥·¢Ê±ÖØĞÂ¼ÓÔØÊı¾İ
+		// ç»‘å®šäº‹ä»¶ï¼šæ¯æ¬¡è§¦å‘æ—¶é‡æ–°åŠ è½½æ•°æ®
 		_refreshTimer.Tick += (sender, e) =>
 		{
-			LoadRecentItems(); // ÖØĞÂ¼ÓÔØÈı¸öÄ£¿éµÄÊı¾İ
+			LoadRecentItems(); // é‡æ–°åŠ è½½ä¸‰ä¸ªæ¨¡å—çš„æ•°æ®
 			_lastUpdateTime = DateTime.Now;
-			OnPropertyChanged(nameof(LastUpdateTimeString)); // ¸üĞÂ½çÃæÏÔÊ¾µÄÊ±¼ä
+			OnPropertyChanged(nameof(LastUpdateTimeString)); // æ›´æ–°ç•Œé¢æ˜¾ç¤ºçš„æ—¶é—´
 		};
 
 	}
@@ -82,9 +91,11 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
         _localizer.SetCulture("zh-CN");
     }
 
+    [ObservableProperty]
+    private Bitmap? _qrCodeSource;
 	#region Recent Items Display Logic
 
-	// ¹©½çÃæ°ó¶¨µÄ¾«Ñ¡ÁĞ±í
+	// ä¾›ç•Œé¢ç»‘å®šçš„ç²¾é€‰åˆ—è¡¨
 	private ObservableCollection<CalendarEvent> _recentEvents;
 	private ObservableCollection<CalendarTodo> _recentTodos;
 	private ObservableCollection<CalendarNote> _recentNotes;
@@ -94,13 +105,13 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
 	public ObservableCollection<CalendarNote> RecentNotes => _recentNotes;
 
 	/// <summary>
-	/// ¼ÓÔØÃ¿¸öÄ£¿éÖĞ¡°×î½üµÄ5Ïî¡±
+	/// åŠ è½½æ¯ä¸ªæ¨¡å—ä¸­â€œæœ€è¿‘çš„5é¡¹â€
 	/// </summary>
 	private void LoadRecentItems()
 	{
 		var now = DateTime.Now;
 
-		// ÈÕ³Ì£º´Ó½ñÌì¿ªÊ¼µÄÈÕ³Ì£¬°´¿ªÊ¼Ê±¼äÉıĞò
+		// æ—¥ç¨‹ï¼šä»ä»Šå¤©å¼€å§‹çš„æ—¥ç¨‹ï¼ŒæŒ‰å¼€å§‹æ—¶é—´å‡åº
 		_recentEvents = new ObservableCollection<CalendarEvent>(
 			_eventListViewModel.Events
 				.Where(e => e.StartTime.Date >= now.Date)
@@ -108,7 +119,7 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
 				.Take(5)
 		);
 
-		// ´ı°ì£ºÎ´Íê³É + ½ØÖ¹Ê±¼äÓĞĞ§£¬°´½ØÖ¹Ê±¼äÉıĞò
+		// å¾…åŠï¼šæœªå®Œæˆ + æˆªæ­¢æ—¶é—´æœ‰æ•ˆï¼ŒæŒ‰æˆªæ­¢æ—¶é—´å‡åº
 		_recentTodos = new ObservableCollection<CalendarTodo>(
 			_todoListViewModel.Todos
 				.Where(t => !t.IsCompleted && t.DueTime.Year >= 2020)
@@ -116,7 +127,7 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
 				.Take(5)
 		);
 
-		// ±ãÇ©£º°´´´½¨Ê±¼äµ¹Ğò£¬×îĞÂÔÚÇ°
+		// ä¾¿ç­¾ï¼šæŒ‰åˆ›å»ºæ—¶é—´å€’åºï¼Œæœ€æ–°åœ¨å‰
 		_recentNotes = new ObservableCollection<CalendarNote>(
 			_noteListViewModel.Notes
 				.OrderByDescending(n => n.CreatedAt)
@@ -132,12 +143,12 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
 		OnPropertyChanged(nameof(LastUpdateTimeString));
 	}
 	/// <summary>
-	/// ¹©½çÃæÏÔÊ¾¡°ÉÏ´Î¸üĞÂÊ±¼ä¡±
+	/// ä¾›ç•Œé¢æ˜¾ç¤ºâ€œä¸Šæ¬¡æ›´æ–°æ—¶é—´â€
 	/// </summary>
 	public string LastUpdateTimeString =>
 		_lastUpdateTime == default(DateTime)
-			? "µÈ´ıË¢ĞÂ..."
-			: $"ÉÏ´Î¸üĞÂ£º{_lastUpdateTime:HH:mm:ss}";
+			? "ç­‰å¾…åˆ·æ–°..."
+			: $"ä¸Šæ¬¡æ›´æ–°ï¼š{_lastUpdateTime:HH:mm:ss}";
 
 
 }
