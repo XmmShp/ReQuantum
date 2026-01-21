@@ -36,12 +36,16 @@
               <iconPacks:PackIconMaterial Kind="DotsVertical" />
               <Button.ContextMenu>
                   <ContextMenu>
-                      <MenuItem Header="📅{Binding Localizer[SyncCoursesTable]}"
+                      <MenuItem Header="{Binding AddEventText}"
+                                Command="{Binding ShowAddDialogCommand}"></MenuItem>
+
+                      <MenuItem Header="{Binding SyncCoursesTableText}"
                                 Command="{Binding SyncZdbkScheduleCommand}"
                                 IsVisible="{Binding ShowZdbkSyncButton}"></MenuItem>
 
-                      <MenuItem Header="➕{Binding Localizer[AddEvent]}"
-                                Command="{Binding ShowAddDialogCommand}"></MenuItem>
+                      <MenuItem Header="{Binding SyncPTAText}"
+                                Command="{Binding SyncPtaCommand}"
+                                IsVisible="{Binding ShowPtaSyncButton}"></MenuItem>
                   </ContextMenu>
                   
               </Button.ContextMenu>

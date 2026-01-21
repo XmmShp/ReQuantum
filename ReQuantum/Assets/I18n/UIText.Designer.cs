@@ -925,6 +925,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SyncPTA.
+        /// </summary>
+        public static string SyncPTA {
+            get {
+                return ResourceManager.GetString("SyncPTA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Thu.
         /// </summary>
         public static string Thursday {
