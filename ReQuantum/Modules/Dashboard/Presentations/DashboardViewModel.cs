@@ -1,9 +1,3 @@
-using Avalonia.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using IconPacks.Avalonia.Material;
@@ -15,9 +9,12 @@ using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.Calendar.Presentations;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
-using ReQuantum.Modules.PTA.Service;
 using ReQuantum.Services;
 using ReQuantum.Views;
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 
 namespace ReQuantum.ViewModels;
@@ -34,20 +31,19 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     #endregion
 
     private readonly ILocalizer _localizer;
-    private readonly IQRcodeGettingService _qRcodeGettingService;
-	private readonly EventListViewModel _eventListViewModel;
-	private readonly TodoListViewModel _todoListViewModel;
-	private readonly NoteListViewModel _noteListViewModel;
-	
-	private DispatcherTimer _refreshTimer;
-	private DateTime _lastUpdateTime;
+    private readonly EventListViewModel _eventListViewModel;
+    private readonly TodoListViewModel _todoListViewModel;
+    private readonly NoteListViewModel _noteListViewModel;
 
-	public string Welcome => _localizer[UIText.HelloWorld];
+    private readonly DispatcherTimer _refreshTimer;
+    private DateTime _lastUpdateTime;
+
+    public string Welcome => _localizer[UIText.HelloWorld];
 
     public DashboardViewModel(ILocalizer localizer,
-	EventListViewModel eventListViewModel,
-	TodoListViewModel todoListViewModel,
-	NoteListViewModel noteListViewModel)
+        EventListViewModel eventListViewModel,
+        TodoListViewModel todoListViewModel,
+        NoteListViewModel noteListViewModel)
     {
         MenuItem = new MenuItem
         {
@@ -56,99 +52,87 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
             OnSelected = () => Navigator.NavigateTo<DashboardViewModel>()
         };
         _localizer = localizer;
-       
+
+        // 保存三个 ViewModel
+        _eventListViewModel = eventListViewModel;
+        _todoListViewModel = todoListViewModel;
+        _noteListViewModel = noteListViewModel;
+
+        // 加载最近任务
+        LoadRecentItems();
+        // 创建并启动定时器：每5秒刷新一次
+        _refreshTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(5), // 可改为 3 或 10 秒
+            IsEnabled = true
+        };
+
+        // 绑定事件：每次触发时重新加载数据
+        _refreshTimer.Tick += (sender, e) =>
+        {
+            LoadRecentItems(); // 重新加载三个模块的数据
+            _lastUpdateTime = DateTime.Now;
+            OnPropertyChanged(nameof(LastUpdateTimeString)); // 更新界面显示的时间
+        };
     }
 
-
     [RelayCommand]
-		// 保存三个 ViewModel
-		_eventListViewModel = eventListViewModel;
-		_todoListViewModel = todoListViewModel;
-		_noteListViewModel = noteListViewModel;
-
-		// 加载最近任务
-		LoadRecentItems();
-		// 创建并启动定时器：每5秒刷新一次
-		_refreshTimer = new DispatcherTimer
-		{
-			Interval = TimeSpan.FromSeconds(5), // 可改为 3 或 10 秒
-			IsEnabled = true
-		};
-
-		// 绑定事件：每次触发时重新加载数据
-		_refreshTimer.Tick += (sender, e) =>
-		{
-			LoadRecentItems(); // 重新加载三个模块的数据
-			_lastUpdateTime = DateTime.Now;
-			OnPropertyChanged(nameof(LastUpdateTimeString)); // 更新界面显示的时间
-		};
-
-	}
-
-	[RelayCommand]
     private void UpdateWelcome()
     {
         _localizer.SetCulture("zh-CN");
     }
 
-    [ObservableProperty]
-    private Bitmap? _qrCodeSource;
-	#region Recent Items Display Logic
+    #region Recent Items Display Logic
 
-	// 供界面绑定的精选列表
-	private ObservableCollection<CalendarEvent> _recentEvents;
-	private ObservableCollection<CalendarTodo> _recentTodos;
-	private ObservableCollection<CalendarNote> _recentNotes;
+    // 供界面绑定的精选列表
+    public ObservableCollection<CalendarEvent> RecentEvents { get; private set; }
+    public ObservableCollection<CalendarTodo> RecentTodos { get; private set; }
+    public ObservableCollection<CalendarNote> RecentNotes { get; private set; }
 
-	public ObservableCollection<CalendarEvent> RecentEvents => _recentEvents;
-	public ObservableCollection<CalendarTodo> RecentTodos => _recentTodos;
-	public ObservableCollection<CalendarNote> RecentNotes => _recentNotes;
+    /// <summary>
+    /// 加载每个模块中“最近的5项”
+    /// </summary>
+    private void LoadRecentItems()
+    {
+        var now = DateTime.Now;
 
-	/// <summary>
-	/// 加载每个模块中“最近的5项”
-	/// </summary>
-	private void LoadRecentItems()
-	{
-		var now = DateTime.Now;
+        // 日程：从今天开始的日程，按开始时间升序
+        RecentEvents = new ObservableCollection<CalendarEvent>(
+            _eventListViewModel.Events
+                .Where(e => e.StartTime.Date >= now.Date)
+                .OrderBy(e => e.StartTime)
+                .Take(5)
+        );
 
-		// 日程：从今天开始的日程，按开始时间升序
-		_recentEvents = new ObservableCollection<CalendarEvent>(
-			_eventListViewModel.Events
-				.Where(e => e.StartTime.Date >= now.Date)
-				.OrderBy(e => e.StartTime)
-				.Take(5)
-		);
+        // 待办：未完成 + 截止时间有效，按截止时间升序
+        RecentTodos = new ObservableCollection<CalendarTodo>(
+            _todoListViewModel.Todos
+                .Where(t => !t.IsCompleted && t.DueTime.Year >= 2020)
+                .OrderBy(t => t.DueTime)
+                .Take(5)
+        );
 
-		// 待办：未完成 + 截止时间有效，按截止时间升序
-		_recentTodos = new ObservableCollection<CalendarTodo>(
-			_todoListViewModel.Todos
-				.Where(t => !t.IsCompleted && t.DueTime.Year >= 2020)
-				.OrderBy(t => t.DueTime)
-				.Take(5)
-		);
+        // 便签：按创建时间倒序，最新在前
+        RecentNotes = new ObservableCollection<CalendarNote>(
+            _noteListViewModel.Notes
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(5)
+        );
+    }
 
-		// 便签：按创建时间倒序，最新在前
-		_recentNotes = new ObservableCollection<CalendarNote>(
-			_noteListViewModel.Notes
-				.OrderByDescending(n => n.CreatedAt)
-				.Take(5)
-		);
-	}
+    #endregion
+    private void OnTimerTick(object? sender, EventArgs e)
+    {
+        LoadRecentItems();
+        _lastUpdateTime = DateTime.Now;
+        OnPropertyChanged(nameof(LastUpdateTimeString));
+    }
 
-	#endregion
-	private void OnTimerTick(object? sender, EventArgs e)
-	{
-		LoadRecentItems();
-		_lastUpdateTime = DateTime.Now;
-		OnPropertyChanged(nameof(LastUpdateTimeString));
-	}
-	/// <summary>
-	/// 供界面显示“上次更新时间”
-	/// </summary>
-	public string LastUpdateTimeString =>
-		_lastUpdateTime == default(DateTime)
-			? "等待刷新..."
-			: $"上次更新：{_lastUpdateTime:HH:mm:ss}";
-
-
+    /// <summary>
+    /// 供界面显示“上次更新时间”
+    /// </summary>
+    public string LastUpdateTimeString =>
+        _lastUpdateTime == default
+            ? "等待刷新..."
+            : $"上次更新：{_lastUpdateTime:HH:mm:ss}";
 }
