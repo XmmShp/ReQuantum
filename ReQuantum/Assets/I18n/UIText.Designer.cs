@@ -779,5 +779,284 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ZjuSsoLogin", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Exams - {0:MMM dd, yyyy}.
+        /// </summary>
+        public static string ExamsOnDate {
+            get {
+                return ResourceManager.GetString("ExamsOnDate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No exams on this date.
+        /// </summary>
+        public static string NoExams {
+            get {
+                return ResourceManager.GetString("NoExams", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PTA Login.
+        /// </summary>
+        public static string PtaLogin {
+            get {
+                return ResourceManager.GetString("PtaLogin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        public static string Email {
+            get {
+                return ResourceManager.GetString("Email", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter PTA email.
+        /// </summary>
+        public static string EnterPtaEmail {
+            get {
+                return ResourceManager.GetString("EnterPtaEmail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Captcha required, click here to login via browser.
+        /// </summary>
+        public static string NeedCaptchaUseBrowser {
+            get {
+                return ResourceManager.GetString("NeedCaptchaUseBrowser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter PTASession Cookie.
+        /// </summary>
+        public static string EnterPtaSessionCookie {
+            get {
+                return ResourceManager.GetString("EnterPtaSessionCookie", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste PTASession value (UUID format).
+        /// </summary>
+        public static string PastePtaSessionValue {
+            get {
+                return ResourceManager.GetString("PastePtaSessionValue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Submit.
+        /// </summary>
+        public static string Submit {
+            get {
+                return ResourceManager.GetString("Submit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PTA Logged In.
+        /// </summary>
+        public static string PtaLoggedIn {
+            get {
+                return ResourceManager.GetString("PtaLoggedIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sync All.
+        /// </summary>
+        public static string SyncAll {
+            get {
+                return ResourceManager.GetString("SyncAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Errors occurred during synchronization.
+        /// </summary>
+        public static string SyncErrorOccurred {
+            get {
+                return ResourceManager.GetString("SyncErrorOccurred", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Course sync failed.
+        /// </summary>
+        public static string CourseSyncFailed {
+            get {
+                return ResourceManager.GetString("CourseSyncFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Exam sync failed.
+        /// </summary>
+        public static string ExamSyncFailed {
+            get {
+                return ResourceManager.GetString("ExamSyncFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PTA assignment sync failed.
+        /// </summary>
+        public static string PtaSyncFailed {
+            get {
+                return ResourceManager.GetString("PtaSyncFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ZJU sync exception.
+        /// </summary>
+        public static string ZdbkSyncException {
+            get {
+                return ResourceManager.GetString("ZdbkSyncException", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PTA sync exception.
+        /// </summary>
+        public static string PtaSyncException {
+            get {
+                return ResourceManager.GetString("PtaSyncException", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PTA Account Login.
+        /// </summary>
+        public static string PtaAccountLogin {
+            get {
+                return ResourceManager.GetString("PtaAccountLogin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot get calendar.
+        /// </summary>
+        public static string CannotGetCalendar {
+            get {
+                return ResourceManager.GetString("CannotGetCalendar", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Current date is not within semester range.
+        /// </summary>
+        public static string DateNotInSemester {
+            get {
+                return ResourceManager.GetString("DateNotInSemester", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All semesters failed to fetch.
+        /// </summary>
+        public static string AllSemestersFailed {
+            get {
+                return ResourceManager.GetString("AllSemestersFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get course schedule.
+        /// </summary>
+        public static string GetCourseFailed {
+            get {
+                return ResourceManager.GetString("GetCourseFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Student ID not found.
+        /// </summary>
+        public static string StudentIdNotFound {
+            get {
+                return ResourceManager.GetString("StudentIdNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse course data.
+        /// </summary>
+        public static string ParseCourseDataFailed {
+            get {
+                return ResourceManager.GetString("ParseCourseDataFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSO authentication failed.
+        /// </summary>
+        public static string SsoAuthFailed {
+            get {
+                return ResourceManager.GetString("SsoAuthFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not logged in or student ID not found.
+        /// </summary>
+        public static string NotLoggedInOrNoStudentId {
+            get {
+                return ResourceManager.GetString("NotLoggedInOrNoStudentId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get exam information.
+        /// </summary>
+        public static string GetExamInfoFailed {
+            get {
+                return ResourceManager.GetString("GetExamInfoFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse exam data.
+        /// </summary>
+        public static string ParseExamDataFailed {
+            get {
+                return ResourceManager.GetString("ParseExamDataFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get problem sets.
+        /// </summary>
+        public static string GetProblemSetFailed {
+            get {
+                return ResourceManager.GetString("GetProblemSetFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse problem set response.
+        /// </summary>
+        public static string ParseProblemSetFailed {
+            get {
+                return ResourceManager.GetString("ParseProblemSetFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Problem set retrieval exception.
+        /// </summary>
+        public static string GetProblemSetException {
+            get {
+                return ResourceManager.GetString("GetProblemSetException", resourceCulture);
+            }
+        }
     }
 }

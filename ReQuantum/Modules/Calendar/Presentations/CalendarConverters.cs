@@ -150,7 +150,7 @@ public class GreaterThanConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return AvaloniaProperty.UnsetValue;
     }
 }
 
@@ -172,7 +172,7 @@ public class LessThanOrEqualConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return AvaloniaProperty.UnsetValue;
     }
 }
 
@@ -269,6 +269,25 @@ public class BoolToStrikethroughConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        // 单向转换，不需要回转
+        return AvaloniaProperty.UnsetValue;
+    }
+}
+
+/// <summary>
+/// 字符串非空检查转换器
+/// </summary>
+public class StringIsNotNullOrEmptyConverter : IValueConverter
+{
+    public static readonly StringIsNotNullOrEmptyConverter Instance = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return !string.IsNullOrEmpty(value as string);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return AvaloniaProperty.UnsetValue;
     }
 }

@@ -25,8 +25,8 @@
 
           <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0"
-                   Text="{Binding EventsTitle.Text}" 
-                   FontSize="18" 
+                   Text="{Binding EventsTitle.Text}"
+                   FontSize="18"
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
 
@@ -94,6 +94,43 @@
                  HorizontalAlignment="Center"
                  Margin="0,16"
                  IsVisible="{Binding !Events.Count}"/>
+
+        <!-- 同步错误信息 -->
+        <Border BorderThickness="1"
+                BorderBrush="Orange"
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,12,0,0"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                IsVisible="{Binding ShowSyncError}">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         Foreground="Orange">
+                <Run Text="⚠️ "/>
+                <Run Text="{Binding Localizer[SyncErrorOccurred]}"/>
+              </TextBlock>
+              <Button Grid.Column="1"
+                      Command="{Binding CloseSyncErrorCommand}"
+                      Padding="4"
+                      Background="Transparent">
+                <TextBlock Text="✕" FontSize="12"/>
+              </Button>
+            </Grid>
+
+            <ScrollViewer MaxHeight="200"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+              <TextBlock Text="{Binding SyncErrorMessage}"
+                         FontFamily="Consolas"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         Opacity="0.8"/>
+            </ScrollViewer>
+          </StackPanel>
+        </Border>
       </StackPanel>
     </Border>
   </Grid>
