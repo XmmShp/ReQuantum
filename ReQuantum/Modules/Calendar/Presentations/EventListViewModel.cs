@@ -26,11 +26,27 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private readonly IZdbkSectionScheduleService _zdbkService;
     private readonly IZdbkCalendarConverter _zdbkConverter;
     private readonly IZjuSsoService _zjuSsoService;
+//ddd
+    private bool _isRepeating;
+	public bool IsRepeating
+	{
+		get => _isRepeating;
+		set => SetProperty(ref _isRepeating, value);
+	}
 
-    /// <summary>
-    /// 动态标题：日程 - 日期
-    /// </summary>
-    public LocalizedText EventsTitle { get; }
+	private int _repeatWeeks = 1; // 默认重复1周
+	public int RepeatWeeks
+	{
+		get => _repeatWeeks;
+		set => SetProperty(ref _repeatWeeks, value);
+	}
+	public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
+
+	//ddd
+	/// <summary>
+	/// 动态标题：日程 - 日期
+	/// </summary>
+	public LocalizedText EventsTitle { get; }
 
     #region 数据集合
 
@@ -202,46 +218,80 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         var now = DateTime.Now;
         NewEventStartTime = SelectedDate.ToDateTime(new TimeOnly(now.Hour, now.Minute));
         NewEventEndTime = NewEventStartTime.AddHours(1);
+        //dd
+        IsRepeating = false;
+        //dd
         IsAddDialogOpen = true;
     }
+	//ddd
+	[RelayCommand]
+	private void AddEvent()
+	{
+		if (string.IsNullOrWhiteSpace(NewEventContent))
+		{
+			return;
+		}
 
-    [RelayCommand]
-    private void AddEvent()
-    {
-        if (string.IsNullOrWhiteSpace(NewEventContent))
-        {
-            return;
-        }
+		if (NewEventEndTime <= NewEventStartTime)
+		{
+			return;
+		}
 
-        // 验证结束时间必须晚于开始时间
-        if (NewEventEndTime <= NewEventStartTime)
-        {
-            return; // 警告已经实时显示，直接返回
-        }
+		// 如果不是重复事件，只添加一次
+		if (!IsRepeating)
+		{
+			var calendarEvent = new CalendarEvent
+			{
+				Content = NewEventContent.Trim(),
+				StartTime = NewEventStartTime,
+				EndTime = NewEventEndTime
+			};
 
-        var calendarEvent = new CalendarEvent
-        {
-            Content = NewEventContent.Trim(),
-            StartTime = NewEventStartTime,
-            EndTime = NewEventEndTime
-        };
+			_calendarService.AddOrUpdateEvent(calendarEvent);
 
-        _calendarService.AddOrUpdateEvent(calendarEvent);
+			if (DateOnly.FromDateTime(calendarEvent.StartTime) == SelectedDate)
+			{
+				Events.Add(calendarEvent);
+			}
+		}
+		else
+		{
+			// 如果是重复事件，添加接下来几周的相同日程
+			var startDate = NewEventStartTime;
+			var endDate = NewEventEndTime;
+			var content = NewEventContent.Trim();
 
-        // 如果新日程的日期是选中日期，则添加到列表
-        if (DateOnly.FromDateTime(calendarEvent.StartTime) == SelectedDate)
-        {
-            Events.Add(calendarEvent);
-        }
+			for (int i = 0; i < RepeatWeeks; i++) // 创建未来几周的重复事件
+			{
+				var occurrenceDate = startDate.AddDays(i * 7); // 每次加 7 天
+				var calendarEvent = new CalendarEvent
+				{
+					Content = content,
+					StartTime = occurrenceDate,
+					EndTime = endDate.AddDays(i * 7)
+				};
 
-        NewEventContent = string.Empty;
-        NewEventStartTime = DateTime.Now;
-        NewEventEndTime = DateTime.Now.AddHours(1);
-        WarningMessage = string.Empty;
-        IsAddDialogOpen = false;
-    }
+				_calendarService.AddOrUpdateEvent(calendarEvent);
 
-    [RelayCommand]
+				// 如果这次的日程正好是当前查看的日期，就显示在列表中
+				if (DateOnly.FromDateTime(occurrenceDate) == SelectedDate)
+				{
+					Events.Add(calendarEvent);
+				}
+			}
+		}
+
+		// 清空并关闭弹窗
+		NewEventContent = string.Empty;
+		NewEventStartTime = DateTime.Now;
+		NewEventEndTime = DateTime.Now.AddHours(1);
+		IsRepeating = false; // 重置重复选项
+		WarningMessage = string.Empty;
+		IsAddDialogOpen = false;
+	}
+
+
+	[RelayCommand]
     private void CancelAdd()
     {
         NewEventContent = string.Empty;

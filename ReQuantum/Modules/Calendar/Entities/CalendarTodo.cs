@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 
 namespace ReQuantum.Modules.Calendar.Entities;
 
@@ -16,7 +17,8 @@ public partial class CalendarTodo : ObservableObject
     private bool _isCompleted;
 
     public DateTime CreatedAt { get; set; }
-    public string From { get; set; } = string.Empty;
+
+    public Dictionary<string, object?> Properties { get; init; }
 
     public CalendarTodo()
     {

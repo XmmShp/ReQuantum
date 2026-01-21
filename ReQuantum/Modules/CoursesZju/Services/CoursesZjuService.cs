@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using ReQuantum.Modules.Common.Extensions;
 
 namespace ReQuantum.Modules.CoursesZju.Services;
 
@@ -121,23 +122,13 @@ public class CoursesZjuService : ICoursesZjuService, IDaemonService
 
 public static class CalendarTodoExtensions
 {
-    private const string CoursesZju = "CoursesZju";
+    private const string IsFromCoursesZjuKey = "IsFromCoursesZju";
     extension(CalendarTodo todo)
     {
         public bool IsFromCoursesZju
         {
-            get => todo.From == CoursesZju;
-            set
-            {
-                if (todo.From == CoursesZju && !value)
-                {
-                    todo.From = string.Empty;
-                }
-                else if (todo.From != CoursesZju && value)
-                {
-                    todo.From = CoursesZju;
-                }
-            }
+            get => todo.Properties.Get<bool>(IsFromCoursesZjuKey); 
+            set => todo.Properties[IsFromCoursesZjuKey] = value;
         }
     }
 }

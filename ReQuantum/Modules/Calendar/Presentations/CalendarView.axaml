@@ -272,8 +272,31 @@
               </StackPanel>
             </StackPanel>
           </StackPanel>
-          
-          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+
+			<!-- 是否重复 -->
+			<CheckBox IsChecked="{Binding EventListViewModel.IsRepeating}"
+					  Content="{Binding Localizer[RepeatWeekly]}"
+					  FontSize="14" />
+
+			<!-- 当勾选时才显示：重复几周 -->
+			<StackPanel Margin="20,4,0,0"
+						IsVisible="{Binding EventListViewModel.IsRepeating}"
+						Spacing="4">
+				<TextBlock Text="{Binding Localizer[RepeatTimes]}" FontSize="13" Opacity="0.8" />
+				<ComboBox ItemsSource="{Binding EventListViewModel.RepeatOptions}"
+						  SelectedItem="{Binding EventListViewModel.RepeatWeeks}"
+						  FontSize="13"
+						  MinWidth="120">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding StringFormat='{}{0} '}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+			</StackPanel>
+
+
+			<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
             <Button Command="{Binding EventListViewModel.CancelAddCommand}" Padding="16,8">
               <TextBlock Text="{Binding Localizer[Cancel]}" FontSize="14"/>
             </Button>

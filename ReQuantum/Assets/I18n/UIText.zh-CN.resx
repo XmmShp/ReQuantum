@@ -336,4 +336,10 @@
   <data name="SyncCoursesZju" xml:space="preserve">
     <value>同步学在浙大</value>
   </data>
+  <data name="RepeatWeekly" xml:space="preserve">
+    <value>🔁 每周重复</value>
+  </data>
+  <data name="RepeatTimes" xml:space="preserve">
+    <value>重复次数：</value>
+  </data>
 </root>
