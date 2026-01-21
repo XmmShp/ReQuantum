@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ReQuantum.Views.PintiaLoginView"
+             x:DataType="viewModels:PintiaLoginViewModel">
+  <Design.DataContext>
+    <viewModels:PintiaLoginViewModel />
+  </Design.DataContext>
+  <StackPanel Spacing="16">
+      <!-- Login Form (visible when not logged in) -->
+      <StackPanel Spacing="16" IsVisible="{Binding !IsLoggedIn}">
+        
+        <!-- Username Input -->
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding Localizer[Username]}"
+                     FontSize="14"
+                     FontWeight="SemiBold"/>
+          <TextBox Text="{Binding Username}"
+                   Watermark="{Binding Localizer[EnterUsername]}"
+                   FontSize="14"
+                   Padding="12,10"
+                   IsEnabled="{Binding !IsLoading}"/>
+        </StackPanel>
+
+        <!-- Password Input -->
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding Localizer[Password]}"
+                     FontSize="14"
+                     FontWeight="SemiBold"/>
+          <TextBox Text="{Binding Password}"
+                   PasswordChar="●"
+                   Watermark="{Binding Localizer[EnterPassword]}"
+                   FontSize="14"
+                   Padding="12,10"
+                   IsEnabled="{Binding !IsLoading}"/>
+        </StackPanel>
+
+        <!-- Login Button -->
+        <Button Command="{Binding LoginCommand}"
+                HorizontalAlignment="Stretch"
+                Padding="16,12"
+                Margin="0,8,0,0"
+                IsEnabled="{Binding !IsLoading}">
+          <StackPanel Orientation="Horizontal" 
+                      Spacing="8"
+                      HorizontalAlignment="Center">
+            <TextBlock Text="{Binding Localizer[Login]}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+
+      <!-- Logged In Status (visible when logged in) -->
+      <StackPanel Spacing="16" IsVisible="{Binding IsLoggedIn}">
+        <TextBlock Text="{Binding Localizer[LoggedInAs]}"
+                   FontSize="14"
+                   HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding Username}"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+        
+        <!-- Logout Button -->
+        <Button Command="{Binding LogoutCommand}"
+                HorizontalAlignment="Center"
+                Padding="24,12"
+                Margin="0,8,0,0">
+          <TextBlock Text="{Binding Localizer[Logout]}"
+                     FontSize="16"
+                     FontWeight="SemiBold"/>
+        </Button>
+      </StackPanel>
+
+      <!-- Status Message -->
+      <Border BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="4"
+              Padding="16"
+              IsVisible="{Binding StatusMessage.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding StatusMessage.Text}"
+                   FontSize="14"
+                   TextWrapping="Wrap"
+                   HorizontalAlignment="Center"/>
+      </Border>
+
+      <!-- Loading Indicator -->
+      <ProgressBar IsIndeterminate="True"
+                   IsVisible="{Binding IsLoading}"
+                   Height="4"
+                   Margin="0,8,0,0"/>
+
+  </StackPanel>
+</UserControl>
