@@ -402,4 +402,43 @@
   <data name="PtaAccountLogin" xml:space="preserve">
     <value>PTA 账号登录</value>
   </data>
+  <data name="CannotGetCalendar" xml:space="preserve">
+    <value>无法获取校历</value>
+  </data>
+  <data name="DateNotInSemester" xml:space="preserve">
+    <value>当前日期不在学期范围内</value>
+  </data>
+  <data name="AllSemestersFailed" xml:space="preserve">
+    <value>所有学期均无法获取</value>
+  </data>
+  <data name="GetCourseFailed" xml:space="preserve">
+    <value>获取课程表失败</value>
+  </data>
+  <data name="StudentIdNotFound" xml:space="preserve">
+    <value>未获取到学号信息</value>
+  </data>
+  <data name="ParseCourseDataFailed" xml:space="preserve">
+    <value>解析课程表数据失败</value>
+  </data>
+  <data name="SsoAuthFailed" xml:space="preserve">
+    <value>SSO认证失败</value>
+  </data>
+  <data name="NotLoggedInOrNoStudentId" xml:space="preserve">
+    <value>未登录或未获取到学号</value>
+  </data>
+  <data name="GetExamInfoFailed" xml:space="preserve">
+    <value>获取考试信息失败</value>
+  </data>
+  <data name="ParseExamDataFailed" xml:space="preserve">
+    <value>解析考试数据失败</value>
+  </data>
+  <data name="GetProblemSetFailed" xml:space="preserve">
+    <value>获取习题集失败</value>
+  </data>
+  <data name="ParseProblemSetFailed" xml:space="preserve">
+    <value>解析习题集响应失败</value>
+  </data>
+  <data name="GetProblemSetException" xml:space="preserve">
+    <value>获取习题集异常</value>
+  </data>
 </root>

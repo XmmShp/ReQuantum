@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
@@ -30,6 +31,7 @@ public class ZdbkExamService : IZdbkExamService
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkExamService> _logger;
     private readonly IStorage _storage;
+    private readonly ILocalizer _localizer;
 
     private const string ExamApiBase = "https://zdbk.zju.edu.cn/jwglxt/xskscx/kscx_cxXsgrksIndex.html";
     private const string SsoLoginUrl = "https://zjuam.zju.edu.cn/cas/login";
@@ -40,19 +42,21 @@ public class ZdbkExamService : IZdbkExamService
         IZjuSsoService zjuSsoService,
         IAcademicCalendarService calendarService,
         IStorage storage,
-        ILogger<ZdbkExamService> logger)
+        ILogger<ZdbkExamService> logger,
+        ILocalizer localizer)
     {
         _zjuSsoService = zjuSsoService;
         _calendarService = calendarService;
         _storage = storage;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
         {
-            return Result.Fail("未登录或未获取到学号");
+            return Result.Fail(_localizer[nameof(UIText.NotLoggedInOrNoStudentId)]);
         }
 
         // 获取已认证的客户端
@@ -83,7 +87,7 @@ public class ZdbkExamService : IZdbkExamService
 
             if (!response.IsSuccessStatusCode)
             {
-                return Result.Fail($"获取考试信息失败: {response.StatusCode}");
+                return Result.Fail($"{_localizer[nameof(UIText.GetExamInfoFailed)]}: {response.StatusCode}");
             }
 
             var examResponse = await response.Content.ReadFromJsonAsync(
@@ -91,7 +95,7 @@ public class ZdbkExamService : IZdbkExamService
 
             if (examResponse == null)
             {
-                return Result.Fail("解析考试数据失败");
+                return Result.Fail(_localizer[nameof(UIText.ParseExamDataFailed)]);
             }
 
             // 获取校历用于时间解析
@@ -107,7 +111,7 @@ public class ZdbkExamService : IZdbkExamService
         catch (Exception ex)
         {
             _logger.LogError(ex, "获取考试信息时发生错误");
-            return Result.Fail($"获取考试信息失败：{ex.Message}");
+            return Result.Fail($"{_localizer[nameof(UIText.GetExamInfoFailed)]}: {ex.Message}");
         }
     }
 
@@ -190,7 +194,7 @@ public class ZdbkExamService : IZdbkExamService
         }
         catch (Exception ex)
         {
-            return Result.Fail($"SSO认证失败：{ex.Message}");
+            return Result.Fail($"{_localizer[nameof(UIText.SsoAuthFailed)]}: {ex.Message}");
         }
     }
 }

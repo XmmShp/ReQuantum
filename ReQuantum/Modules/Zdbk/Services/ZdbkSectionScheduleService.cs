@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
@@ -29,6 +30,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
     private readonly IAcademicCalendarService _calendarService;
     private readonly IStorage _storage;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
+    private readonly ILocalizer _localizer;
     private ZdbkState? _state;
 
     private const string StateKey = "Zdbk:State";
@@ -41,12 +43,14 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         IZjuSsoService zjuSsoService,
         IAcademicCalendarService calendarService,
         IStorage storage,
-        ILogger<ZdbkSectionScheduleService> logger)
+        ILogger<ZdbkSectionScheduleService> logger,
+        ILocalizer localizer)
     {
         _zjuSsoService = zjuSsoService;
         _calendarService = calendarService;
         _storage = storage;
         _logger = logger;
+        _localizer = localizer;
         _zjuSsoService.OnLogout += () => _state = null;
         LoadState();
     }
@@ -60,7 +64,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             if (!calendarResult.IsSuccess)
             {
-                return Result.Fail($"无法获取校历：{calendarResult.Message}");
+                return Result.Fail($"{_localizer[nameof(UIText.CannotGetCalendar)]}: {calendarResult.Message}");
             }
 
             var calendar = calendarResult.Value;
@@ -69,7 +73,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (weekNumber == null)
             {
-                return Result.Fail("当前日期不在学期范围内");
+                return Result.Fail(_localizer[nameof(UIText.DateNotInSemester)]);
             }
 
             var currentSemester = calendar.GetSemesterNameForWeek(weekNumber.Value);
@@ -92,7 +96,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (combinedSections.Count == 0)
             {
-                return Result.Fail("所有学期均无法获取");
+                return Result.Fail(_localizer[nameof(UIText.AllSemestersFailed)]);
             }
 
             // 返回合并的结果，但保留两个学期的信息
@@ -112,7 +116,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching schedules");
-            return Result.Fail($"获取课程表失败：{ex.Message}");
+            return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {ex.Message}");
         }
     }
 
@@ -134,7 +138,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         var client = clientResult.Value;
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
         {
-            return Result.Fail("未获取到学号信息");
+            return Result.Fail(_localizer[nameof(UIText.StudentIdNotFound)]);
         }
 
         try
@@ -156,7 +160,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
             if (!response.IsSuccessStatusCode)
             {
                 _state = null;
-                return Result.Fail($"获取课程表失败: {response.StatusCode}");
+                return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {response.StatusCode}");
             }
 
             var scheduleResponse = await response.Content.ReadFromJsonAsync(
@@ -164,7 +168,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (scheduleResponse is null)
             {
-                return Result.Fail("解析课程表数据失败");
+                return Result.Fail(_localizer[nameof(UIText.ParseCourseDataFailed)]);
             }
 
             // 添加日志：显示返回的课程的Term字段
@@ -178,7 +182,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting schedule");
-            return Result.Fail($"获取课程表失败：{ex.Message}");
+            return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {ex.Message}");
         }
     }
 
@@ -206,7 +210,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         }
         catch (Exception ex)
         {
-            return Result.Fail($"SSO认证失败：{ex.Message}");
+            return Result.Fail($"{_localizer[nameof(UIText.SsoAuthFailed)]}: {ex.Message}");
         }
     }
 

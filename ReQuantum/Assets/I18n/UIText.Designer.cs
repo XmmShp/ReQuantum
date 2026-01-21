@@ -914,5 +914,122 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaAccountLogin", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot get calendar.
+        /// </summary>
+        public static string CannotGetCalendar {
+            get {
+                return ResourceManager.GetString("CannotGetCalendar", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Current date is not within semester range.
+        /// </summary>
+        public static string DateNotInSemester {
+            get {
+                return ResourceManager.GetString("DateNotInSemester", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All semesters failed to fetch.
+        /// </summary>
+        public static string AllSemestersFailed {
+            get {
+                return ResourceManager.GetString("AllSemestersFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get course schedule.
+        /// </summary>
+        public static string GetCourseFailed {
+            get {
+                return ResourceManager.GetString("GetCourseFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Student ID not found.
+        /// </summary>
+        public static string StudentIdNotFound {
+            get {
+                return ResourceManager.GetString("StudentIdNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse course data.
+        /// </summary>
+        public static string ParseCourseDataFailed {
+            get {
+                return ResourceManager.GetString("ParseCourseDataFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSO authentication failed.
+        /// </summary>
+        public static string SsoAuthFailed {
+            get {
+                return ResourceManager.GetString("SsoAuthFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not logged in or student ID not found.
+        /// </summary>
+        public static string NotLoggedInOrNoStudentId {
+            get {
+                return ResourceManager.GetString("NotLoggedInOrNoStudentId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get exam information.
+        /// </summary>
+        public static string GetExamInfoFailed {
+            get {
+                return ResourceManager.GetString("GetExamInfoFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse exam data.
+        /// </summary>
+        public static string ParseExamDataFailed {
+            get {
+                return ResourceManager.GetString("ParseExamDataFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to get problem sets.
+        /// </summary>
+        public static string GetProblemSetFailed {
+            get {
+                return ResourceManager.GetString("GetProblemSetFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse problem set response.
+        /// </summary>
+        public static string ParseProblemSetFailed {
+            get {
+                return ResourceManager.GetString("ParseProblemSetFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Problem set retrieval exception.
+        /// </summary>
+        public static string GetProblemSetException {
+            get {
+                return ResourceManager.GetString("GetProblemSetException", resourceCulture);
+            }
+        }
     }
 }

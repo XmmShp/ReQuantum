@@ -402,4 +402,43 @@
   <data name="PtaAccountLogin" xml:space="preserve">
     <value>PTA Account Login</value>
   </data>
+  <data name="CannotGetCalendar" xml:space="preserve">
+    <value>Cannot get calendar</value>
+  </data>
+  <data name="DateNotInSemester" xml:space="preserve">
+    <value>Current date is not within semester range</value>
+  </data>
+  <data name="AllSemestersFailed" xml:space="preserve">
+    <value>All semesters failed to fetch</value>
+  </data>
+  <data name="GetCourseFailed" xml:space="preserve">
+    <value>Failed to get course schedule</value>
+  </data>
+  <data name="StudentIdNotFound" xml:space="preserve">
+    <value>Student ID not found</value>
+  </data>
+  <data name="ParseCourseDataFailed" xml:space="preserve">
+    <value>Failed to parse course data</value>
+  </data>
+  <data name="SsoAuthFailed" xml:space="preserve">
+    <value>SSO authentication failed</value>
+  </data>
+  <data name="NotLoggedInOrNoStudentId" xml:space="preserve">
+    <value>Not logged in or student ID not found</value>
+  </data>
+  <data name="GetExamInfoFailed" xml:space="preserve">
+    <value>Failed to get exam information</value>
+  </data>
+  <data name="ParseExamDataFailed" xml:space="preserve">
+    <value>Failed to parse exam data</value>
+  </data>
+  <data name="GetProblemSetFailed" xml:space="preserve">
+    <value>Failed to get problem sets</value>
+  </data>
+  <data name="ParseProblemSetFailed" xml:space="preserve">
+    <value>Failed to parse problem set response</value>
+  </data>
+  <data name="GetProblemSetException" xml:space="preserve">
+    <value>Problem set retrieval exception</value>
+  </data>
 </root>
