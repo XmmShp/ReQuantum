@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
@@ -40,7 +40,6 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     private DateTime _lastUpdateTime;
 
     public string Welcome => _localizer[UIText.HelloWorld];
-    public string aSentence => "This is an attempt";
 
     [ObservableProperty]
     private bool _isClick;

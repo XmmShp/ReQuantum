@@ -32,34 +32,36 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private readonly IPtaCalendarConvertService _ptaConverter;
     private readonly IPtaAuthService _ptaAuthService;
 
-//ddd
+    public string SyncCoursesTableText => "📅" + UIText.SyncCoursesTable;
+    public string AddEventText => "➕" + UIText.AddEvent;
+    //ddd
     private bool _isRepeating;
-	public bool IsRepeating
-	{
-		get => _isRepeating;
-		set => SetProperty(ref _isRepeating, value);
-	}
+    public bool IsRepeating
+    {
+        get => _isRepeating;
+        set => SetProperty(ref _isRepeating, value);
+    }
 
-	private int _repeatWeeks = 1; // 默认重复1周
-	public int RepeatWeeks
-	{
-		get => _repeatWeeks;
-		set => SetProperty(ref _repeatWeeks, value);
-	}
-	public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
+    private int _repeatWeeks = 1; // 默认重复1周
+    public int RepeatWeeks
+    {
+        get => _repeatWeeks;
+        set => SetProperty(ref _repeatWeeks, value);
+    }
+    public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
 
-	private string _newEventNote;
-	public string NewEventNote
-	{
-		get => _newEventNote;
-		set => SetProperty(ref _newEventNote, value);
-	}
+    private string _newEventNote;
+    public string NewEventNote
+    {
+        get => _newEventNote;
+        set => SetProperty(ref _newEventNote, value);
+    }
 
-	//ddd
-	/// <summary>
-	/// 动态标题：日程 - 日期
-	/// </summary>
-	public LocalizedText EventsTitle { get; }
+    //ddd
+    /// <summary>
+    /// 动态标题：日程 - 日期
+    /// </summary>
+    public LocalizedText EventsTitle { get; }
 
     #region 数据集合
 
@@ -270,82 +272,82 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IsRepeating = false;
         //dd
         IsAddDialogOpen = true;
-		NewEventNote = string.Empty;
+        NewEventNote = string.Empty;
 
-	}
-	//ddd
-	[RelayCommand]
-	private void AddEvent()
-	{
-		if (string.IsNullOrWhiteSpace(NewEventContent))
-		{
-			return;
-		}
+    }
+    //ddd
+    [RelayCommand]
+    private void AddEvent()
+    {
+        if (string.IsNullOrWhiteSpace(NewEventContent))
+        {
+            return;
+        }
 
-		if (NewEventEndTime <= NewEventStartTime)
-		{
-			return;
-		}
+        if (NewEventEndTime <= NewEventStartTime)
+        {
+            return;
+        }
 
-		// 如果不是重复事件，只添加一次
-		if (!IsRepeating)
-		{
-			var calendarEvent = new CalendarEvent
-			{
-				Content = NewEventContent.Trim(),
-				StartTime = NewEventStartTime,
-				EndTime = NewEventEndTime,
+        // 如果不是重复事件，只添加一次
+        if (!IsRepeating)
+        {
+            var calendarEvent = new CalendarEvent
+            {
+                Content = NewEventContent.Trim(),
+                StartTime = NewEventStartTime,
+                EndTime = NewEventEndTime,
                 Note = NewEventNote?.Trim()
-			};
+            };
 
-			_calendarService.AddOrUpdateEvent(calendarEvent);
+            _calendarService.AddOrUpdateEvent(calendarEvent);
 
-			if (DateOnly.FromDateTime(calendarEvent.StartTime) == SelectedDate)
-			{
-				Events.Add(calendarEvent);
-			}
-		}
-		else
-		{
-			// 如果是重复事件，添加接下来几周的相同日程
-			var startDate = NewEventStartTime;
-			var endDate = NewEventEndTime;
-			var content = NewEventContent.Trim();
+            if (DateOnly.FromDateTime(calendarEvent.StartTime) == SelectedDate)
+            {
+                Events.Add(calendarEvent);
+            }
+        }
+        else
+        {
+            // 如果是重复事件，添加接下来几周的相同日程
+            var startDate = NewEventStartTime;
+            var endDate = NewEventEndTime;
+            var content = NewEventContent.Trim();
 
-			for (int i = 0; i < RepeatWeeks; i++) // 创建未来几周的重复事件
-			{
-				var occurrenceDate = startDate.AddDays(i * 7); // 每次加 7 天
-				var calendarEvent = new CalendarEvent
-				{
-					Content = content,
-					StartTime = occurrenceDate,
-					EndTime = endDate.AddDays(i * 7),
-					Note = NewEventNote?.Trim()
-				};
+            for (int i = 0; i < RepeatWeeks; i++) // 创建未来几周的重复事件
+            {
+                var occurrenceDate = startDate.AddDays(i * 7); // 每次加 7 天
+                var calendarEvent = new CalendarEvent
+                {
+                    Content = content,
+                    StartTime = occurrenceDate,
+                    EndTime = endDate.AddDays(i * 7),
+                    Note = NewEventNote?.Trim()
+                };
 
-				_calendarService.AddOrUpdateEvent(calendarEvent);
+                _calendarService.AddOrUpdateEvent(calendarEvent);
 
-				// 如果这次的日程正好是当前查看的日期，就显示在列表中
-				if (DateOnly.FromDateTime(occurrenceDate) == SelectedDate)
-				{
-					Events.Add(calendarEvent);
-				}
-			}
-		}
+                // 如果这次的日程正好是当前查看的日期，就显示在列表中
+                if (DateOnly.FromDateTime(occurrenceDate) == SelectedDate)
+                {
+                    Events.Add(calendarEvent);
+                }
+            }
+        }
 
-		// 清空并关闭弹窗
-		NewEventContent = string.Empty;
-		NewEventStartTime = DateTime.Now;
-		NewEventEndTime = DateTime.Now.AddHours(1);
-		IsRepeating = false; // 重置重复选项
-		WarningMessage = string.Empty;
-		IsAddDialogOpen = false;
-		NewEventNote = string.Empty;
+        // 清空并关闭弹窗
+        NewEventContent = string.Empty;
+        NewEventStartTime = DateTime.Now;
+        NewEventEndTime = DateTime.Now.AddHours(1);
+        IsRepeating = false; // 重置重复选项
+        WarningMessage = string.Empty;
+        IsAddDialogOpen = false;
+        NewEventNote = string.Empty;
 
-	}
+    }
 
 
-	[RelayCommand]
+    [RelayCommand]
     private void CancelAdd()
     {
         NewEventContent = string.Empty;
