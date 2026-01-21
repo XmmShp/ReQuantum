@@ -350,7 +350,7 @@
   </data>
   <data name="CourseSelection" xml:space="preserve">
     <value>选课</value>
-  </data>	  
+  </data>
   <data name="Note" xml:space="preserve">
     <value>备注</value>
   </data>
@@ -449,5 +449,8 @@
   </data>
   <data name="GetProblemSetException" xml:space="preserve">
     <value>获取习题集异常</value>
+  </data>
+  <data name="SyncPTA" xml:space="preserve">
+    <value>同步PTA</value>
   </data>
 </root>
