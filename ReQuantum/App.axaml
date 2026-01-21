@@ -13,6 +13,56 @@
          <ResourceDictionary>
              <FontFamily x:Key="SourceHanSansCn">/Assets/Fonts/SourceHanSansCN.ttf#Source Han Sans CN</FontFamily>
              <FontFamily x:Key="NotoSans">/Assets/Fonts/NotoSans.ttf#Noto Sans</FontFamily>
+
+             <ResourceDictionary.ThemeDictionaries>
+                
+                 <!-- 浅色模式资源 (Light) -->
+                 <ResourceDictionary x:Key="Light">
+                     <SolidColorBrush x:Key="RegionBackgroundBrush" Color="#FFFFFF"/> <!-- 白色背景 -->
+                     <SolidColorBrush x:Key="NestedRegionBackgroundBrush" Color="#F8F9FA"/> <!-- 复合浅灰背景 -->
+                     <SolidColorBrush x:Key="RegionBorderBrush" Color="#E0E0E0"/>     <!-- 浅灰边框 -->
+                     <SolidColorBrush x:Key="PrimaryTextBrush" Color="#000000"/>      <!-- 黑色文字 -->
+                     <SolidColorBrush x:Key="SmallTextBrush" Color="#555555"/>      <!-- 灰色小字 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#55D9B3EB"/> <!-- 交错背景1 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#55B4B2EB"/> <!-- 交错背景2 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#C76CEB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="RegionSelectedBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="RegionHoveredBrush" Color="#55AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="EventBrush" Color="#66EB54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程 -->
+                     <SolidColorBrush x:Key="TodoBrush" Color="#44AD54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="LightTodoBrush" Color="#55AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="NoteBrush" Color="#445D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush" Color="#555D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="ButtonBrush" Color="#556527EF"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 竖分线颜色 -->
+
+
+
+                 </ResourceDictionary>
+
+                 <!-- 深色模式资源 (Dark) -->
+                 <ResourceDictionary x:Key="Dark">
+                     <SolidColorBrush x:Key="RegionBackgroundBrush" Color="#2D2D2D"/> <!-- 深灰背景 -->
+                     <SolidColorBrush x:Key="NestedRegionBackgroundBrush" Color="#3D3D3D"/> <!-- 复合浅灰背景 -->
+                     <SolidColorBrush x:Key="RegionBorderBrush" Color="#454545"/>     <!-- 深色边框 -->
+                     <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FFFFFF"/>      <!-- 白色文字 -->
+                     <SolidColorBrush x:Key="SmallTextBrush" Color="#AAAAAA"/>      <!-- 灰色小字 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#D9B3EB"/> <!-- 交错背景1 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#B4B2EB"/> <!-- 交错背景2 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#C76CEB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="RegionSidebarSelectedBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="EventBrush" Color="#EB54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="TodoBrush" Color="#AD54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="NoteBrush" Color="#5D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="ButtonBrush" Color="#6527EF"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 按钮颜色 -->
+                 </ResourceDictionary>
+                
+             </ResourceDictionary.ThemeDictionaries>
+
          </ResourceDictionary>
      </Application.Resources>
 
