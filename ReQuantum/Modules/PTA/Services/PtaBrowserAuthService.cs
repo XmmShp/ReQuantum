@@ -24,22 +24,12 @@ public interface IPtaBrowserAuthService
 
     string? Email { get; }
 
-    bool IsInitialized { get; }
-
     Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null);
 
-    Task<Result> InitializeAsync(bool headless = true);
-    Task<Result<Stream>> GetQrCodeAsync();
-    Task<Result> SubmitPasswordLoginAsync(string email, string password);
-    Task<Result<Stream?>> CheckForCaptchaAsync(); // Returns stream if captcha exists, null if not
-    Task<Result> SubmitCaptchaAsync(string code);
-    Task<Result<string>> WaitForLoginSuccessAsync(int timeoutSeconds = 200);
-    Task<Result<string>> OpenBrowserAndWaitForLoginAsync(string email, string password, Action<string>? progressCallback = null, int timeoutSeconds = 300);
+    Task<Result> OpenBrowserAndWaitForLoginAsync(Action<string>? progressCallback = null, int timeoutSeconds = 300);
 
-    Result LoginWithSession(string email, string password, string ptaSessionValue);
+    Result LoginWithSession(string email, string ptaSessionValue);
     void Logout();
-
-    Task CleanupAsync();
 
     event Action? OnLogin;
     event Action? OnLogout;
@@ -166,272 +156,16 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
         return possiblePaths.FirstOrDefault(File.Exists);
     }
 
-    public async Task<Result<Stream>> GetQrCodeAsync()
-    {
-        if (!_isInitialized || _page == null)
-        {
-            // 尝试自动重新初始化
-            var initResult = await InitializeAsync();
-            if (!initResult.IsSuccess)
-            {
-                return Result.Fail($"服务未初始化且自动重试失败: {initResult.Message}");
-            }
-        }
-
-        if (!_isInitialized || _page == null) 
-        {
-             return Result.Fail($"服务内部状态异常 (Init:{_isInitialized}, Page:{_page!=null})");
-        }
-
-        try
-        {
-            await _page.GotoAsync("https://pintia.cn/auth/login?tab=wechatLogin", new PageGotoOptions { Timeout = 10000 });
-            await _page.WaitForLoadStateAsync(Microsoft.Playwright.LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 10000 });
-
-            // 查找 QR 码图片
-            // 策略：查找 src 为 data:image 的图片，或者包含 qrcode 的图片
-            var imgLocator = _page.Locator("img[src^='data:image']").First;
-
-            // 等待图片出现
-            await imgLocator.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000 });
-            
-            var src = await imgLocator.GetAttributeAsync("src");
-            if (string.IsNullOrEmpty(src))
-            {
-                return Result.Fail("未找到二维码图片");
-            }
-
-            var base64 = src.Split(',')[1];
-            var bytes = Convert.FromBase64String(base64);
-            return Result.Success<Stream>(new MemoryStream(bytes));
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"获取二维码失败: {ex.Message}");
-        }
-    }
-
-    public async Task<Result> SubmitPasswordLoginAsync(string email, string password)
-    {
-        if (!_isInitialized || _page == null)
-        {
-            // 尝试自动重新初始化
-            var initResult = await InitializeAsync();
-            if (!initResult.IsSuccess)
-            {
-                return Result.Fail($"服务未初始化且自动重试失败: {initResult.Message}");
-            }
-        }
-
-        try
-        {
-            // 检查浏览器和页面是否仍然有效
-            if (_browser == null || _page == null)
-            {
-                return Result.Fail("浏览器或页面对象为空");
-            }
-
-            // 检查浏览器是否已连接
-            if (!_browser.IsConnected)
-            {
-                return Result.Fail("浏览器已断开连接，请重新初始化");
-            }
-
-            // 检查页面是否已关闭
-            if (_page.IsClosed)
-            {
-                // 尝试创建新页面
-                _page = await _browser.NewPageAsync();
-            }
-
-            await _page.GotoAsync("https://pintia.cn/auth/login", new PageGotoOptions { Timeout = 15000 });
-            await _page.WaitForLoadStateAsync(Microsoft.Playwright.LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
-
-            // 等待登录表单加载完成
-            var emailInput = _page.Locator("input[type='email'], input[placeholder*='邮箱'], input[name*='email'], input[placeholder*='Email']").First;
-            await emailInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000, State = WaitForSelectorState.Visible });
-
-            // 填写邮箱
-            await emailInput.FillAsync(email);
-
-            // 填写密码
-            var passwordInput = _page.Locator("input[type='password']").First;
-            await passwordInput.FillAsync(password);
-
-            // 等待一小段时间确保输入完成
-            await Task.Delay(500);
-
-            // 点击登录按钮 - 使用多种选择器尝试
-            var loginBtn = _page.Locator("button[type='submit'], button:has-text('登录'), button:has-text('Login')").First;
-            await loginBtn.ClickAsync();
-
-            return Result.Success("提交成功");
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"提交登录失败: {ex.Message}");
-        }
-    }
-
-    public async Task<Result<Stream?>> CheckForCaptchaAsync()
-    {
-        if (!_isInitialized || _page == null) return Result.Fail("服务未初始化");
-
-        try
-        {
-            // 等待一小段时间看是否有验证码弹出
-            await Task.Delay(2000);
-
-            // 腾讯云滑动验证码的常见特征：
-            // 1. iframe 包含 captcha/tcaptcha
-            // 2. div.tcaptcha-transform
-            // 3. canvas 元素（拼图验证码）
-            // 4. 显示在正中间的遮罩层
-
-            var captchaSelectors = new[]
-            {
-                "#tcaptcha_iframe",                 // 腾讯云验证码特定 ID
-                "iframe[src*='captcha']",           // 腾讯云验证码 iframe
-                "iframe[src*='tcaptcha']",          // 腾讯云验证码 iframe（另一种）
-                "div[id*='tcaptcha']",              // 腾讯云验证码容器（by id）
-                "div[class*='tcaptcha']",           // 腾讯云验证码容器（by class）
-                "div[class*='captcha-popup']",      // 验证码弹窗
-            };
-
-            foreach (var selector in captchaSelectors)
-            {
-                try
-                {
-                    var element = _page.Locator(selector);
-                    await element.First.WaitForAsync(new LocatorWaitForOptions { Timeout = 3000 });
-
-                    if (await element.CountAsync() > 0)
-                    {
-                        // 检测到验证码，尝试截图整个页面中央区域（验证码通常在中间）
-                        // 由于腾讯云验证码可能在 iframe 中，我们截取页面的中央区域
-                        var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
-                        {
-                            Type = ScreenshotType.Png
-                        });
-
-                        return Result.Success<Stream?>(new MemoryStream(screenshot));
-                    }
-                }
-                catch (TimeoutException)
-                {
-                    // 当前选择器未找到，继续尝试下一个
-                    continue;
-                }
-            }
-
-            // 所有选择器都未找到验证码
-            return Result.Success<Stream?>(null);
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"检查验证码失败: {ex.Message}");
-        }
-    }
-
-    public async Task<Result> SubmitCaptchaAsync(string code)
-    {
-        if (!_isInitialized || _page == null) return Result.Fail("服务未初始化");
-
-        try
-        {
-            // 假设验证码输入框
-            var input = _page.Locator("input[placeholder*='验证码'], input[name*='captcha']");
-            await input.FillAsync(code);
-
-            // 再次点击登录或确认
-            // 通常验证码输入后有确认按钮，或者是原来的登录按钮
-            var confirmBtn = _page.Locator("button:has-text('确认'), button:has-text('确定')");
-            if (await confirmBtn.CountAsync() > 0 && await confirmBtn.IsVisibleAsync())
-            {
-                await confirmBtn.ClickAsync();
-            }
-            else
-            {
-                // 尝试再次点击登录
-                var loginBtn = _page.Locator("button[type='submit']");
-                await loginBtn.ClickAsync();
-            }
-
-            return Result.Success("验证码提交成功");
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"提交验证码失败: {ex.Message}");
-        }
-    }
-
-    public async Task<Result<string>> WaitForLoginSuccessAsync(int timeoutSeconds = 200)
-    {
-        if (!_isInitialized || _page == null)
-            return Result.Fail("服务未初始化");
-
-        try
-        {
-            // 等待页面跳转到 dashboard（登录成功的标志）
-            await _page.WaitForURLAsync("**/problem-sets/dashboard", new PageWaitForURLOptions
-            {
-                Timeout = timeoutSeconds * 1000
-            });
-
-            // 跳转成功后，稍等片刻确保 Cookie 已写入
-            await Task.Delay(1000);
-
-            // 检查 Context 是否为 null
-            if (_page.Context == null)
-            {
-                return Result.Fail("浏览器上下文为空，无法获取 Cookie");
-            }
-
-            // 获取 PTASession Cookie
-            var cookies = await _page.Context.CookiesAsync();
-
-            if (cookies == null || cookies.Count == 0)
-            {
-                return Result.Fail("未获取到任何 Cookie");
-            }
-
-            var session = cookies.FirstOrDefault(c => c.Name == "PTASession");
-
-            if (session != null && !string.IsNullOrWhiteSpace(session.Value))
-            {
-                return Result.Success<string>(session.Value);
-            }
-
-            return Result.Fail($"登录失败：已跳转到 dashboard 但未获取到 PTASession Cookie（共 {cookies.Count} 个 Cookie）");
-        }
-        catch (TimeoutException)
-        {
-            var currentUrl = _page?.Url ?? "unknown";
-            return Result.Fail($"登录超时（{timeoutSeconds}秒内未跳转到 dashboard）。当前页面: {currentUrl}");
-        }
-        catch (NullReferenceException ex)
-        {
-            return Result.Fail($"空引用异常: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            var currentUrl = _page?.Url ?? "unknown";
-            return Result.Fail($"等待登录结果失败: {ex.Message}。当前页面: {currentUrl}");
-        }
-    }
-
     /// <summary>
-    /// 打开浏览器让用户手动完成登录，自动抓取 PTASession
+    /// 打开浏览器让用户手动完成登录，自动抓取 PTASession 并获取用户信息
     /// </summary>
-    public async Task<Result<string>> OpenBrowserAndWaitForLoginAsync(
-        string email,
-        string password,
+    public async Task<Result> OpenBrowserAndWaitForLoginAsync(
         Action<string>? progressCallback = null,
         int timeoutSeconds = 300)
     {
         try
         {
-            progressCallback?.Invoke("🔧 正在初始化浏览器环境...");
+            progressCallback?.Invoke("正在初始化浏览器环境...");
 
             // 清理之前的浏览器实例
             await CleanupAsync();
@@ -448,26 +182,14 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
                 return Result.Fail("浏览器或页面对象为空");
             }
 
-            progressCallback?.Invoke("🌐 正在打开 PTA 登录页面...");
+            progressCallback?.Invoke("正在打开 PTA 登录页面...");
 
-            // 导航到登录页面
+            // 导航到登录页面，让用户自行选择登录方式
             await _page.GotoAsync("https://pintia.cn/auth/login", new PageGotoOptions { Timeout = 15000 });
             await _page.WaitForLoadStateAsync(Microsoft.Playwright.LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
 
-            progressCallback?.Invoke("✏️ 正在自动填充账号信息...");
-
-            // 等待登录表单加载完成
-            var emailInput = _page.Locator("input[type='email'], input[placeholder*='邮箱'], input[name*='email'], input[placeholder*='Email']").First;
-            await emailInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000, State = WaitForSelectorState.Visible });
-
-            // 自动填充邮箱和密码
-            await emailInput.FillAsync(email);
-
-            var passwordInput = _page.Locator("input[type='password']").First;
-            await passwordInput.FillAsync(password);
-
-            progressCallback?.Invoke("👆 请在浏览器中完成验证码验证并点击登录按钮");
-            progressCallback?.Invoke("⏳ 等待登录完成（最多 " + timeoutSeconds + " 秒）...");
+            progressCallback?.Invoke("请在浏览器中选择登录方式并完成登录");
+            progressCallback?.Invoke($"等待登录完成（最多 {timeoutSeconds} 秒）...");
 
             // 等待用户完成登录（页面跳转到 dashboard）
             await _page.WaitForURLAsync("**/problem-sets/dashboard", new PageWaitForURLOptions
@@ -475,7 +197,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
                 Timeout = timeoutSeconds * 1000
             });
 
-            progressCallback?.Invoke("✓ 检测到登录成功！正在获取登录凭证...");
+            progressCallback?.Invoke("检测到登录成功！正在获取登录凭证...");
 
             // 等待 Cookie 写入
             await Task.Delay(1000);
@@ -496,8 +218,17 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
 
             if (session != null && !string.IsNullOrWhiteSpace(session.Value))
             {
-                progressCallback?.Invoke($"✓ 成功获取 PTASession (长度: {session.Value.Length})");
-                progressCallback?.Invoke("🎉 登录流程完成！浏览器将在后台关闭...");
+                progressCallback?.Invoke($"成功获取 PTASession（长度: {session.Value.Length}）");
+                progressCallback?.Invoke("正在获取用户信息...");
+
+                // 获取用户信息
+                var userInfoResult = await GetUserInfoAsync(session.Value);
+                var username = userInfoResult.IsSuccess ? userInfoResult.Value : "PTA用户";
+
+                progressCallback?.Invoke($"登录成功！欢迎 {username}");
+
+                // 使用获取到的用户名登录
+                LoginWithSession(username, session.Value);
 
                 // 在后台异步关闭浏览器，不等待完成以提升响应速度
                 _ = Task.Run(async () =>
@@ -510,7 +241,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
                     catch { /* 忽略后台清理错误 */ }
                 });
 
-                return Result.Success<string>(session.Value);
+                return Result.Success("登录成功");
             }
 
             return Result.Fail($"登录失败：已跳转到 dashboard 但未获取到 PTASession Cookie（共 {cookies.Count} 个 Cookie）");
@@ -518,13 +249,53 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
         catch (TimeoutException)
         {
             var currentUrl = _page?.Url ?? "unknown";
-            progressCallback?.Invoke($"✗ 登录超时（{timeoutSeconds} 秒内未完成）");
+            progressCallback?.Invoke($"登录超时（{timeoutSeconds} 秒内未完成）");
             return Result.Fail($"登录超时（{timeoutSeconds}秒内未完成登录）。当前页面: {currentUrl}");
         }
         catch (Exception ex)
         {
-            progressCallback?.Invoke($"✗ 发生错误: {ex.Message}");
+            progressCallback?.Invoke($"发生错误: {ex.Message}");
             return Result.Fail($"浏览器登录失败: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 使用PTASession获取用户信息
+    /// </summary>
+    private async Task<Result<string>> GetUserInfoAsync(string ptaSessionValue)
+    {
+        try
+        {
+            using var client = new System.Net.Http.HttpClient();
+            var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, "https://passport.pintia.cn/api/u/current");
+            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("Cookie", $"PTASession={ptaSessionValue}");
+
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return Result.Fail($"获取用户信息失败: HTTP {response.StatusCode}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var userInfo = System.Text.Json.JsonSerializer.Deserialize<PtaUserInfoResponse>(content);
+
+            if (userInfo?.User?.Nickname != null && !string.IsNullOrWhiteSpace(userInfo.User.Nickname))
+            {
+                return userInfo.User.Nickname;
+            }
+
+            // 如果nickname为空，尝试使用email
+            if (userInfo?.User?.Email != null && !string.IsNullOrWhiteSpace(userInfo.User.Email))
+            {
+                return userInfo.User.Email;
+            }
+
+            return Result.Fail("未能从用户信息中获取昵称或邮箱");
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"获取用户信息异常: {ex.Message}");
         }
     }
 
@@ -583,12 +354,12 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
         return RequestClient.Create(requestOptions);
     }
 
-    public Result LoginWithSession(string email, string password, string ptaSessionValue)
+    public Result LoginWithSession(string email, string ptaSessionValue)
     {
         try
         {
             var ptaSessionCookie = new System.Net.Cookie("PTASession", ptaSessionValue, "/", "pintia.cn");
-            _state = new PtaState(email, password, ptaSessionCookie);
+            _state = new PtaState(email, ptaSessionCookie);
 
             SaveState();
             OnLogin?.Invoke();

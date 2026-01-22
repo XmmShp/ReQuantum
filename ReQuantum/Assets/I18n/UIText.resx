@@ -366,18 +366,6 @@
   <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
-  <data name="EnterPtaEmail" xml:space="preserve">
-    <value>Enter PTA email</value>
-  </data>
-  <data name="NeedCaptchaUseBrowser" xml:space="preserve">
-    <value>Captcha required, click here to login via browser</value>
-  </data>
-  <data name="EnterPtaSessionCookie" xml:space="preserve">
-    <value>Enter PTASession Cookie</value>
-  </data>
-  <data name="PastePtaSessionValue" xml:space="preserve">
-    <value>Paste PTASession value (UUID format)</value>
-  </data>
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
@@ -405,23 +393,17 @@
   <data name="PtaAccountLogin" xml:space="preserve">
     <value>Account Login</value>
   </data>
-  <data name="PasswordLogin" xml:space="preserve">
-    <value>Password Login</value>
+  <data name="PtaClickToLogin" xml:space="preserve">
+    <value>Click to Login</value>
   </data>
-  <data name="WeChatQrLogin" xml:space="preserve">
-    <value>WeChat QR Code</value>
-  </data>
-  <data name="LoadingQrCode" xml:space="preserve">
-    <value>Loading QR code...</value>
+  <data name="PtaLoginHelpText" xml:space="preserve">
+    <value>Click the button to open browser. You can choose WeChat, Student ID, or regular login method</value>
   </data>
   <data name="BrowserLoginFailed" xml:space="preserve">
     <value>Browser login failed</value>
   </data>
   <data name="BrowserLoginException" xml:space="preserve">
     <value>Browser login exception</value>
-  </data>
-  <data name="QrCodeExpiredRefreshing" xml:space="preserve">
-    <value>QR code has expired, refreshing automatically...</value>
   </data>
   <data name="GetProblemSetFailed" xml:space="preserve">
     <value>Failed to get problem set</value>
@@ -465,79 +447,28 @@
   <data name="SyncPTA" xml:space="preserve">
     <value>SyncPTA</value>
   </data>
-  <data name="PtaQrCodeLoading" xml:space="preserve">
-    <value>Loading QR code...</value>
-  </data>
-  <data name="PtaScanQrCode" xml:space="preserve">
-    <value>Scan with WeChat</value>
-  </data>
-  <data name="PtaInitFailed" xml:space="preserve">
-    <value>Initialization failed: {0}</value>
-  </data>
-  <data name="PtaGetQrCodeFailed" xml:space="preserve">
-    <value>Failed to get QR code: {0}</value>
-  </data>
-  <data name="PtaLoadQrCodeException" xml:space="preserve">
-    <value>QR code loading exception: {0}</value>
-  </data>
-  <data name="PtaPleaseEnterEmail" xml:space="preserve">
-    <value>Please enter email</value>
-  </data>
   <data name="PtaLoggingIn" xml:space="preserve">
     <value>Logging in...</value>
   </data>
   <data name="PtaLoginSuccess" xml:space="preserve">
     <value>Login successful</value>
   </data>
-  <data name="PtaLoginFailedWithReason" xml:space="preserve">
-    <value>Login failed: {0}</value>
-  </data>
-  <data name="PtaLoginException" xml:space="preserve">
-    <value>Login exception: {0}</value>
-  </data>
-  <data name="PtaSubmittingCaptcha" xml:space="preserve">
-    <value>Submitting captcha...</value>
-  </data>
-  <data name="PtaCaptchaSubmittedWaiting" xml:space="preserve">
-    <value>Captcha submitted, waiting for result...</value>
-  </data>
-  <data name="PtaCaptchaSubmitFailed" xml:space="preserve">
-    <value>Captcha submission failed: {0}</value>
-  </data>
-  <data name="PtaQrModeException" xml:space="preserve">
-    <value>QR mode exception: {0}</value>
-  </data>
-  <data name="PtaSwitchedToPasswordMode" xml:space="preserve">
-    <value>Switched to password login</value>
-  </data>
-  <data name="PtaPleaseEnterEmailAndPassword" xml:space="preserve">
-    <value>Please enter email and password first</value>
-  </data>
-  <data name="PtaBrowserLoginInstructions" xml:space="preserve">
-    <value>Please complete login in browser, then copy PTASession cookie value</value>
-  </data>
-  <data name="PtaOpenBrowserFailed" xml:space="preserve">
-    <value>Failed to open browser: {0}</value>
-  </data>
-  <data name="PtaPleaseEnterSessionValue" xml:space="preserve">
-    <value>Please enter PTASession value</value>
-  </data>
   <data name="PtaLoggedOut" xml:space="preserve">
     <value>Logged out</value>
   </data>
   <data name="PtaLoggedInAs" xml:space="preserve">
-    <value>Logged in as: {0}</value>
-  </data>
-  <data name="PtaManualPasteSession" xml:space="preserve">
-    <value>Unable to login? Manually paste PTASession</value>
-  </data>
-  <data name="PtaScanWithWeChat" xml:space="preserve">
-    <value>Please scan with WeChat to login</value>
+    <value>You are Logged in as: {0}</value>
   </data>
   <data name="Appearance" xml:space="preserve">
     <value>Appearance</value>
   </data>
   <data name="Theme" xml:space="preserve">
     <value>Theme</value>
+  </data>
+  <data name="PtaLogin" xml:space="preserve">
+    <value>PtaLogin</value>
+  </data>
+  <data name="PtaLoggedIn" xml:space="preserve">
+    <value>Logged in</value>
   </data>
 </root>

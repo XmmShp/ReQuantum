@@ -124,6 +124,33 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Appearance.
+        /// </summary>
+        public static string Appearance {
+            get {
+                return ResourceManager.GetString("Appearance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login exception.
+        /// </summary>
+        public static string BrowserLoginException {
+            get {
+                return ResourceManager.GetString("BrowserLoginException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login failed.
+        /// </summary>
+        public static string BrowserLoginFailed {
+            get {
+                return ResourceManager.GetString("BrowserLoginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Calendar.
         /// </summary>
         public static string Calendar {
@@ -295,24 +322,6 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enter PTA email.
-        /// </summary>
-        public static string EnterPtaEmail {
-            get {
-                return ResourceManager.GetString("EnterPtaEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Enter PTASession Cookie.
-        /// </summary>
-        public static string EnterPtaSessionCookie {
-            get {
-                return ResourceManager.GetString("EnterPtaSessionCookie", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Enter todo content....
         /// </summary>
         public static string EnterTodoContent {
@@ -448,7 +457,7 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Problem set retrieval exception.
+        ///   Looks up a localized string similar to Exception while getting problem set.
         /// </summary>
         public static string GetProblemSetException {
             get {
@@ -457,7 +466,7 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to get problem sets.
+        ///   Looks up a localized string similar to Failed to get problem set.
         /// </summary>
         public static string GetProblemSetFailed {
             get {
@@ -601,15 +610,6 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Captcha required, click here to login via browser.
-        /// </summary>
-        public static string NeedCaptchaUseBrowser {
-            get {
-                return ResourceManager.GetString("NeedCaptchaUseBrowser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No events.
         /// </summary>
         public static string NoEvents {
@@ -700,7 +700,7 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to parse problem set response.
+        ///   Looks up a localized string similar to Failed to parse problem set data.
         /// </summary>
         public static string ParseProblemSetFailed {
             get {
@@ -714,15 +714,6 @@ namespace ReQuantum.Assets.I18n {
         public static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paste PTASession value (UUID format).
-        /// </summary>
-        public static string PastePtaSessionValue {
-            get {
-                return ResourceManager.GetString("PastePtaSessionValue", resourceCulture);
             }
         }
         
@@ -754,7 +745,7 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PTA Account Login.
+        ///   Looks up a localized string similar to Account Login.
         /// </summary>
         public static string PtaAccountLogin {
             get {
@@ -763,7 +754,16 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PTA Logged In.
+        ///   Looks up a localized string similar to Click to Login.
+        /// </summary>
+        public static string PtaClickToLogin {
+            get {
+                return ResourceManager.GetString("PtaClickToLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logged in.
         /// </summary>
         public static string PtaLoggedIn {
             get {
@@ -772,11 +772,56 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PTA Login.
+        ///   Looks up a localized string similar to You are Logged in as: {0}.
+        /// </summary>
+        public static string PtaLoggedInAs {
+            get {
+                return ResourceManager.GetString("PtaLoggedInAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logged out.
+        /// </summary>
+        public static string PtaLoggedOut {
+            get {
+                return ResourceManager.GetString("PtaLoggedOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logging in....
+        /// </summary>
+        public static string PtaLoggingIn {
+            get {
+                return ResourceManager.GetString("PtaLoggingIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PtaLogin.
         /// </summary>
         public static string PtaLogin {
             get {
                 return ResourceManager.GetString("PtaLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click the button to open browser. You can choose WeChat, Student ID, or regular login method.
+        /// </summary>
+        public static string PtaLoginHelpText {
+            get {
+                return ResourceManager.GetString("PtaLoginHelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login successful.
+        /// </summary>
+        public static string PtaLoginSuccess {
+            get {
+                return ResourceManager.GetString("PtaLoginSuccess", resourceCulture);
             }
         }
         
@@ -934,6 +979,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Theme.
+        /// </summary>
+        public static string Theme {
+            get {
+                return ResourceManager.GetString("Theme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Thu.
         /// </summary>
         public static string Thursday {
@@ -1067,348 +1121,5 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ZjuSsoLogin", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Loading QR code....
-        /// </summary>
-        public static string PtaQrCodeLoading {
-            get {
-                return ResourceManager.GetString("PtaQrCodeLoading", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Scan with WeChat.
-        /// </summary>
-        public static string PtaScanQrCode {
-            get {
-                return ResourceManager.GetString("PtaScanQrCode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Initialization failed: {0}.
-        /// </summary>
-        public static string PtaInitFailed {
-            get {
-                return ResourceManager.GetString("PtaInitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to get QR code: {0}.
-        /// </summary>
-        public static string PtaGetQrCodeFailed {
-            get {
-                return ResourceManager.GetString("PtaGetQrCodeFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to QR code loading exception: {0}.
-        /// </summary>
-        public static string PtaLoadQrCodeException {
-            get {
-                return ResourceManager.GetString("PtaLoadQrCodeException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter email.
-        /// </summary>
-        public static string PtaPleaseEnterEmail {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterEmail", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Logging in....
-        /// </summary>
-        public static string PtaLoggingIn {
-            get {
-                return ResourceManager.GetString("PtaLoggingIn", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login successful.
-        /// </summary>
-        public static string PtaLoginSuccess {
-            get {
-                return ResourceManager.GetString("PtaLoginSuccess", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha required, starting smart login....
-        /// </summary>
-        public static string PtaNeedCaptchaStartingPlaywright {
-            get {
-                return ResourceManager.GetString("PtaNeedCaptchaStartingPlaywright", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login failed: {0}.
-        /// </summary>
-        public static string PtaLoginFailedWithReason {
-            get {
-                return ResourceManager.GetString("PtaLoginFailedWithReason", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login exception: {0}.
-        /// </summary>
-        public static string PtaLoginException {
-            get {
-                return ResourceManager.GetString("PtaLoginException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Initializing browser environment....
-        /// </summary>
-        public static string PtaInitializingBrowser {
-            get {
-                return ResourceManager.GetString("PtaInitializingBrowser", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submitting login information....
-        /// </summary>
-        public static string PtaSubmittingLogin {
-            get {
-                return ResourceManager.GetString("PtaSubmittingLogin", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submission failed: {0}.
-        /// </summary>
-        public static string PtaSubmitFailed {
-            get {
-                return ResourceManager.GetString("PtaSubmitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter captcha.
-        /// </summary>
-        public static string PtaPleaseEnterCaptcha {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterCaptcha", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Waiting for login result....
-        /// </summary>
-        public static string PtaWaitingForResult {
-            get {
-                return ResourceManager.GetString("PtaWaitingForResult", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Smart login exception: {0}.
-        /// </summary>
-        public static string PtaPlaywrightLoginException {
-            get {
-                return ResourceManager.GetString("PtaPlaywrightLoginException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submitting captcha....
-        /// </summary>
-        public static string PtaSubmittingCaptcha {
-            get {
-                return ResourceManager.GetString("PtaSubmittingCaptcha", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha submitted, waiting for result....
-        /// </summary>
-        public static string PtaCaptchaSubmittedWaiting {
-            get {
-                return ResourceManager.GetString("PtaCaptchaSubmittedWaiting", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha submission failed: {0}.
-        /// </summary>
-        public static string PtaCaptchaSubmitFailed {
-            get {
-                return ResourceManager.GetString("PtaCaptchaSubmitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to QR mode exception: {0}.
-        /// </summary>
-        public static string PtaQrModeException {
-            get {
-                return ResourceManager.GetString("PtaQrModeException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Switched to password login.
-        /// </summary>
-        public static string PtaSwitchedToPasswordMode {
-            get {
-                return ResourceManager.GetString("PtaSwitchedToPasswordMode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login timeout or failed: {0}.
-        /// </summary>
-        public static string PtaLoginTimeoutOrFailed {
-            get {
-                return ResourceManager.GetString("PtaLoginTimeoutOrFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter email and password first.
-        /// </summary>
-        public static string PtaPleaseEnterEmailAndPassword {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterEmailAndPassword", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please complete login in browser, then copy PTASession cookie value.
-        /// </summary>
-        public static string PtaBrowserLoginInstructions {
-            get {
-                return ResourceManager.GetString("PtaBrowserLoginInstructions", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string.
-        /// </summary>
-        public static string PtaHowToGetSession {
-            get {
-                return ResourceManager.GetString("PtaHowToGetSession", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to open browser: {0}.
-        /// </summary>
-        public static string PtaOpenBrowserFailed {
-            get {
-                return ResourceManager.GetString("PtaOpenBrowserFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter PTASession value.
-        /// </summary>
-        public static string PtaPleaseEnterSessionValue {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterSessionValue", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Logging in with cookie....
-        /// </summary>
-        public static string PtaLoggingInWithCookie {
-            get {
-                return ResourceManager.GetString("PtaLoggingInWithCookie", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Logged out.
-        /// </summary>
-        public static string PtaLoggedOut {
-            get {
-                return ResourceManager.GetString("PtaLoggedOut", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Logged in as: {0}.
-        /// </summary>
-        public static string PtaLoggedInAs {
-            get {
-                return ResourceManager.GetString("PtaLoggedInAs", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Cookie login successful.
-        /// </summary>
-        public static string PtaCookieLoginSuccess {
-            get {
-                return ResourceManager.GetString("PtaCookieLoginSuccess", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Browser login failed: {0}.
-        /// </summary>
-        public static string BrowserLoginFailed {
-            get {
-                return ResourceManager.GetString("BrowserLoginFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Browser login exception: {0}.
-        /// </summary>
-        public static string BrowserLoginException {
-            get {
-                return ResourceManager.GetString("BrowserLoginException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to QR code has expired, refreshing automatically...
-        /// </summary>
-        public static string QrCodeExpiredRefreshing {
-            get {
-                return ResourceManager.GetString("QrCodeExpiredRefreshing", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Password Login.
-        /// </summary>
-        public static string PasswordLogin {
-            get {
-                return ResourceManager.GetString("PasswordLogin", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to WeChat QR Code.
-        /// </summary>
-        public static string WeChatQrLogin {
-            get {
-                return ResourceManager.GetString("WeChatQrLogin", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Loading QR code...
-        /// </summary>
-        public static string LoadingQrCode {
-            get {
-                return ResourceManager.GetString("LoadingQrCode", resourceCulture);
-            }
-        }
-
     }
 }
