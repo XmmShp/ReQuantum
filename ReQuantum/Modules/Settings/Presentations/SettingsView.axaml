@@ -82,7 +82,7 @@
               CornerRadius="8"
               Padding="20">
           <StackPanel Spacing="16">
-              <TextBlock Text="{Binding Localizer[PtaLogin]}"
+              <TextBlock Text="{Binding Localizer[Appearance]}"
                          FontSize="20"
                          FontWeight="SemiBold"/>
 
