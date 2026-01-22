@@ -340,7 +340,7 @@
     <value>🔁 Repeat eveyweek</value>
   </data>
   <data name="RepeatTimes" xml:space="preserve">
-    <value> Repeat Times：</value>
+    <value>Repeat Times：</value>
   </data>
   <data name="PintiaLogin" xml:space="preserve">
     <value>Pintia Login</value>
@@ -450,6 +450,14 @@
   <data name="GetProblemSetException" xml:space="preserve">
     <value>Problem set retrieval exception</value>
   </data>
+  <data name="Upcomingschedule" xml:space="preserve">
+    <value>Upcoming schedule</value>
+  </data>
+  <data name="RecentNotes" xml:space="preserve">
+    <value>Recent Notes</value>
+  </data>
+  <data name="Deadline" xml:space="preserve">
+    <value>Deadline</value>
   <data name="SyncPTA" xml:space="preserve">
     <value>SyncPTA</value>
   </data>
