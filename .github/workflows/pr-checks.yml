@@ -36,7 +36,7 @@ jobs:
     - name: Check code formatting
       run: |
         dotnet tool install --global dotnet-format
-        dotnet-format --verify-no-changes ${{ env.SOLUTION_FILE }}
+        dotnet-format --check ${{ env.SOLUTION_FILE }}
 
   dependency-review:
     name: Dependency Review
