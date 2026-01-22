@@ -555,4 +555,10 @@
   <data name="PtaCookieLoginSuccess" xml:space="preserve">
     <value>Cookie login successful</value>
   </data>
+  <data name="PtaManualPasteSession" xml:space="preserve">
+    <value>Unable to login? Manually paste PTASession</value>
+  </data>
+  <data name="PtaScanWithWeChat" xml:space="preserve">
+    <value>Please scan with WeChat to login</value>
+  </data>
 </root>

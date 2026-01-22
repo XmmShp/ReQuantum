@@ -3,8 +3,10 @@ using Microsoft.Playwright;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Modules.Common.Attributes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace ReQuantum.Modules.Pta.Services;
@@ -42,10 +44,19 @@ public class PtaPlaywrightService : IPtaPlaywrightService
 
             if (_browser == null)
             {
-                _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                var browserPath = GetLocalBrowserPath();
+                var options = new BrowserTypeLaunchOptions
                 {
                     Headless = headless
-                });
+                };
+
+                // 如果找到本地浏览器，使用本地浏览器路径
+                if (!string.IsNullOrEmpty(browserPath))
+                {
+                    options.ExecutablePath = browserPath;
+                }
+
+                _browser = await _playwright.Chromium.LaunchAsync(options);
             }
 
             if (_page == null)
@@ -60,6 +71,59 @@ public class PtaPlaywrightService : IPtaPlaywrightService
         {
             return Result.Fail($"Playwright 初始化失败: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// 检测并返回本地 Chromium 系浏览器路径
+    /// </summary>
+    private string? GetLocalBrowserPath()
+    {
+        var possiblePaths = new List<string>();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // macOS 路径
+            possiblePaths.AddRange(new[]
+            {
+                "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+                "/Applications/Chromium.app/Contents/MacOS/Chromium",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+            });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // Windows 路径
+            possiblePaths.AddRange(new[]
+            {
+                @"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                @"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+                @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    @"Google\Chrome\Application\chrome.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                    @"Google\Chrome\Application\chrome.exe")
+            });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Linux 路径
+            possiblePaths.AddRange(new[]
+            {
+                "/usr/bin/google-chrome",
+                "/usr/bin/google-chrome-stable",
+                "/usr/bin/chromium",
+                "/usr/bin/chromium-browser",
+                "/snap/bin/chromium",
+                "/usr/bin/microsoft-edge",
+                "/usr/bin/microsoft-edge-stable"
+            });
+        }
+
+        // 返回第一个存在的浏览器路径
+        return possiblePaths.FirstOrDefault(File.Exists);
     }
 
     public async Task<Result<Stream>> GetQrCodeAsync()
@@ -81,15 +145,15 @@ public class PtaPlaywrightService : IPtaPlaywrightService
 
         try
         {
-            await _page.GotoAsync("https://pintia.cn/auth/login?tab=wechatLogin");
-            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await _page.GotoAsync("https://pintia.cn/auth/login?tab=wechatLogin", new PageGotoOptions { Timeout = 10000 });
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 10000 });
 
             // 查找 QR 码图片
             // 策略：查找 src 为 data:image 的图片，或者包含 qrcode 的图片
             var imgLocator = _page.Locator("img[src^='data:image']").First;
-            
+
             // 等待图片出现
-            await imgLocator.WaitForAsync(new LocatorWaitForOptions { Timeout = 5000 });
+            await imgLocator.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000 });
             
             var src = await imgLocator.GetAttributeAsync("src");
             if (string.IsNullOrEmpty(src))
@@ -109,16 +173,43 @@ public class PtaPlaywrightService : IPtaPlaywrightService
 
     public async Task<Result> SubmitPasswordLoginAsync(string email, string password)
     {
-        if (!_isInitialized || _page == null) return Result.Fail("服务未初始化");
+        if (!_isInitialized || _page == null)
+        {
+            // 尝试自动重新初始化
+            var initResult = await InitializeAsync();
+            if (!initResult.IsSuccess)
+            {
+                return Result.Fail($"服务未初始化且自动重试失败: {initResult.Message}");
+            }
+        }
 
         try
         {
-            await _page.GotoAsync("https://pintia.cn/auth/login");
-            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            // 检查浏览器和页面是否仍然有效
+            if (_browser == null || _page == null)
+            {
+                return Result.Fail("浏览器或页面对象为空");
+            }
 
-            // 等待登录表单加载完成，增加超时时间到 60 秒
+            // 检查浏览器是否已连接
+            if (!_browser.IsConnected)
+            {
+                return Result.Fail("浏览器已断开连接，请重新初始化");
+            }
+
+            // 检查页面是否已关闭
+            if (_page.IsClosed)
+            {
+                // 尝试创建新页面
+                _page = await _browser.NewPageAsync();
+            }
+
+            await _page.GotoAsync("https://pintia.cn/auth/login", new PageGotoOptions { Timeout = 15000 });
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
+
+            // 等待登录表单加载完成
             var emailInput = _page.Locator("input[type='email'], input[placeholder*='邮箱'], input[name*='email'], input[placeholder*='Email']").First;
-            await emailInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 60000, State = WaitForSelectorState.Visible });
+            await emailInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000, State = WaitForSelectorState.Visible });
 
             // 填写邮箱
             await emailInput.FillAsync(email);
@@ -149,28 +240,51 @@ public class PtaPlaywrightService : IPtaPlaywrightService
         try
         {
             // 等待一小段时间看是否有验证码弹出
-            // 验证码通常是一个图片
-            // 假设验证码图片选择器
-            var captchaImg = _page.Locator("img[alt*='captcha'], img[src*='captcha']");
-            
-            try 
+            await Task.Delay(2000);
+
+            // 腾讯云滑动验证码的常见特征：
+            // 1. iframe 包含 captcha/tcaptcha
+            // 2. div.tcaptcha-transform
+            // 3. canvas 元素（拼图验证码）
+            // 4. 显示在正中间的遮罩层
+
+            var captchaSelectors = new[]
             {
-                await captchaImg.First.WaitForAsync(new LocatorWaitForOptions { Timeout = 3000 });
-            }
-            catch (TimeoutException)
+                "#tcaptcha_iframe",                 // 腾讯云验证码特定 ID
+                "iframe[src*='captcha']",           // 腾讯云验证码 iframe
+                "iframe[src*='tcaptcha']",          // 腾讯云验证码 iframe（另一种）
+                "div[id*='tcaptcha']",              // 腾讯云验证码容器（by id）
+                "div[class*='tcaptcha']",           // 腾讯云验证码容器（by class）
+                "div[class*='captcha-popup']",      // 验证码弹窗
+            };
+
+            foreach (var selector in captchaSelectors)
             {
-                // 没有验证码
-                return Result.Success<Stream?>(null);
+                try
+                {
+                    var element = _page.Locator(selector);
+                    await element.First.WaitForAsync(new LocatorWaitForOptions { Timeout = 3000 });
+
+                    if (await element.CountAsync() > 0)
+                    {
+                        // 检测到验证码，尝试截图整个页面中央区域（验证码通常在中间）
+                        // 由于腾讯云验证码可能在 iframe 中，我们截取页面的中央区域
+                        var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
+                        {
+                            Type = ScreenshotType.Png
+                        });
+
+                        return Result.Success<Stream?>(new MemoryStream(screenshot));
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    // 当前选择器未找到，继续尝试下一个
+                    continue;
+                }
             }
 
-            if (await captchaImg.CountAsync() > 0)
-            {
-                // 截取验证码图片
-                // 可以直接截图该元素
-                var bytes = await captchaImg.First.ScreenshotAsync();
-                return Result.Success<Stream?>(new MemoryStream(bytes));
-            }
-
+            // 所有选择器都未找到验证码
             return Result.Success<Stream?>(null);
         }
         catch (Exception ex)

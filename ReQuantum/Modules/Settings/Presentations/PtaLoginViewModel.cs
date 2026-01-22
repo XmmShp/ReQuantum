@@ -165,9 +165,13 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
                 var errorMessage = result.Message.ToString();
                 if (errorMessage.Contains("Wrong Captcha") || errorMessage.Contains("captcha"))
                 {
-                    StatusMessage = Localizer[nameof(UIText.PtaNeedCaptchaStartingPlaywright)];
-                    DebugInfo += $"⚠ 需要验证码，切换到 Playwright 登录";
-                    await StartPlaywrightPasswordLoginAsync();
+                    StatusMessage = "账号密码登录需要验证码。建议使用「二维码登录」，更快更安全！";
+                    DebugInfo += "⚠ 账号密码登录需要验证码\n";
+                    DebugInfo += "💡 推荐方案：点击上方「切换到二维码登录」按钮\n";
+                    DebugInfo += "   使用微信扫码登录，无需验证码，更加便捷\n";
+                    DebugInfo += "\n备选方案：点击「在浏览器中登录」按钮\n";
+                    DebugInfo += "   在浏览器中手动登录，然后粘贴 PTASession Cookie";
+                    IsLoading = false;
                 }
                 else
                 {
@@ -181,53 +185,6 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
         {
             StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginException)], ex.Message);
             DebugInfo += $"✗ 异常: {ex.GetType().Name}\n{ex.Message}";
-            IsLoading = false;
-        }
-    }
-
-    private async Task StartPlaywrightPasswordLoginAsync()
-    {
-        try
-        {
-            StatusMessage = Localizer[nameof(UIText.PtaInitializingBrowser)];
-            var initResult = await _playwrightService.InitializeAsync();
-            if (!initResult.IsSuccess)
-            {
-                StatusMessage = string.Format(Localizer[nameof(UIText.PtaInitFailed)], initResult.Message);
-                IsLoading = false;
-                return;
-            }
-
-            StatusMessage = Localizer[nameof(UIText.PtaSubmittingLogin)];
-            var loginResult = await _playwrightService.SubmitPasswordLoginAsync(Email, Password);
-            if (!loginResult.IsSuccess)
-            {
-                StatusMessage = string.Format(Localizer[nameof(UIText.PtaSubmitFailed)], loginResult.Message);
-                IsLoading = false;
-                return;
-            }
-
-            // 检查验证码
-            var captchaResult = await _playwrightService.CheckForCaptchaAsync();
-            if (captchaResult.IsSuccess && captchaResult.Value != null)
-            {
-                CaptchaBitmap = new Bitmap(captchaResult.Value);
-                IsCaptchaVisible = true;
-                NeedsCaptcha = true; // 复用这个属性来控制一些UI显示
-                StatusMessage = Localizer[nameof(UIText.PtaPleaseEnterCaptcha)];
-                IsLoading = false; // 暂停 Loading 状态等待用户输入
-            }
-            else
-            {
-                // 没有验证码，可能直接成功了，或者失败了
-                // 开始等待 Session
-                StatusMessage = Localizer[nameof(UIText.PtaWaitingForResult)];
-                _ = WaitForPlaywrightLoginResultAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = string.Format(Localizer[nameof(UIText.PtaPlaywrightLoginException)], ex.Message);
             IsLoading = false;
         }
     }
@@ -265,6 +222,9 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
         try
         {
+            // 先彻底清理，确保从干净的状态开始
+            await _playwrightService.CleanupAsync();
+
             var initResult = await _playwrightService.InitializeAsync();
             if (!initResult.IsSuccess)
             {
@@ -308,9 +268,9 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
         StatusMessage = Localizer[nameof(UIText.PtaSwitchedToPasswordMode)];
     }
 
-    private async Task WaitForPlaywrightLoginResultAsync()
+    private async Task WaitForPlaywrightLoginResultAsync(int timeoutSeconds = 200)
     {
-        var result = await _playwrightService.WaitForLoginSuccessAsync();
+        var result = await _playwrightService.WaitForLoginSuccessAsync(timeoutSeconds);
 
         IsLoading = false; // 无论成功失败，停止 Loading
 
