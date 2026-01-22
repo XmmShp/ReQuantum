@@ -10,8 +10,8 @@
 
 namespace ReQuantum.Assets.I18n {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace ReQuantum.Assets.I18n {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class UIText {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal UIText() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace ReQuantum.Assets.I18n {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace ReQuantum.Assets.I18n {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The account may be locked..
         /// </summary>
@@ -68,7 +68,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AccountMayBeLocked", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
@@ -77,7 +77,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Add", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add Event.
         /// </summary>
@@ -86,7 +86,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AddEvent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add Note.
         /// </summary>
@@ -95,7 +95,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AddNote", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add Todo.
         /// </summary>
@@ -104,7 +104,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AddTodo", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All semesters failed to fetch.
         /// </summary>
@@ -113,7 +113,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AllSemestersFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Already logged in.
         /// </summary>
@@ -122,7 +122,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("AlreadyLoggedIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Appearance.
         /// </summary>
@@ -131,7 +131,25 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Appearance", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login exception: {0}.
+        /// </summary>
+        public static string BrowserLoginException {
+            get {
+                return ResourceManager.GetString("BrowserLoginException", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login failed: {0}.
+        /// </summary>
+        public static string BrowserLoginFailed {
+            get {
+                return ResourceManager.GetString("BrowserLoginFailed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Calendar.
         /// </summary>
@@ -140,7 +158,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Calendar", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
@@ -149,7 +167,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Cannot get calendar.
         /// </summary>
@@ -158,7 +176,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("CannotGetCalendar", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to CollapseMenu.
         /// </summary>
@@ -167,7 +185,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("CollapseMenu", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Content.
         /// </summary>
@@ -176,7 +194,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Content", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Course Selection.
         /// </summary>
@@ -185,7 +203,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("CourseSelection", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Course sync failed.
         /// </summary>
@@ -194,7 +212,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("CourseSyncFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Dark.
         /// </summary>
@@ -203,7 +221,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Dark", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Current date is not within semester range.
         /// </summary>
@@ -212,7 +230,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("DateNotInSemester", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deadline.
         /// </summary>
@@ -221,7 +239,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Deadline", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
@@ -230,7 +248,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Delete", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Due Date.
         /// </summary>
@@ -239,7 +257,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("DueDate", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Due: {0:yyyy-MM-dd HH:mm}.
         /// </summary>
@@ -248,7 +266,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("DueOn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Due Time.
         /// </summary>
@@ -257,7 +275,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("DueTime", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Email.
         /// </summary>
@@ -266,7 +284,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Email", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to End Time.
         /// </summary>
@@ -275,7 +293,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EndTime", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter event content....
         /// </summary>
@@ -284,7 +302,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterEventContent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter event title....
         /// </summary>
@@ -293,7 +311,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterEventTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter note....
         /// </summary>
@@ -302,7 +320,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterNote", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter note content....
         /// </summary>
@@ -311,7 +329,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterNoteContent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter your password.
         /// </summary>
@@ -320,7 +338,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter PTA email.
         /// </summary>
@@ -329,7 +347,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterPtaEmail", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter PTASession Cookie.
         /// </summary>
@@ -338,7 +356,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterPtaSessionCookie", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter todo content....
         /// </summary>
@@ -347,7 +365,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterTodoContent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Enter your username.
         /// </summary>
@@ -356,7 +374,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EnterUsername", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to End time cannot be earlier than or equal to start time.
         /// </summary>
@@ -365,7 +383,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EventEndTimeBeforeStart", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You are creating an event in the past.
         /// </summary>
@@ -374,7 +392,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EventInPast", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Events.
         /// </summary>
@@ -383,7 +401,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Events", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Events - {0:MMM dd, yyyy}.
         /// </summary>
@@ -392,7 +410,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("EventsOnDate", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Exams - {0:MMM dd, yyyy}.
         /// </summary>
@@ -401,7 +419,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ExamsOnDate", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Exam sync failed.
         /// </summary>
@@ -410,7 +428,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ExamSyncFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ExpandMenu.
         /// </summary>
@@ -419,7 +437,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ExpandMenu", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get execution value..
         /// </summary>
@@ -428,7 +446,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("FailedToGetExecutionValue", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get exponent..
         /// </summary>
@@ -437,7 +455,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("FailedToGetExponent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get modulus..
         /// </summary>
@@ -446,7 +464,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("FailedToGetModulus", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Following system.
         /// </summary>
@@ -455,7 +473,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("FollowingSystem", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Fri.
         /// </summary>
@@ -464,7 +482,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Friday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to General Settings.
         /// </summary>
@@ -473,7 +491,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("GeneralSettings", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get course schedule.
         /// </summary>
@@ -482,7 +500,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("GetCourseFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get exam information.
         /// </summary>
@@ -491,7 +509,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("GetExamInfoFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Problem set retrieval exception.
         /// </summary>
@@ -500,7 +518,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("GetProblemSetException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get problem sets.
         /// </summary>
@@ -509,7 +527,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("GetProblemSetFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Hello, World.
         /// </summary>
@@ -518,7 +536,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("HelloWorld", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Home.
         /// </summary>
@@ -527,7 +545,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Home", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Incorrect username or password..
         /// </summary>
@@ -536,7 +554,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("IncorrectUsernameOrPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Language Settings.
         /// </summary>
@@ -545,7 +563,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LanguageSettings", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Light.
         /// </summary>
@@ -554,7 +572,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Light", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logged in as:.
         /// </summary>
@@ -563,7 +581,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LoggedInAs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logging in....
         /// </summary>
@@ -572,7 +590,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LoggingIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
@@ -581,7 +599,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Login", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login failed: {0}.
         /// </summary>
@@ -590,7 +608,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LoginFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login successful..
         /// </summary>
@@ -599,7 +617,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LoginSuccessful", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
@@ -608,7 +626,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Logout", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logout successful.
         /// </summary>
@@ -617,7 +635,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("LogoutSuccessful", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Menu.
         /// </summary>
@@ -626,7 +644,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Menu", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Mon.
         /// </summary>
@@ -635,7 +653,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Monday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Month.
         /// </summary>
@@ -644,7 +662,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Month", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0} more items.
         /// </summary>
@@ -653,7 +671,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("MoreItems", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Captcha required, click here to login via browser.
         /// </summary>
@@ -662,7 +680,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NeedCaptchaUseBrowser", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No events.
         /// </summary>
@@ -671,7 +689,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NoEvents", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No exams on this date.
         /// </summary>
@@ -680,7 +698,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NoExams", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No notes.
         /// </summary>
@@ -689,7 +707,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NoNotes", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Note.
         /// </summary>
@@ -698,7 +716,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Note", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Notes.
         /// </summary>
@@ -707,7 +725,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Notes", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to User is not logged in..
         /// </summary>
@@ -716,7 +734,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NotLoggedIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Not logged in or student ID not found.
         /// </summary>
@@ -725,7 +743,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NotLoggedInOrNoStudentId", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No todos.
         /// </summary>
@@ -734,7 +752,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("NoTodos", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse course data.
         /// </summary>
@@ -743,7 +761,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ParseCourseDataFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse exam data.
         /// </summary>
@@ -752,7 +770,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ParseExamDataFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse problem set response.
         /// </summary>
@@ -761,7 +779,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ParseProblemSetFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
@@ -770,7 +788,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Password", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Paste PTASession value (UUID format).
         /// </summary>
@@ -779,7 +797,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PastePtaSessionValue", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Pintia Login.
         /// </summary>
@@ -788,7 +806,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PintiaLogin", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter password.
         /// </summary>
@@ -797,7 +815,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PleaseEnterPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter username.
         /// </summary>
@@ -806,7 +824,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PleaseEnterUsername", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PTA Account Login.
         /// </summary>
@@ -815,7 +833,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaAccountLogin", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please complete login in browser, then copy PTASession cookie value.
         /// </summary>
@@ -824,7 +842,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaBrowserLoginInstructions", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Captcha submission failed: {0}.
         /// </summary>
@@ -833,7 +851,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaCaptchaSubmitFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Captcha submitted, waiting for result....
         /// </summary>
@@ -842,7 +860,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaCaptchaSubmittedWaiting", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Cookie login successful.
         /// </summary>
@@ -851,7 +869,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaCookieLoginSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to get QR code: {0}.
         /// </summary>
@@ -860,7 +878,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaGetQrCodeFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to How to get PTASession:
         ///1. Complete login in browser (including captcha)
@@ -875,7 +893,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaHowToGetSession", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Initialization failed: {0}.
         /// </summary>
@@ -884,7 +902,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaInitFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Initializing browser environment....
         /// </summary>
@@ -893,7 +911,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaInitializingBrowser", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to QR code loading exception: {0}.
         /// </summary>
@@ -902,7 +920,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoadQrCodeException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PTA Logged In.
         /// </summary>
@@ -911,7 +929,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoggedIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logged in as: {0}.
         /// </summary>
@@ -920,7 +938,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoggedInAs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logged out.
         /// </summary>
@@ -929,7 +947,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoggedOut", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logging in....
         /// </summary>
@@ -938,7 +956,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoggingIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Logging in with cookie....
         /// </summary>
@@ -947,7 +965,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoggingInWithCookie", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PTA Login.
         /// </summary>
@@ -956,7 +974,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLogin", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login exception: {0}.
         /// </summary>
@@ -965,7 +983,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoginException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login failed: {0}.
         /// </summary>
@@ -974,7 +992,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoginFailedWithReason", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login successful.
         /// </summary>
@@ -983,7 +1001,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoginSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login timeout or failed: {0}.
         /// </summary>
@@ -992,7 +1010,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaLoginTimeoutOrFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unable to login? Manually paste PTASession.
         /// </summary>
@@ -1001,7 +1019,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaManualPasteSession", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Captcha required, starting smart login....
         /// </summary>
@@ -1010,7 +1028,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaNeedCaptchaStartingPlaywright", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to open browser: {0}.
         /// </summary>
@@ -1019,7 +1037,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaOpenBrowserFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Smart login exception: {0}.
         /// </summary>
@@ -1028,7 +1046,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaPlaywrightLoginException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter captcha.
         /// </summary>
@@ -1037,7 +1055,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaPleaseEnterCaptcha", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter email.
         /// </summary>
@@ -1046,7 +1064,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaPleaseEnterEmail", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter email and password first.
         /// </summary>
@@ -1055,7 +1073,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaPleaseEnterEmailAndPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter PTASession value.
         /// </summary>
@@ -1064,7 +1082,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaPleaseEnterSessionValue", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Loading QR code....
         /// </summary>
@@ -1073,7 +1091,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaQrCodeLoading", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to QR mode exception: {0}.
         /// </summary>
@@ -1082,7 +1100,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaQrModeException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Scan with WeChat.
         /// </summary>
@@ -1091,7 +1109,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaScanQrCode", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please scan with WeChat to login.
         /// </summary>
@@ -1100,7 +1118,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaScanWithWeChat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Submission failed: {0}.
         /// </summary>
@@ -1109,7 +1127,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSubmitFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Submitting captcha....
         /// </summary>
@@ -1118,7 +1136,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSubmittingCaptcha", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Submitting login information....
         /// </summary>
@@ -1127,7 +1145,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSubmittingLogin", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Switched to password login.
         /// </summary>
@@ -1136,7 +1154,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSwitchedToPasswordMode", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PTA sync exception.
         /// </summary>
@@ -1145,7 +1163,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSyncException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PTA assignment sync failed.
         /// </summary>
@@ -1154,7 +1172,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaSyncFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Waiting for login result....
         /// </summary>
@@ -1163,7 +1181,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaWaitingForResult", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Recent Notes.
         /// </summary>
@@ -1172,7 +1190,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("RecentNotes", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Repeat Times：.
         /// </summary>
@@ -1181,7 +1199,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("RepeatTimes", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to 🔁 Repeat eveyweek.
         /// </summary>
@@ -1190,7 +1208,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("RepeatWeekly", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sat.
         /// </summary>
@@ -1199,7 +1217,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Saturday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Select Language.
         /// </summary>
@@ -1208,7 +1226,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SelectLanguage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
@@ -1217,7 +1235,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Settings", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to SSO authentication failed.
         /// </summary>
@@ -1226,7 +1244,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SsoAuthFailed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Start Time.
         /// </summary>
@@ -1235,7 +1253,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("StartTime", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Student ID not found.
         /// </summary>
@@ -1244,7 +1262,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("StudentIdNotFound", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Submit.
         /// </summary>
@@ -1253,7 +1271,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Submit", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sun.
         /// </summary>
@@ -1262,7 +1280,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Sunday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sync All.
         /// </summary>
@@ -1271,7 +1289,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SyncAll", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sync courses table.
         /// </summary>
@@ -1280,7 +1298,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SyncCoursesTable", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sync ZJU.
         /// </summary>
@@ -1289,7 +1307,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SyncCoursesZju", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Errors occurred during synchronization.
         /// </summary>
@@ -1298,7 +1316,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SyncErrorOccurred", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to SyncPTA.
         /// </summary>
@@ -1307,7 +1325,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("SyncPTA", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Theme.
         /// </summary>
@@ -1316,7 +1334,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Theme", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Thu.
         /// </summary>
@@ -1325,7 +1343,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Thursday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Title.
         /// </summary>
@@ -1334,7 +1352,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Title", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Today.
         /// </summary>
@@ -1343,7 +1361,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Today", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You are creating a todo in the past.
         /// </summary>
@@ -1352,7 +1370,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("TodoInPast", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Todos.
         /// </summary>
@@ -1361,7 +1379,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Todos", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tue.
         /// </summary>
@@ -1370,7 +1388,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Tuesday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unknown error occurred..
         /// </summary>
@@ -1379,7 +1397,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("UnknownError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Upcoming schedule.
         /// </summary>
@@ -1388,7 +1406,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Upcomingschedule", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Username.
         /// </summary>
@@ -1397,7 +1415,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Username", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Wed.
         /// </summary>
@@ -1406,7 +1424,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Wednesday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Week.
         /// </summary>
@@ -1415,7 +1433,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Week", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Year.
         /// </summary>
@@ -1424,7 +1442,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("Year", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0}/{1}.
         /// </summary>
@@ -1433,7 +1451,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("YearMonthFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ZJU sync exception.
         /// </summary>
@@ -1442,7 +1460,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ZdbkSyncException", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ZJU SSO Account Management.
         /// </summary>
@@ -1451,7 +1469,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("ZjuSsoAccountManagement", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ZJU SSO Login.
         /// </summary>
