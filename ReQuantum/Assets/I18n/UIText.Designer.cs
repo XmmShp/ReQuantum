@@ -196,6 +196,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        public static string Dark {
+            get {
+                return ResourceManager.GetString("Dark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current date is not within semester range.
         /// </summary>
         public static string DateNotInSemester {
@@ -430,11 +439,29 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Following system.
+        /// </summary>
+        public static string FollowingSystem {
+            get {
+                return ResourceManager.GetString("FollowingSystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fri.
         /// </summary>
         public static string Friday {
             get {
                 return ResourceManager.GetString("Friday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General Settings.
+        /// </summary>
+        public static string GeneralSettings {
+            get {
+                return ResourceManager.GetString("GeneralSettings", resourceCulture);
             }
         }
         
@@ -507,6 +534,15 @@ namespace ReQuantum.Assets.I18n {
         public static string LanguageSettings {
             get {
                 return ResourceManager.GetString("LanguageSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        public static string Light {
+            get {
+                return ResourceManager.GetString("Light", resourceCulture);
             }
         }
         

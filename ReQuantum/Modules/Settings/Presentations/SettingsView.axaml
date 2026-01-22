@@ -78,11 +78,12 @@
         </StackPanel>
       </Border>
 
+        <!--General Settings -->
       <Border Background="{DynamicResource AlternatingBackgroundBrush2}"
               CornerRadius="8"
               Padding="20">
           <StackPanel Spacing="16">
-              <TextBlock Text="{Binding Localizer[PtaLogin]}"
+              <TextBlock Text="{Binding Localizer[GeneralSettings]}"
                          FontSize="20"
                          FontWeight="SemiBold"/>
 

@@ -25,20 +25,31 @@
                      <SolidColorBrush x:Key="SmallTextBrush" Color="#555555"/>      <!-- 灰色小字 -->
                      <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#55D9B3EB"/> <!-- 交错背景1 -->
                      <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#55B4B2EB"/> <!-- 交错背景2 -->
-                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#C76CEB"/>     <!-- 侧边栏选中 -->
-                     <SolidColorBrush x:Key="RegionSelectedBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
-                     <SolidColorBrush x:Key="RegionHoveredBrush" Color="#55AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="SidebarBrush" Color="#88BB54EB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#44BB54EB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBorderBrush" Color="#88FF54C3"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedHoverBrush" Color="#226527EF"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="RegionSelectedTextBackgroundBrush" Color="#AD54EB"/>      <!-- 日期选中文本背景 -->
+                     <SolidColorBrush x:Key="RegionSelectedBrush" Color="#22AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="RegionSelectedBorderBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="RegionHoveredBrush" Color="#11AD54EB"/>      <!-- 区域悬浮 -->
                      <SolidColorBrush x:Key="EventBrush" Color="#66EB54C3"/>      <!-- 日程 -->
-                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="EventBorderBrush" Color="#EB54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程文本 -->
                      <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程 -->
                      <SolidColorBrush x:Key="TodoBrush" Color="#44AD54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="LightTodoBrush" Color="#55AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="TodoBorderBrush" Color="#AD54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办文本 -->
+                     <SolidColorBrush x:Key="LightTodoBrush" Color="#22AD54EB"/>      <!-- 浅色代办 -->
                      <SolidColorBrush x:Key="NoteBrush" Color="#445D54EB"/>      <!-- 便签 -->
-                     <SolidColorBrush x:Key="LightNoteBrush" Color="#555D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="NoteBorderBrush" Color="#5D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush" Color="#225D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="DeleteButtonBrush" Color="#F682AB"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="DeleteTextBrush" Color="#FF5555"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="ButtonBrush" Color="#556527EF"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="ButtonHoverBrush" Color="#33A583F0"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 竖分线颜色 -->
-
+ 
 
 
                  </ResourceDictionary>
@@ -49,16 +60,32 @@
                      <SolidColorBrush x:Key="NestedRegionBackgroundBrush" Color="#3D3D3D"/> <!-- 复合浅灰背景 -->
                      <SolidColorBrush x:Key="RegionBorderBrush" Color="#454545"/>     <!-- 深色边框 -->
                      <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FFFFFF"/>      <!-- 白色文字 -->
-                     <SolidColorBrush x:Key="SmallTextBrush" Color="#AAAAAA"/>      <!-- 灰色小字 -->
-                     <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#D9B3EB"/> <!-- 交错背景1 -->
-                     <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#B4B2EB"/> <!-- 交错背景2 -->
-                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#C76CEB"/>     <!-- 侧边栏选中 -->
-                     <SolidColorBrush x:Key="RegionSidebarSelectedBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
-                     <SolidColorBrush x:Key="EventBrush" Color="#EB54C3"/>      <!-- 日程 -->
-                     <SolidColorBrush x:Key="TodoBrush" Color="#AD54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="NoteBrush" Color="#5D54EB"/>      <!-- 便签 -->
-                     <SolidColorBrush x:Key="ButtonBrush" Color="#6527EF"/>      <!-- 按钮颜色 -->
-                     <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#55D9B3EB"/> <!-- 交错背景1 -->
+                     <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#55B4B2EB"/> <!-- 交错背景2 -->
+                     <SolidColorBrush x:Key="SidebarBrush" Color="#88BB54EB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#44BB54EB"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedBorderBrush" Color="#88FF54C3"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedHoverBrush" Color="#226527EF"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="RegionSelectedTextBackgroundBrush" Color="#AD54EB"/>      <!-- 日期选中文本背景 -->
+                     <SolidColorBrush x:Key="RegionSelectedBrush" Color="#22AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="RegionSelectedBorderBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
+                     <SolidColorBrush x:Key="RegionHoveredBrush" Color="#11AD54EB"/>      <!-- 区域悬浮 -->
+                     <SolidColorBrush x:Key="EventBrush" Color="#66EB54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="EventBorderBrush" Color="#EB54C3"/>      <!-- 日程 -->
+                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程文本 -->
+                     <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程 -->
+                     <SolidColorBrush x:Key="TodoBrush" Color="#44AD54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="TodoBorderBrush" Color="#AD54EB"/>      <!-- 代办 -->
+                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办文本 -->
+                     <SolidColorBrush x:Key="LightTodoBrush" Color="#22AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="NoteBrush" Color="#445D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="NoteBorderBrush" Color="#5D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush" Color="#225D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="DeleteButtonBrush" Color="#F682AB"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="DeleteTextBrush" Color="#FF5555"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="ButtonBrush" Color="#556527EF"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="ButtonHoverBrush" Color="#33A583F0"/>      <!-- 按钮颜色 -->
+                     <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 竖分线颜色 -->
                  </ResourceDictionary>
                 
              </ResourceDictionary.ThemeDictionaries>
@@ -68,9 +95,29 @@
 
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="Button.Delete">
+            <Setter Property="Background" Value="{DynamicResource RegionBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DeleteButtonBrush}"/>
+
+        </Style>
+        <Style Selector="Button.Delete TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource DeleteTextBrush}"/>
+        </Style>
+
+
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{DynamicResource ButtonBrush}"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+        </Style>
         <Style Selector=":is(TemplatedControl)">
             <Setter Property="FontFamily" Value="{StaticResource SourceHanSansCn}"/>
         </Style>
         <StyleInclude Source="avares://IconPacks.Avalonia.Material/Material.axaml" />
     </Application.Styles>
+
+
+
 </Application>
