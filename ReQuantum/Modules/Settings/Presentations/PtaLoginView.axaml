@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="ReQuantum.Views.PtaLoginView"
              x:DataType="viewModels:PtaLoginViewModel">
   <Design.DataContext>
@@ -14,8 +14,26 @@
       <!-- Login Form (visible when not logged in) -->
       <StackPanel Spacing="16" IsVisible="{Binding !IsLoggedIn}">
 
-        <!-- Login Form -->
-        <Border BorderThickness="1"
+        <!-- Mode Switcher -->
+        <Border CornerRadius="8" HorizontalAlignment="Center" ClipToBounds="True" 
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="密码登录" 
+                        Command="{Binding SwitchToPasswordModeCommand}" 
+                        IsEnabled="{Binding IsQrLoginMode}"
+                        CornerRadius="0"
+                        Padding="20,10"/>
+                <Button Content="微信扫码" 
+                        Command="{Binding SwitchToQrLoginCommand}" 
+                        IsEnabled="{Binding !IsQrLoginMode}"
+                        CornerRadius="0"
+                        Padding="20,10"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Password Login Form -->
+        <Border IsVisible="{Binding !IsQrLoginMode}"
+                BorderThickness="1"
                 BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                 CornerRadius="8"
                 Padding="20">
@@ -48,10 +66,29 @@
                        Padding="12,8"/>
             </StackPanel>
 
+            <!-- Captcha Section -->
+            <Border IsVisible="{Binding IsCaptchaVisible}" 
+                    Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" 
+                    Padding="15" CornerRadius="6">
+                <StackPanel Spacing="10">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="⚠" Foreground="Orange" VerticalAlignment="Center"/>
+                        <TextBlock Text="需要安全验证" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <Image Source="{Binding CaptchaBitmap}" Height="60" HorizontalAlignment="Left"/>
+                    
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBox Text="{Binding CaptchaCode}" Watermark="请输入图中的字符" Margin="0,0,10,0"/>
+                        <Button Grid.Column="1" Command="{Binding SubmitCaptchaCommand}" Content="提交验证"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Status Message -->
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="12"
-                       Opacity="0.7"
+                       Foreground="{DynamicResource SystemControlErrorTextForegroundBrush}"
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"
                        IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
@@ -60,6 +97,7 @@
             <Button Command="{Binding LoginCommand}"
                     HorizontalAlignment="Stretch"
                     Padding="16,12"
+                    IsVisible="{Binding !IsCaptchaVisible}"
                     IsEnabled="{Binding !IsLoading}">
               <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                 <TextBlock Text="🔐" FontSize="16" IsVisible="{Binding !IsLoading}"/>
@@ -73,21 +111,46 @@
                            IsVisible="{Binding IsLoading}"/>
               </StackPanel>
             </Button>
-
-            <!-- Captcha Required Button -->
+            
             <Button Command="{Binding OpenBrowserLoginCommand}"
-                    HorizontalAlignment="Stretch"
-                    Padding="16,12"
-                    IsVisible="{Binding NeedsCaptcha}"
-                    Background="Orange">
-              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                <TextBlock Text="⚠" FontSize="16"/>
-                <TextBlock Text="{Binding Localizer[NeedCaptchaUseBrowser]}"
-                           FontSize="14"
-                           FontWeight="SemiBold"/>
-              </StackPanel>
-            </Button>
+                    Content="{Binding Localizer[PtaManualPasteSession]}"
+                    Classes="theme-transparent"
+                    FontSize="12"
+                    HorizontalAlignment="Center"
+                    Opacity="0.7"/>
           </StackPanel>
+        </Border>
+
+        <!-- QR Login Form -->
+        <Border IsVisible="{Binding IsQrLoginMode}"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                CornerRadius="8"
+                Padding="20"
+                MinHeight="300">
+            <StackPanel Spacing="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Localizer[PtaScanWithWeChat]}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                
+                <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" 
+                        BorderThickness="1" CornerRadius="4" Padding="10" Background="White">
+                    <Panel Width="200" Height="200">
+                        <Image Source="{Binding QrCodeBitmap}" 
+                               IsVisible="{Binding QrCodeBitmap, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    IsVisible="{Binding QrCodeBitmap, Converter={x:Static ObjectConverters.IsNull}}">
+                            <ProgressBar IsIndeterminate="True"/>
+                            <TextBlock Text="正在加载二维码..." Margin="0,10,0,0" FontSize="12"/>
+                        </StackPanel>
+                    </Panel>
+                </Border>
+
+                <TextBlock Text="{Binding StatusMessage}" 
+                           HorizontalAlignment="Center" 
+                           TextWrapping="Wrap"
+                           MaxWidth="250"
+                           TextAlignment="Center"/>
+            </StackPanel>
         </Border>
 
         <!-- Cookie Input (visible when ShowCookieInput is true) -->
@@ -171,12 +234,6 @@
                      FontWeight="SemiBold"/>
         </Button>
       </StackPanel>
-
-      <!-- Loading Indicator -->
-      <ProgressBar IsIndeterminate="True"
-                   IsVisible="{Binding IsLoading}"
-                   Height="4"
-                   Margin="0,8,0,0"/>
 
   </StackPanel>
 </UserControl>

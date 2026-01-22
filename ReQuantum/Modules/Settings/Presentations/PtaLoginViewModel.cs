@@ -1,5 +1,7 @@
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Pta.Services;
@@ -14,6 +16,7 @@ namespace ReQuantum.ViewModels;
 public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 {
     private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaPlaywrightService _playwrightService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -45,10 +48,29 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     [ObservableProperty]
     private string _ptaSessionInput = string.Empty;
 
-    public PtaLoginViewModel(IPtaAuthService ptaAuthService)
+    [ObservableProperty]
+    private Bitmap? _qrCodeBitmap;
+
+    [ObservableProperty]
+    private Bitmap? _captchaBitmap;
+
+    [ObservableProperty]
+    private string _captchaCode = string.Empty;
+
+    [ObservableProperty]
+    private bool _isQrLoginMode;
+
+    [ObservableProperty]
+    private bool _isCaptchaVisible;
+
+    public PtaLoginViewModel(IPtaAuthService ptaAuthService, IPtaPlaywrightService playwrightService)
     {
         _ptaAuthService = ptaAuthService;
+        _playwrightService = playwrightService;
         _isLoggedIn = _ptaAuthService.IsAuthenticated;
+
+        // 默认使用二维码登录模式
+        _isQrLoginMode = true;
 
         // 订阅登录/登出事件
         _ptaAuthService.OnLogin += HandleLogin;
@@ -56,7 +78,51 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
         if (_isLoggedIn)
         {
-            StatusMessage = $"已登录: {_ptaAuthService.Email}";
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoggedInAs)], _ptaAuthService.Email);
+        }
+        else
+        {
+            // 未登录时自动加载二维码
+            _ = InitializeQrCodeAsync();
+        }
+    }
+
+    private async Task InitializeQrCodeAsync()
+    {
+        IsLoading = true;
+        StatusMessage = Localizer[nameof(UIText.PtaQrCodeLoading)];
+
+        try
+        {
+            var initResult = await _playwrightService.InitializeAsync();
+            if (!initResult.IsSuccess)
+            {
+                StatusMessage = string.Format(Localizer[nameof(UIText.PtaInitFailed)], initResult.Message);
+                IsLoading = false;
+                return;
+            }
+
+            var qrResult = await _playwrightService.GetQrCodeAsync();
+
+            if (qrResult.IsSuccess)
+            {
+                QrCodeBitmap = new Bitmap(qrResult.Value);
+                StatusMessage = Localizer[nameof(UIText.PtaScanQrCode)];
+                IsLoading = false;
+
+                // 开始后台等待登录
+                _ = WaitForPlaywrightLoginResultAsync();
+            }
+            else
+            {
+                StatusMessage = string.Format(Localizer[nameof(UIText.PtaGetQrCodeFailed)], qrResult.Message);
+                IsLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoadQrCodeException)], ex.Message);
+            IsLoading = false;
         }
     }
 
@@ -67,58 +133,163 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
         if (string.IsNullOrWhiteSpace(Email))
         {
-            StatusMessage = "请输入邮箱";
+            StatusMessage = Localizer[nameof(UIText.PtaPleaseEnterEmail)];
             return;
         }
 
         if (string.IsNullOrWhiteSpace(Password))
         {
-            StatusMessage = "请输入密码";
+            StatusMessage = Localizer[nameof(UIText.PleaseEnterPassword)];
             return;
         }
 
         IsLoading = true;
         NeedsCaptcha = false;
-        StatusMessage = "正在登录...";
+        IsCaptchaVisible = false;
+        StatusMessage = Localizer[nameof(UIText.PtaLoggingIn)];
         DebugInfo = $"[{DateTime.Now:HH:mm:ss}] 开始登录\n邮箱: {Email}\n";
 
         try
         {
+            // 优先尝试普通 API 登录（速度快）
             var result = await _ptaAuthService.LoginAsync(Email, Password);
 
             if (result.IsSuccess)
             {
-                StatusMessage = "登录成功";
+                StatusMessage = Localizer[nameof(UIText.PtaLoginSuccess)];
                 DebugInfo += $"✓ 登录成功\n{result.Message}";
-
-                // 清空密码
                 Password = string.Empty;
             }
             else
             {
-                // 检查是否需要验证码
                 var errorMessage = result.Message.ToString();
                 if (errorMessage.Contains("Wrong Captcha") || errorMessage.Contains("captcha"))
                 {
-                    NeedsCaptcha = true;
-                    StatusMessage = "需要验证码，请使用浏览器登录";
-                    DebugInfo += $"⚠ 需要验证码\n点击下方按钮使用浏览器完成登录";
+                    StatusMessage = "账号密码登录需要验证码。建议使用「二维码登录」，更快更安全！";
+                    DebugInfo += "⚠ 账号密码登录需要验证码\n";
+                    DebugInfo += "💡 推荐方案：点击上方「切换到二维码登录」按钮\n";
+                    DebugInfo += "   使用微信扫码登录，无需验证码，更加便捷\n";
+                    DebugInfo += "\n备选方案：点击「在浏览器中登录」按钮\n";
+                    DebugInfo += "   在浏览器中手动登录，然后粘贴 PTASession Cookie";
+                    IsLoading = false;
                 }
                 else
                 {
-                    StatusMessage = $"登录失败: {errorMessage}";
+                    StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginFailedWithReason)], errorMessage);
                     DebugInfo += $"✗ 登录失败\n{errorMessage}";
+                    IsLoading = false;
                 }
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"登录异常: {ex.Message}";
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginException)], ex.Message);
             DebugInfo += $"✗ 异常: {ex.GetType().Name}\n{ex.Message}";
-        }
-        finally
-        {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SubmitCaptchaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CaptchaCode)) return;
+
+        IsLoading = true;
+        StatusMessage = Localizer[nameof(UIText.PtaSubmittingCaptcha)];
+
+        var result = await _playwrightService.SubmitCaptchaAsync(CaptchaCode);
+        if (result.IsSuccess)
+        {
+            IsCaptchaVisible = false;
+            StatusMessage = Localizer[nameof(UIText.PtaCaptchaSubmittedWaiting)];
+            _ = WaitForPlaywrightLoginResultAsync();
+        }
+        else
+        {
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaCaptchaSubmitFailed)], result.Message);
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SwitchToQrLoginAsync()
+    {
+        if (IsQrLoginMode) return;
+
+        IsQrLoginMode = true;
+        IsLoading = true;
+        StatusMessage = Localizer[nameof(UIText.PtaQrCodeLoading)];
+
+        try
+        {
+            // 先彻底清理，确保从干净的状态开始
+            await _playwrightService.CleanupAsync();
+
+            var initResult = await _playwrightService.InitializeAsync();
+            if (!initResult.IsSuccess)
+            {
+                StatusMessage = string.Format(Localizer[nameof(UIText.PtaInitFailed)], initResult.Message);
+                IsLoading = false;
+                return;
+            }
+
+            var qrResult = await _playwrightService.GetQrCodeAsync();
+
+            if (qrResult.IsSuccess)
+            {
+                QrCodeBitmap = new Bitmap(qrResult.Value);
+                StatusMessage = Localizer[nameof(UIText.PtaScanQrCode)];
+                IsLoading = false;
+
+                // 开始后台等待登录
+                _ = WaitForPlaywrightLoginResultAsync();
+            }
+            else
+            {
+                StatusMessage = string.Format(Localizer[nameof(UIText.PtaGetQrCodeFailed)], qrResult.Message);
+                IsLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaQrModeException)], ex.Message);
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SwitchToPasswordModeAsync()
+    {
+        IsQrLoginMode = false;
+        IsCaptchaVisible = false;
+        QrCodeBitmap = null;
+        CaptchaBitmap = null;
+        await _playwrightService.CleanupAsync();
+        StatusMessage = Localizer[nameof(UIText.PtaSwitchedToPasswordMode)];
+    }
+
+    private async Task WaitForPlaywrightLoginResultAsync(int timeoutSeconds = 200)
+    {
+        var result = await _playwrightService.WaitForLoginSuccessAsync(timeoutSeconds);
+
+        IsLoading = false; // 无论成功失败，停止 Loading
+
+        if (result.IsSuccess)
+        {
+            var session = result.Value;
+            // 登录成功
+            // 如果是二维码登录，Email/Password 可能是空的，使用占位符
+            var email = !string.IsNullOrEmpty(Email) ? Email : "WeChatUser";
+            var password = !string.IsNullOrEmpty(Password) ? Password : "QrLogin";
+
+            _ptaAuthService.LoginWithSession(email, password, session);
+
+            StatusMessage = Localizer[nameof(UIText.PtaLoginSuccess)];
+            await _playwrightService.CleanupAsync();
+        }
+        else
+        {
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginTimeoutOrFailed)], result.Message);
         }
     }
 
@@ -127,7 +298,7 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     {
         if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
-            StatusMessage = "请先输入邮箱和密码";
+            StatusMessage = Localizer[nameof(UIText.PtaPleaseEnterEmailAndPassword)];
             return;
         }
 
@@ -143,18 +314,12 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
             // 显示 Cookie 输入界面
             ShowCookieInput = true;
-            StatusMessage = "请在浏览器中完成登录，然后复制 PTASession Cookie 值";
-            DebugInfo = "如何获取 PTASession:\n" +
-                        "1. 在浏览器中完成登录（包括验证码）\n" +
-                        "2. 按 F12 打开开发者工具\n" +
-                        "3. 切换到 Application/存储 标签\n" +
-                        "4. 左侧选择 Cookies → https://pintia.cn\n" +
-                        "5. 找到 PTASession，复制其值\n" +
-                        "6. 粘贴到下方输入框中";
+            StatusMessage = Localizer[nameof(UIText.PtaBrowserLoginInstructions)];
+            DebugInfo = Localizer[nameof(UIText.PtaHowToGetSession)];
         }
         catch (Exception ex)
         {
-            StatusMessage = $"打开浏览器失败: {ex.Message}";
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaOpenBrowserFailed)], ex.Message);
             DebugInfo += $"\n✗ 错误: {ex.Message}";
         }
     }
@@ -164,20 +329,20 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     {
         if (string.IsNullOrWhiteSpace(PtaSessionInput))
         {
-            StatusMessage = "请输入 PTASession 值";
+            StatusMessage = Localizer[nameof(UIText.PtaPleaseEnterSessionValue)];
             return;
         }
 
         try
         {
-            DebugInfo = $"正在使用 Cookie 登录...\nPTASession 长度: {PtaSessionInput.Trim().Length}";
+            DebugInfo = $"{Localizer[nameof(UIText.PtaLoggingInWithCookie)]}\nPTASession 长度: {PtaSessionInput.Trim().Length}";
 
             var result = _ptaAuthService.LoginWithSession(Email, Password, PtaSessionInput.Trim());
 
             if (result.IsSuccess)
             {
-                StatusMessage = "登录成功";
-                DebugInfo += "\n✓ Cookie 登录成功";
+                StatusMessage = Localizer[nameof(UIText.PtaLoginSuccess)];
+                DebugInfo += $"\n✓ {Localizer[nameof(UIText.PtaCookieLoginSuccess)]}";
                 ShowCookieInput = false;
                 NeedsCaptcha = false;
                 Password = string.Empty;
@@ -185,13 +350,13 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
             }
             else
             {
-                StatusMessage = $"登录失败: {result.Message}";
+                StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginFailedWithReason)], result.Message);
                 DebugInfo += $"\n✗ 登录失败: {result.Message}";
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"登录异常: {ex.Message}";
+            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoginException)], ex.Message);
             DebugInfo += $"\n✗ 异常: {ex.GetType().Name}\n{ex.Message}\n{ex.StackTrace}";
         }
     }
@@ -207,18 +372,23 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     private void Logout()
     {
         _ptaAuthService.Logout();
+        IsQrLoginMode = false;
+        IsCaptchaVisible = false;
+        QrCodeBitmap = null;
+        CaptchaBitmap = null;
+        _playwrightService.CleanupAsync();
     }
 
     private void HandleLogin()
     {
         IsLoggedIn = true;
-        StatusMessage = $"已登录: {_ptaAuthService.Email}";
+        StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoggedInAs)], _ptaAuthService.Email);
     }
 
     private void HandleLogout()
     {
         IsLoggedIn = false;
-        StatusMessage = "已登出";
+        StatusMessage = Localizer[nameof(UIText.PtaLoggedOut)];
         Email = string.Empty;
         Password = string.Empty;
     }
