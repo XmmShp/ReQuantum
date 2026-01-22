@@ -78,6 +78,7 @@
         </StackPanel>
       </Border>
 
+        <!--General Settings -->
       <Border Background="{DynamicResource AlternatingBackgroundBrush2}"
               CornerRadius="8"
               Padding="20">

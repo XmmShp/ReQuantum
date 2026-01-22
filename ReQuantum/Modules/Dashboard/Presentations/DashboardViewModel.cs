@@ -1,3 +1,7 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,10 +16,6 @@ using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
 using ReQuantum.Services;
 using ReQuantum.Views;
-using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 
 namespace ReQuantum.ViewModels;
@@ -89,9 +89,9 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     #region Recent Items Display Logic
 
     // 供界面绑定的精选列表
-    public ObservableCollection<CalendarEvent> RecentEvents { get; private set; }
-    public ObservableCollection<CalendarTodo> RecentTodos { get; private set; }
-    public ObservableCollection<CalendarNote> RecentNotes { get; private set; }
+    public ObservableCollection<CalendarEvent> RecentEvents { get; private set; } = [];
+    public ObservableCollection<CalendarTodo> RecentTodos { get; private set; } = [];
+    public ObservableCollection<CalendarNote> RecentNotes { get; private set; } = [];
 
     /// <summary>
     /// 加载每个模块中“最近的5项”

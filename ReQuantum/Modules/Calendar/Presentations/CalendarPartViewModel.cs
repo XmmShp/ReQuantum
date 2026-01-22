@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
@@ -6,7 +7,6 @@ using ReQuantum.Infrastructure.Entities;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.ViewModels;
 using ReQuantum.Views;
-using System;
 
 namespace ReQuantum.Modules.Calendar.Presentations;
 

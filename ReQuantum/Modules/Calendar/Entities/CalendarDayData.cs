@@ -1,7 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using ReQuantum.Modules.Calendar.Entities;
 using System;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using ReQuantum.Modules.Calendar.Entities;
 
 namespace ReQuantum.Models;
 

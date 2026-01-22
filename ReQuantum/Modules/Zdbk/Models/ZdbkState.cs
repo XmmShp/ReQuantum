@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace ReQuantum.Modules.Zdbk.Models;
 

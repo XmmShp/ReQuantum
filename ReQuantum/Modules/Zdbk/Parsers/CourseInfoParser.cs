@@ -1,7 +1,7 @@
-using ReQuantum.Modules.Zdbk.Models;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using ReQuantum.Modules.Zdbk.Models;
 
 namespace ReQuantum.Modules.Zdbk.Parsers;
 

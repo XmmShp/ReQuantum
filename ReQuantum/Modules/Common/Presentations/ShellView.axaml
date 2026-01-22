@@ -26,8 +26,8 @@
       
       <!-- Navigation Menu -->
       <Border Grid.Column="0"
-              Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              Background="{DynamicResource SidebarSelectedBrush}"
+              BorderBrush="{DynamicResource SidebarSelectedBorderBrush}"
               BorderThickness="0,0,1,0">
         <Border.Width>
           <MultiBinding>
@@ -86,10 +86,10 @@
                 <Setter Property="Margin" Value="0,2"/>
               </Style>
               <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource SidebarSelectedBrush}"/>
               </Style>
               <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource SidebarSelectedHoverBrush}"/>
               </Style>
             </ListBox.Styles>
           </ListBox>

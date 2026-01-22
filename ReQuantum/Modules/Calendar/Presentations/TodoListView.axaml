@@ -17,7 +17,7 @@
     <!-- 待办区域 -->
     <Border BorderThickness="2"
             Background="{DynamicResource RegionBackgroundBrush}"
-            BorderBrush="{DynamicResource TodoBrush}"
+            BorderBrush="{DynamicResource TodoBorderBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -28,8 +28,7 @@
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
           <Button Grid.Column="1" 
-                  Click="UnfoldList"
-                  Background="White">
+                  Click="UnfoldList">
               <iconPacks:PackIconMaterial Kind="DotsVertical" />
               <Button.ContextMenu>
                   <ContextMenu>
@@ -80,13 +79,12 @@
                       <Run Text="{Binding DueTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
                     </TextBlock>
                   </StackPanel>
-                  <Button Grid.Column="2" 
+                  <Button Grid.Column="2"
                         Command="{Binding ((viewModels:TodoListViewModel)DataContext).DeleteTodoCommand,
                           RelativeSource={RelativeSource AncestorType=UserControl},
                           FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
-                        Padding="8,4"
-                        Background="{DynamicResource ButtonBrush}">
+                        Padding="8,4">
                     <TextBlock Text="{Binding ((viewModels:TodoListViewModel)DataContext).Localizer[Delete],
                         RelativeSource={RelativeSource AncestorType=UserControl},
                         FallbackValue=Delete}" FontSize="12"/>

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
@@ -9,8 +11,6 @@ using ReQuantum.Modules.Menu.Abstractions;
 using ReQuantum.Services;
 using ReQuantum.ViewModels;
 using ReQuantum.Views;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ReQuantum.Modules.Settings.Presentations;
 

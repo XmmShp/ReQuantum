@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
@@ -9,7 +10,6 @@ using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
 using ReQuantum.Services;
 using ReQuantum.Views;
-using System;
 
 namespace ReQuantum.ViewModels;
 
