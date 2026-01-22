@@ -1,0 +1,72 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ dev ]
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'ReQuantum.sln'
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release
+
+    - name: Run tests with coverage
+      run: dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+    - name: Check code formatting
+      run: |
+        dotnet tool install --global dotnet-format
+        dotnet-format --verify-no-changes ${{ env.SOLUTION_FILE }}
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+
+  build-matrix:
+    name: Build Matrix
+    strategy:
+      matrix:
+        platform: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    needs: pr-validation
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release

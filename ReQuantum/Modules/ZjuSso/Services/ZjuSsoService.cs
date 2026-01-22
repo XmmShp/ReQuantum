@@ -1,10 +1,3 @@
-using HtmlAgilityPack;
-using ReQuantum.Assets.I18n;
-using ReQuantum.Infrastructure.Abstractions;
-using ReQuantum.Infrastructure.Models;
-using ReQuantum.Infrastructure.Services;
-using ReQuantum.Modules.Common.Attributes;
-using ReQuantum.Modules.ZjuSso.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -16,6 +9,13 @@ using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
+using ReQuantum.Assets.I18n;
+using ReQuantum.Infrastructure.Abstractions;
+using ReQuantum.Infrastructure.Models;
+using ReQuantum.Infrastructure.Services;
+using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Modules.ZjuSso.Models;
 
 namespace ReQuantum.Modules.ZjuSso.Services;
 

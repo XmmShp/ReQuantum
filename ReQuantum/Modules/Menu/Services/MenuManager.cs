@@ -1,3 +1,6 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IconPacks.Avalonia.Material;
@@ -5,9 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using LocalizedText = ReQuantum.Infrastructure.Entities.LocalizedText;
 
 namespace ReQuantum.Services;

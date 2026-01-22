@@ -1,8 +1,8 @@
-﻿using Avalonia.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel; // 推荐使用此包简化 MVVM
 
 namespace ReQuantum.Modules.PTA.Models

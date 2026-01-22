@@ -1,9 +1,3 @@
-using ReQuantum.Assets.I18n;
-using ReQuantum.Infrastructure.Abstractions;
-using ReQuantum.Infrastructure.Models;
-using ReQuantum.Infrastructure.Services;
-using ReQuantum.Modules.Common.Attributes;
-using ReQuantum.Modules.Pta.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +8,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using ReQuantum.Assets.I18n;
+using ReQuantum.Infrastructure.Abstractions;
+using ReQuantum.Infrastructure.Models;
+using ReQuantum.Infrastructure.Services;
+using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Modules.Pta.Models;
 
 namespace ReQuantum.Modules.Pta.Services;
 

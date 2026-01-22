@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
@@ -11,11 +16,6 @@ using ReQuantum.Modules.Zdbk.Services;
 using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.ViewModels;
 using ReQuantum.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using LocalizedText = ReQuantum.Infrastructure.Entities.LocalizedText;
 
 namespace ReQuantum.Modules.Calendar.Presentations;

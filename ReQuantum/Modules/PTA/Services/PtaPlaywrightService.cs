@@ -1,13 +1,13 @@
-using Avalonia.Media.Imaging;
-using Microsoft.Playwright;
-using ReQuantum.Infrastructure.Models;
-using ReQuantum.Modules.Common.Attributes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Microsoft.Playwright;
+using ReQuantum.Infrastructure.Models;
+using ReQuantum.Modules.Common.Attributes;
 
 namespace ReQuantum.Modules.Pta.Services;
 
@@ -138,9 +138,9 @@ public class PtaPlaywrightService : IPtaPlaywrightService
             }
         }
 
-        if (!_isInitialized || _page == null) 
+        if (!_isInitialized || _page == null)
         {
-             return Result.Fail($"服务内部状态异常 (Init:{_isInitialized}, Page:{_page!=null})");
+            return Result.Fail($"服务内部状态异常 (Init:{_isInitialized}, Page:{_page != null})");
         }
 
         try
@@ -154,7 +154,7 @@ public class PtaPlaywrightService : IPtaPlaywrightService
 
             // 等待图片出现
             await imgLocator.WaitForAsync(new LocatorWaitForOptions { Timeout = 10000 });
-            
+
             var src = await imgLocator.GetAttributeAsync("src");
             if (string.IsNullOrEmpty(src))
             {

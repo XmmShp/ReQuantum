@@ -1,7 +1,7 @@
-﻿using ReQuantum.Modules.Zdbk.Constants;
-using ReQuantum.Modules.Zdbk.Parsers;
 using System;
 using System.Text.Json.Serialization;
+using ReQuantum.Modules.Zdbk.Constants;
+using ReQuantum.Modules.Zdbk.Parsers;
 
 namespace ReQuantum.Modules.Zdbk.Models;
 
