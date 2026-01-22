@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Infrastructure.Abstractions;
@@ -7,11 +12,6 @@ using ReQuantum.Modules.Calendar.Services;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.ViewModels;
 using ReQuantum.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
 
 namespace ReQuantum.Modules.Calendar.Presentations;
 

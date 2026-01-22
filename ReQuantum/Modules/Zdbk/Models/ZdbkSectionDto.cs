@@ -1,7 +1,7 @@
-﻿using ReQuantum.Modules.Zdbk.Constants;
-using ReQuantum.Modules.Zdbk.Parsers;
 using System;
 using System.Text.Json.Serialization;
+using ReQuantum.Modules.Zdbk.Constants;
+using ReQuantum.Modules.Zdbk.Parsers;
 
 namespace ReQuantum.Modules.Zdbk.Models;
 
@@ -27,26 +27,26 @@ public class ZdbkSectionDto
     /// 星期几 (1-7, 1=周一)
     /// </summary>
     [JsonPropertyName("xqj")]
-    public string DayOfWeek { get; set; }
+    public string DayOfWeek { get; set; } = string.Empty;
 
     /// <summary>
     /// 起始节次 (1-13)
     /// </summary>
     [JsonPropertyName("djj")]
-    public string StartSection { get; set; }
+    public string StartSection { get; set; } = string.Empty;
 
     /// <summary>
     /// 上课长度（持续节数）
     /// </summary>
     [JsonPropertyName("skcd")]
-    public string Duration { get; set; }
+    public string Duration { get; set; } = string.Empty;
 
     /// <summary>
     /// 单双周标记
     /// 0 = 单周, 1 = 双周, 2 = 每周
     /// </summary>
     [JsonPropertyName("dsz")]
-    public string WeekType { get; set; }
+    public string WeekType { get; set; } = string.Empty;
 
     /// <summary>
     /// 学期（如 "秋冬", "春夏"）

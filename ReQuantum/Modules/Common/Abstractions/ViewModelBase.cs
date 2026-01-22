@@ -1,7 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using ReQuantum.Infrastructure.Services;
 using System.ComponentModel;
 using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using ReQuantum.Infrastructure.Services;
 
 namespace ReQuantum.Infrastructure.Abstractions;
 
