@@ -9,10 +9,8 @@
     <Design.DataContext>
         <viewModels:GeneralSettingsViewModel />
     </Design.DataContext>
-    <StackPanel Spacing="20" Margin="20">
+    <StackPanel Spacing="20">
         <StackPanel Spacing="10">
-            <TextBlock Text="{Binding Localizer[Appearance]}" FontSize="18" FontWeight="Bold" />
-            
             <Grid ColumnDefinitions="*, Auto">
                 <TextBlock Text="{Binding Localizer[Theme]}" VerticalAlignment="Center"/>
                 <ListBox Grid.Column="1" 
