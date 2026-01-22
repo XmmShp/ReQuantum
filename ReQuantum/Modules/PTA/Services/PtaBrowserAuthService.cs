@@ -1,11 +1,3 @@
-using Avalonia.Media.Imaging;
-using Microsoft.Playwright;
-using ReQuantum.Assets.I18n;
-using ReQuantum.Infrastructure.Abstractions;
-using ReQuantum.Infrastructure.Models;
-using ReQuantum.Infrastructure.Services;
-using ReQuantum.Modules.Common.Attributes;
-using ReQuantum.Modules.Pta.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +6,14 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Microsoft.Playwright;
+using ReQuantum.Assets.I18n;
+using ReQuantum.Infrastructure.Abstractions;
+using ReQuantum.Infrastructure.Models;
+using ReQuantum.Infrastructure.Services;
+using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Modules.Pta.Models;
 
 namespace ReQuantum.Modules.Pta.Services;
 

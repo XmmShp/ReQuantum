@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
@@ -5,8 +7,6 @@ using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Pta.Services;
 using ReQuantum.Views;
-using System;
-using System.Threading.Tasks;
 
 namespace ReQuantum.ViewModels;
 
