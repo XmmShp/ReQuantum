@@ -363,9 +363,6 @@
   <data name="NoExams" xml:space="preserve">
     <value>No exams on this date</value>
   </data>
-  <data name="PtaLogin" xml:space="preserve">
-    <value>PTA Login</value>
-  </data>
   <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
@@ -383,9 +380,6 @@
   </data>
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
-  </data>
-  <data name="PtaLoggedIn" xml:space="preserve">
-    <value>PTA Logged In</value>
   </data>
   <data name="SyncAll" xml:space="preserve">
     <value>Sync All</value>
@@ -409,7 +403,34 @@
     <value>PTA sync exception</value>
   </data>
   <data name="PtaAccountLogin" xml:space="preserve">
-    <value>PTA Account Login</value>
+    <value>Account Login</value>
+  </data>
+  <data name="PasswordLogin" xml:space="preserve">
+    <value>Password Login</value>
+  </data>
+  <data name="WeChatQrLogin" xml:space="preserve">
+    <value>WeChat QR Code</value>
+  </data>
+  <data name="LoadingQrCode" xml:space="preserve">
+    <value>Loading QR code...</value>
+  </data>
+  <data name="BrowserLoginFailed" xml:space="preserve">
+    <value>Browser login failed</value>
+  </data>
+  <data name="BrowserLoginException" xml:space="preserve">
+    <value>Browser login exception</value>
+  </data>
+  <data name="QrCodeExpiredRefreshing" xml:space="preserve">
+    <value>QR code has expired, refreshing automatically...</value>
+  </data>
+  <data name="GetProblemSetFailed" xml:space="preserve">
+    <value>Failed to get problem set</value>
+  </data>
+  <data name="ParseProblemSetFailed" xml:space="preserve">
+    <value>Failed to parse problem set data</value>
+  </data>
+  <data name="GetProblemSetException" xml:space="preserve">
+    <value>Exception while getting problem set</value>
   </data>
   <data name="CannotGetCalendar" xml:space="preserve">
     <value>Cannot get calendar</value>
@@ -441,15 +462,6 @@
   <data name="ParseExamDataFailed" xml:space="preserve">
     <value>Failed to parse exam data</value>
   </data>
-  <data name="GetProblemSetFailed" xml:space="preserve">
-    <value>Failed to get problem sets</value>
-  </data>
-  <data name="ParseProblemSetFailed" xml:space="preserve">
-    <value>Failed to parse problem set response</value>
-  </data>
-  <data name="GetProblemSetException" xml:space="preserve">
-    <value>Problem set retrieval exception</value>
-  </data>
   <data name="SyncPTA" xml:space="preserve">
     <value>SyncPTA</value>
   </data>
@@ -477,32 +489,11 @@
   <data name="PtaLoginSuccess" xml:space="preserve">
     <value>Login successful</value>
   </data>
-  <data name="PtaNeedCaptchaStartingPlaywright" xml:space="preserve">
-    <value>Captcha required, starting smart login...</value>
-  </data>
   <data name="PtaLoginFailedWithReason" xml:space="preserve">
     <value>Login failed: {0}</value>
   </data>
   <data name="PtaLoginException" xml:space="preserve">
     <value>Login exception: {0}</value>
-  </data>
-  <data name="PtaInitializingBrowser" xml:space="preserve">
-    <value>Initializing browser environment...</value>
-  </data>
-  <data name="PtaSubmittingLogin" xml:space="preserve">
-    <value>Submitting login information...</value>
-  </data>
-  <data name="PtaSubmitFailed" xml:space="preserve">
-    <value>Submission failed: {0}</value>
-  </data>
-  <data name="PtaPleaseEnterCaptcha" xml:space="preserve">
-    <value>Please enter captcha</value>
-  </data>
-  <data name="PtaWaitingForResult" xml:space="preserve">
-    <value>Waiting for login result...</value>
-  </data>
-  <data name="PtaPlaywrightLoginException" xml:space="preserve">
-    <value>Smart login exception: {0}</value>
   </data>
   <data name="PtaSubmittingCaptcha" xml:space="preserve">
     <value>Submitting captcha...</value>
@@ -519,23 +510,11 @@
   <data name="PtaSwitchedToPasswordMode" xml:space="preserve">
     <value>Switched to password login</value>
   </data>
-  <data name="PtaLoginTimeoutOrFailed" xml:space="preserve">
-    <value>Login timeout or failed: {0}</value>
-  </data>
   <data name="PtaPleaseEnterEmailAndPassword" xml:space="preserve">
     <value>Please enter email and password first</value>
   </data>
   <data name="PtaBrowserLoginInstructions" xml:space="preserve">
     <value>Please complete login in browser, then copy PTASession cookie value</value>
-  </data>
-  <data name="PtaHowToGetSession" xml:space="preserve">
-    <value>How to get PTASession:
-1. Complete login in browser (including captcha)
-2. Press F12 to open developer tools
-3. Go to Application/Storage tab
-4. Select Cookies → https://pintia.cn on the left
-5. Find PTASession, copy its value
-6. Paste to the input box below</value>
   </data>
   <data name="PtaOpenBrowserFailed" xml:space="preserve">
     <value>Failed to open browser: {0}</value>
@@ -543,17 +522,11 @@
   <data name="PtaPleaseEnterSessionValue" xml:space="preserve">
     <value>Please enter PTASession value</value>
   </data>
-  <data name="PtaLoggingInWithCookie" xml:space="preserve">
-    <value>Logging in with cookie...</value>
-  </data>
   <data name="PtaLoggedOut" xml:space="preserve">
     <value>Logged out</value>
   </data>
   <data name="PtaLoggedInAs" xml:space="preserve">
     <value>Logged in as: {0}</value>
-  </data>
-  <data name="PtaCookieLoginSuccess" xml:space="preserve">
-    <value>Cookie login successful</value>
   </data>
   <data name="PtaManualPasteSession" xml:space="preserve">
     <value>Unable to login? Manually paste PTASession</value>

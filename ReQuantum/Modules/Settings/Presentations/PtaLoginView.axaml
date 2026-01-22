@@ -18,13 +18,13 @@
         <Border CornerRadius="8" HorizontalAlignment="Center" ClipToBounds="True" 
                 BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1">
             <StackPanel Orientation="Horizontal">
-                <Button Content="密码登录" 
-                        Command="{Binding SwitchToPasswordModeCommand}" 
+                <Button Content="{Binding Localizer[PasswordLogin]}"
+                        Command="{Binding SwitchToPasswordModeCommand}"
                         IsEnabled="{Binding IsQrLoginMode}"
                         CornerRadius="0"
                         Padding="20,10"/>
-                <Button Content="微信扫码" 
-                        Command="{Binding SwitchToQrLoginCommand}" 
+                <Button Content="{Binding Localizer[WeChatQrLogin]}"
+                        Command="{Binding SwitchToQrLoginCommand}"
                         IsEnabled="{Binding !IsQrLoginMode}"
                         CornerRadius="0"
                         Padding="20,10"/>
@@ -140,7 +140,7 @@
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                     IsVisible="{Binding QrCodeBitmap, Converter={x:Static ObjectConverters.IsNull}}">
                             <ProgressBar IsIndeterminate="True"/>
-                            <TextBlock Text="正在加载二维码..." Margin="0,10,0,0" FontSize="12"/>
+                            <TextBlock Text="{Binding Localizer[LoadingQrCode]}" Margin="0,10,0,0" FontSize="12"/>
                         </StackPanel>
                     </Panel>
                 </Border>
@@ -164,14 +164,6 @@
                        FontSize="16"
                        FontWeight="SemiBold"
                        HorizontalAlignment="Center"/>
-
-            <TextBlock Text="{Binding DebugInfo}"
-                       FontFamily="Consolas"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Opacity="0.7"
-                       Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                       Padding="12"/>
 
             <TextBox Text="{Binding PtaSessionInput}"
                      Watermark="{Binding Localizer[PastePtaSessionValue]}"

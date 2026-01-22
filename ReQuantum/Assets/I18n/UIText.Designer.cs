@@ -1355,5 +1355,60 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("PtaCookieLoginSuccess", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login failed: {0}.
+        /// </summary>
+        public static string BrowserLoginFailed {
+            get {
+                return ResourceManager.GetString("BrowserLoginFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Browser login exception: {0}.
+        /// </summary>
+        public static string BrowserLoginException {
+            get {
+                return ResourceManager.GetString("BrowserLoginException", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to QR code has expired, refreshing automatically...
+        /// </summary>
+        public static string QrCodeExpiredRefreshing {
+            get {
+                return ResourceManager.GetString("QrCodeExpiredRefreshing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password Login.
+        /// </summary>
+        public static string PasswordLogin {
+            get {
+                return ResourceManager.GetString("PasswordLogin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WeChat QR Code.
+        /// </summary>
+        public static string WeChatQrLogin {
+            get {
+                return ResourceManager.GetString("WeChatQrLogin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading QR code...
+        /// </summary>
+        public static string LoadingQrCode {
+            get {
+                return ResourceManager.GetString("LoadingQrCode", resourceCulture);
+            }
+        }
+
     }
 }
