@@ -405,15 +405,6 @@
   <data name="BrowserLoginException" xml:space="preserve">
     <value>Browser login exception: {0}</value>
   </data>
-  <data name="GetProblemSetFailed" xml:space="preserve">
-    <value>Failed to get problem set</value>
-  </data>
-  <data name="ParseProblemSetFailed" xml:space="preserve">
-    <value>Failed to parse problem set data</value>
-  </data>
-  <data name="GetProblemSetException" xml:space="preserve">
-    <value>Exception while getting problem set</value>
-  </data>
   <data name="CannotGetCalendar" xml:space="preserve">
     <value>Cannot get calendar</value>
   </data>
