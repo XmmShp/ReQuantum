@@ -17,7 +17,7 @@
     <!-- 日程区域 -->
     <Border BorderThickness="2"
             Background="{DynamicResource RegionBackgroundBrush}"
-            BorderBrush="{DynamicResource EventBrush}"
+            BorderBrush="{DynamicResource EventBorderBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -33,8 +33,7 @@
                    VerticalAlignment="Center"/>
 
           <Button Grid.Column="1" 
-                  Click="UnfoldList"
-                  Background="White">
+                  Click="UnfoldList">
               <iconPacks:PackIconMaterial Kind="DotsVertical" />
               <Button.ContextMenu>
                   <ContextMenu>
@@ -59,7 +58,7 @@
         <ItemsControl ItemsSource="{Binding Events}">
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
-              <Border BorderThickness="1"
+              <Border  BorderThickness="1"
                       Background="{DynamicResource LightEventBrush}"
                       CornerRadius="4"
                       Padding="12"
@@ -82,8 +81,7 @@
                             FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
                         Padding="8,4"
-                        VerticalAlignment="Top"
-                        Background="{DynamicResource ButtonBrush}">
+                        VerticalAlignment="Top">
                     <TextBlock Text="{Binding ((presentations:EventListViewModel)DataContext).Localizer[Delete],
                                         RelativeSource={RelativeSource AncestorType=UserControl}, 
                                         FallbackValue=Delete}" 

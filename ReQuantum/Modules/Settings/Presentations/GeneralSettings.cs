@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Views;
@@ -15,9 +16,9 @@ public partial class GeneralSettingsViewModel : ViewModelBase<GeneralSettingsVie
 
     public ThemeOption[] ThemeOptions { get; } =
     [
-        new("跟随系统", ThemeVariant.Default),
-        new("浅色", ThemeVariant.Light),
-        new("深色", ThemeVariant.Dark)
+        new(UIText.FollowingSystem, ThemeVariant.Default),
+        new(UIText.Light, ThemeVariant.Light),
+        new(UIText.Dark, ThemeVariant.Dark)
     ];
 
     [ObservableProperty]

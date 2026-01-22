@@ -450,8 +450,125 @@
   <data name="GetProblemSetException" xml:space="preserve">
     <value>Problem set retrieval exception</value>
   </data>
+  <data name="Upcomingschedule" xml:space="preserve">
+    <value>Upcoming schedule</value>
+  </data>
+  <data name="RecentNotes" xml:space="preserve">
+    <value>Recent Notes</value>
+  </data>
+  <data name="Deadline" xml:space="preserve">
+    <value>Deadline</value>
+  </data>	  
   <data name="SyncPTA" xml:space="preserve">
     <value>SyncPTA</value>
+  </data>
+  <data name="PtaQrCodeLoading" xml:space="preserve">
+    <value>Loading QR code...</value>
+  </data>
+  <data name="PtaScanQrCode" xml:space="preserve">
+    <value>Scan with WeChat</value>
+  </data>
+  <data name="PtaInitFailed" xml:space="preserve">
+    <value>Initialization failed: {0}</value>
+  </data>
+  <data name="PtaGetQrCodeFailed" xml:space="preserve">
+    <value>Failed to get QR code: {0}</value>
+  </data>
+  <data name="PtaLoadQrCodeException" xml:space="preserve">
+    <value>QR code loading exception: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterEmail" xml:space="preserve">
+    <value>Please enter email</value>
+  </data>
+  <data name="PtaLoggingIn" xml:space="preserve">
+    <value>Logging in...</value>
+  </data>
+  <data name="PtaLoginSuccess" xml:space="preserve">
+    <value>Login successful</value>
+  </data>
+  <data name="PtaNeedCaptchaStartingPlaywright" xml:space="preserve">
+    <value>Captcha required, starting smart login...</value>
+  </data>
+  <data name="PtaLoginFailedWithReason" xml:space="preserve">
+    <value>Login failed: {0}</value>
+  </data>
+  <data name="PtaLoginException" xml:space="preserve">
+    <value>Login exception: {0}</value>
+  </data>
+  <data name="PtaInitializingBrowser" xml:space="preserve">
+    <value>Initializing browser environment...</value>
+  </data>
+  <data name="PtaSubmittingLogin" xml:space="preserve">
+    <value>Submitting login information...</value>
+  </data>
+  <data name="PtaSubmitFailed" xml:space="preserve">
+    <value>Submission failed: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterCaptcha" xml:space="preserve">
+    <value>Please enter captcha</value>
+  </data>
+  <data name="PtaWaitingForResult" xml:space="preserve">
+    <value>Waiting for login result...</value>
+  </data>
+  <data name="PtaPlaywrightLoginException" xml:space="preserve">
+    <value>Smart login exception: {0}</value>
+  </data>
+  <data name="PtaSubmittingCaptcha" xml:space="preserve">
+    <value>Submitting captcha...</value>
+  </data>
+  <data name="PtaCaptchaSubmittedWaiting" xml:space="preserve">
+    <value>Captcha submitted, waiting for result...</value>
+  </data>
+  <data name="PtaCaptchaSubmitFailed" xml:space="preserve">
+    <value>Captcha submission failed: {0}</value>
+  </data>
+  <data name="PtaQrModeException" xml:space="preserve">
+    <value>QR mode exception: {0}</value>
+  </data>
+  <data name="PtaSwitchedToPasswordMode" xml:space="preserve">
+    <value>Switched to password login</value>
+  </data>
+  <data name="PtaLoginTimeoutOrFailed" xml:space="preserve">
+    <value>Login timeout or failed: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterEmailAndPassword" xml:space="preserve">
+    <value>Please enter email and password first</value>
+  </data>
+  <data name="PtaBrowserLoginInstructions" xml:space="preserve">
+    <value>Please complete login in browser, then copy PTASession cookie value</value>
+  </data>
+  <data name="PtaHowToGetSession" xml:space="preserve">
+    <value>How to get PTASession:
+1. Complete login in browser (including captcha)
+2. Press F12 to open developer tools
+3. Go to Application/Storage tab
+4. Select Cookies → https://pintia.cn on the left
+5. Find PTASession, copy its value
+6. Paste to the input box below</value>
+  </data>
+  <data name="PtaOpenBrowserFailed" xml:space="preserve">
+    <value>Failed to open browser: {0}</value>
+  </data>
+  <data name="PtaPleaseEnterSessionValue" xml:space="preserve">
+    <value>Please enter PTASession value</value>
+  </data>
+  <data name="PtaLoggingInWithCookie" xml:space="preserve">
+    <value>Logging in with cookie...</value>
+  </data>
+  <data name="PtaLoggedOut" xml:space="preserve">
+    <value>Logged out</value>
+  </data>
+  <data name="PtaLoggedInAs" xml:space="preserve">
+    <value>Logged in as: {0}</value>
+  </data>
+  <data name="PtaCookieLoginSuccess" xml:space="preserve">
+    <value>Cookie login successful</value>
+  </data>
+  <data name="PtaManualPasteSession" xml:space="preserve">
+    <value>Unable to login? Manually paste PTASession</value>
+  </data>
+  <data name="PtaScanWithWeChat" xml:space="preserve">
+    <value>Please scan with WeChat to login</value>
   </data>
   <data name="Appearance" xml:space="preserve">
     <value>Appearance</value>
@@ -459,12 +576,20 @@
   <data name="Theme" xml:space="preserve">
     <value>Theme</value>
   </data>
+  <data name="GeneralSettings" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="FollowingSystem" xml:space="preserve">
+    <value>Following system</value>
+  </data>
   <data name="Upcomingschedule" xml:space="preserve">
     <value>Upcoming schedule</value>
   </data>
-  <data name="RecentNotes" xml:space="preserve">
-    <value>Recent Notes</value>
+  <data name="Dark" xml:space="preserve">
+    <value>Dark</value>
   </data>
+  <data name="Light" xml:space="preserve">
+    <value>Light</value>
   <data name="Deadline" xml:space="preserve">
     <value>Deadline</value>
   </data>
