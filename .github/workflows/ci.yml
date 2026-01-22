@@ -70,6 +70,11 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
+    - name: Install .NET workloads
+      run: |
+        dotnet workload restore
+        dotnet workload install ios android --source https://api.nuget.org/v3/index.json
+
     - name: Run code formatting check
       run: dotnet format --verify-no-changes ${{ env.SOLUTION_FILE }}
 

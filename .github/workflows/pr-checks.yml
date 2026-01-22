@@ -39,7 +39,10 @@ jobs:
       run: dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
 
     - name: Check code formatting
-      run: dotnet format --verify-no-changes ${{ env.SOLUTION_FILE }}
+      run: |
+        dotnet workload restore
+        dotnet workload install ios android --source https://api.nuget.org/v3/index.json
+        dotnet format --verify-no-changes ${{ env.SOLUTION_FILE }}
 
   dependency-review:
     name: Dependency Review
