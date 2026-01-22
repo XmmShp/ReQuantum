@@ -36,28 +36,17 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     public string AddEventText => "➕" + UIText.AddEvent;
 
     public string SyncPTAText => "📅" + UIText.SyncPTA;
-    //ddd
+
+    [ObservableProperty]
     private bool _isRepeating;
-    public bool IsRepeating
-    {
-        get => _isRepeating;
-        set => SetProperty(ref _isRepeating, value);
-    }
 
-    private int _repeatWeeks = 1; // 默认重复1周
-    public int RepeatWeeks
-    {
-        get => _repeatWeeks;
-        set => SetProperty(ref _repeatWeeks, value);
-    }
-    public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
+    [ObservableProperty]
+    private int _repeatWeeks = 1;
 
-    private string _newEventNote;
-    public string NewEventNote
-    {
-        get => _newEventNote;
-        set => SetProperty(ref _newEventNote, value);
-    }
+    public List<int> RepeatOptions => [1, 2, 4, 8, 12, 16];
+
+    [ObservableProperty]
+    private string _newEventNote = string.Empty;
 
     //ddd
     /// <summary>
@@ -299,7 +288,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                 Content = NewEventContent.Trim(),
                 StartTime = NewEventStartTime,
                 EndTime = NewEventEndTime,
-                Note = NewEventNote?.Trim()
+                Note = NewEventNote?.Trim() ?? string.Empty
             };
 
             _calendarService.AddOrUpdateEvent(calendarEvent);
@@ -324,7 +313,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                     Content = content,
                     StartTime = occurrenceDate,
                     EndTime = endDate.AddDays(i * 7),
-                    Note = NewEventNote?.Trim()
+                    Note = NewEventNote?.Trim() ?? string.Empty
                 };
 
                 _calendarService.AddOrUpdateEvent(calendarEvent);

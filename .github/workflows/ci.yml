@@ -38,16 +38,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-    - name: Install .NET workloads
-      run: |
-        dotnet workload restore
-        dotnet workload install ios android --source https://api.nuget.org/v3/index.json
-
     - name: Restore dependencies
       run: dotnet restore ${{ env.SOLUTION_FILE }}
 
     - name: Build solution
-      run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release
+      run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release --verbosity normal /p:TreatWarningsAsErrors=true
 
     - name: Run tests
       run: dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
@@ -70,11 +65,8 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Install .NET tools
-      run: dotnet tool install --global dotnet-format
-
     - name: Run code formatting check
-      run: dotnet-format --check ${{ env.SOLUTION_FILE }}
+      run: dotnet format --verify-no-changes ${{ env.SOLUTION_FILE }}
 
   security-scan:
     name: Security Scan
@@ -95,102 +87,3 @@ jobs:
       uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: 'trivy-results.sarif'
-
-  build-desktop:
-    name: Build Desktop Application
-    runs-on: windows-latest
-    needs: [build-and-test, code-quality]
-    if: github.ref == 'refs/heads/dev'
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Restore dependencies
-      run: dotnet restore ReQuantum.Desktop/ReQuantum.Desktop.csproj
-
-    - name: Publish Desktop App
-      run: dotnet publish ReQuantum.Desktop/ReQuantum.Desktop.csproj --configuration Release --output ./publish/desktop --self-contained true --runtime win-x64
-
-    - name: Upload Desktop Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ReQuantum-Desktop
-        path: ./publish/desktop/**/*
-        retention-days: 30
-
-  build-android:
-    name: Build Android Application
-    runs-on: ubuntu-latest
-    needs: [build-and-test, code-quality]
-    if: github.ref == 'refs/heads/dev'
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'microsoft'
-        java-version: '17'
-
-    - name: Restore dependencies
-      run: dotnet restore ReQuantum.Android/ReQuantum.Android.csproj
-
-    - name: Build Android APK
-      run: dotnet publish ReQuantum.Android/ReQuantum.Android.csproj --configuration Release --output ./publish/android -f net10.0-android /p:AndroidSdkDirectory=/usr/local/lib/android-sdk
-
-    - name: Upload Android Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ReQuantum-Android
-        path: ./publish/android/**/*
-        retention-days: 30
-
-  build-ios:
-    name: Build iOS Application
-    runs-on: macos-latest
-    needs: [build-and-test, code-quality]
-    if: github.ref == 'refs/heads/dev'
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Install Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
-
-    - name: Install .NET workloads
-      run: |
-        dotnet workload restore
-        dotnet workload install ios --source https://api.nuget.org/v3/index.json
-
-    - name: Restore dependencies
-      run: dotnet restore ReQuantum.iOS/ReQuantum.iOS.csproj
-
-    - name: Build iOS App
-      run: dotnet publish ReQuantum.iOS/ReQuantum.iOS.csproj --configuration Release --output ./publish/ios -f net10.0-ios /p:UseIosRuntime=true
-
-    - name: Upload iOS Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ReQuantum-iOS
-        path: ./publish/ios/**/*
-        retention-days: 30
-
-  

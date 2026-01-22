@@ -89,9 +89,9 @@ public partial class DashboardViewModel : ViewModelBase<DashboardView>, IMenuIte
     #region Recent Items Display Logic
 
     // 供界面绑定的精选列表
-    public ObservableCollection<CalendarEvent> RecentEvents { get; private set; }
-    public ObservableCollection<CalendarTodo> RecentTodos { get; private set; }
-    public ObservableCollection<CalendarNote> RecentNotes { get; private set; }
+    public ObservableCollection<CalendarEvent> RecentEvents { get; private set; } = [];
+    public ObservableCollection<CalendarTodo> RecentTodos { get; private set; } = [];
+    public ObservableCollection<CalendarNote> RecentNotes { get; private set; } = [];
 
     /// <summary>
     /// 加载每个模块中“最近的5项”
