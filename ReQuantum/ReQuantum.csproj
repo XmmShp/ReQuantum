@@ -70,4 +70,8 @@
       <LastGenOutput>UIText.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Theme Color\" />
+  </ItemGroup>
 </Project>
