@@ -2,6 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace ReQuantum.Modules.Pta.Models;
 
+[JsonSerializable(typeof(PtaUserInfoResponse))]
+internal partial class PtaJsonContext : JsonSerializerContext
+{
+}
+
 public class PtaUserInfoResponse
 {
     [JsonPropertyName("user")]

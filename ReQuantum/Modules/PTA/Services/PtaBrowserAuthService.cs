@@ -278,7 +278,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService, IDaemonService
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var userInfo = System.Text.Json.JsonSerializer.Deserialize<PtaUserInfoResponse>(content);
+            var userInfo = System.Text.Json.JsonSerializer.Deserialize(content, PtaJsonContext.Default.PtaUserInfoResponse);
 
             if (userInfo?.User?.Nickname != null && !string.IsNullOrWhiteSpace(userInfo.User.Nickname))
             {
