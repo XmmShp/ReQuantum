@@ -8,7 +8,7 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ReQuantum.Views.CalendarView"
              x:DataType="viewModels:CalendarViewModel">
-  <Design.DataContext>m    
+  <Design.DataContext>
     <viewModels:CalendarViewModel />
   </Design.DataContext>
 
@@ -28,7 +28,7 @@
         </ScrollViewer>
       </Border>
 
-      <GridSplitter Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+      <GridSplitter Grid.Column="1" Background="{DynamicResource RegionBorderBrush}"/>
 
       <!-- 右侧：便签、待办、日程展示 -->
       <Border Grid.Column="2" Padding="16">
@@ -56,7 +56,7 @@
         
         <!-- 日历视图区域 -->
         <Border BorderThickness="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                BorderBrush="{DynamicResource RegionBackgroundBrush}"
                 CornerRadius="8"
                 Padding="16">
           <views:CalendarPartView DataContext="{Binding CalendarPartViewModel}"/>
@@ -83,9 +83,9 @@
     <Border IsVisible="{Binding TodoListViewModel.IsAddDialogOpen}"
             Background="#80000000"
             ZIndex="1000">
-      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+      <Border Background="{DynamicResource RegionBackgroundBrush}"
               BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              BorderBrush="{DynamicResource RegionBorderBrush}"
               CornerRadius="8"
               Padding="24"
               MaxWidth="700"
@@ -160,9 +160,9 @@
     <Border IsVisible="{Binding NoteListViewModel.IsAddDialogOpen}"
             Background="#80000000"
             ZIndex="1000">
-      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+      <Border Background="{DynamicResource RegionBackgroundBrush}"
               BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              BorderBrush="{DynamicResource RegionBorderBrush}"
               CornerRadius="8"
               Padding="24"
               MaxWidth="600"
@@ -196,9 +196,9 @@
     <Border IsVisible="{Binding EventListViewModel.IsAddDialogOpen}"
             Background="#80000000"
             ZIndex="1000">
-      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+      <Border Background="{DynamicResource RegionBackgroundBrush}"
               BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              BorderBrush="{DynamicResource RegionBorderBrush}"
               CornerRadius="8"
               Padding="24"
               MaxWidth="700"
