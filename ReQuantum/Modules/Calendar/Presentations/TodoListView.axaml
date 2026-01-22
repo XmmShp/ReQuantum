@@ -15,8 +15,9 @@
 
   <Grid>
     <!-- 待办区域 -->
-    <Border BorderThickness="1"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+    <Border BorderThickness="2"
+            Background="{DynamicResource RegionBackgroundBrush}"
+            BorderBrush="{DynamicResource TodoBorderBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -27,18 +28,17 @@
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
           <Button Grid.Column="1" 
-                  Click="UnfoldList"
-                  Background="White">
+                  Click="UnfoldList">
               <iconPacks:PackIconMaterial Kind="DotsVertical" />
               <Button.ContextMenu>
                   <ContextMenu>
                       <!-- 学在浙大同步按钮 -->
-                      <MenuItem Header="🔁{Binding Localizer[SyncCoursesZju]}"
+                      <MenuItem Header="{Binding SyncCoursesZjuText}"
                                 FontSize="14"
                                 Command="{Binding SyncCoursesZjuTodosCommand}"
                                 IsVisible="{Binding ShowCoursesZjuSyncButton}"></MenuItem>
 
-                      <MenuItem Header="➕{Binding Localizer[AddTodo]}"
+                      <MenuItem Header="{Binding AddTodoText}"
                                 Command="{Binding ShowAddDialogCommand}"></MenuItem>
                   </ContextMenu>
                   
@@ -52,7 +52,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarTodo">
               <Border BorderThickness="1"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      Background="{DynamicResource LightTodoBrush}"
                       CornerRadius="4"
                       Padding="12"
                       Margin="0,4">
@@ -79,7 +79,7 @@
                       <Run Text="{Binding DueTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
                     </TextBlock>
                   </StackPanel>
-                  <Button Grid.Column="2" 
+                  <Button Grid.Column="2"
                         Command="{Binding ((viewModels:TodoListViewModel)DataContext).DeleteTodoCommand,
                           RelativeSource={RelativeSource AncestorType=UserControl},
                           FallbackValue={x:Null}}"

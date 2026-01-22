@@ -17,16 +17,18 @@
   <StackPanel Spacing="16" Margin="16">
       <TextBlock Text="{Binding Welcome}"
                  FontSize="16"
+                 Foreground="{DynamicResource PrimaryTextBrush}"
                  TextWrapping="Wrap"/>
       <Button Command="{Binding UpdateWelcomeCommand}"
               HorizontalAlignment="Left"
               Padding="16,8">
         <TextBlock Text="点我"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
                     FontSize="14"/>
       </Button>
 	  
 	  <!-- 分割线 -->
-	  <Rectangle Height="1" Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}" Opacity="0.2" Margin="0,16,0,16"/>
+	  <Rectangle Height="1" Fill="{DynamicResource RegionBorderBrush}" Opacity="0.2" Margin="0,16,0,16"/>
 
 	  <!-- 三模块横向排列区域 -->
 	  <Grid ColumnDefinitions="*,*,*" ColumnSpacing="18">

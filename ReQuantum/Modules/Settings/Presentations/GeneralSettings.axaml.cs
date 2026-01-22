@@ -2,9 +2,9 @@
 
 namespace ReQuantum.Views;
 
-public partial class PintiaLoginView : UserControl
+public partial class GeneralSettingsView : UserControl
 {
-    public PintiaLoginView()
+    public GeneralSettingsView()
     {
         InitializeComponent();
     }

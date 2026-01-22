@@ -13,8 +13,9 @@
 
   <Grid>
     <!-- 便签区域 -->
-    <Border BorderThickness="1"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+    <Border BorderThickness="2"
+            Background="{DynamicResource RegionBackgroundBrush}"
+            BorderBrush="{DynamicResource NoteBorderBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -39,11 +40,10 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarNote">
               <Border BorderThickness="1"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                       CornerRadius="4"
                       Padding="12"
                       Margin="0,4"
-                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                      Background="{DynamicResource LightNoteBrush}">
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Grid.Column="0" 
                            Text="{Binding Content}" 
@@ -54,7 +54,8 @@
                           RelativeSource={RelativeSource AncestorType=UserControl},
                           FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
-                        Padding="8,4">
+                        Padding="8,4"
+                        Background="{DynamicResource ButtonBrush}">
                     <TextBlock Text="{Binding ((viewModels:NoteListViewModel)DataContext).Localizer[Delete], 
                         RelativeSource={RelativeSource AncestorType=UserControl},
                         FallbackValue=Delete}" FontSize="12"/>

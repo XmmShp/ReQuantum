@@ -11,21 +11,33 @@
              x:DataType="presentations:CalendarPartViewModel">
   <Design.DataContext>
     <presentations:CalendarPartViewModel />
+
   </Design.DataContext>
 
   <StackPanel Spacing="12">
-    <!-- 桌面端控制栏 -->
+
+      <!-- 桌面端控制栏 -->
     <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" IsVisible="{Binding WindowService.IsDesktopMode}">
-      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-        <Button Command="{Binding GoToPreviousCommand}" Padding="8">
+
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+          <Button Classes="control"
+                 Command="{Binding GoToPreviousCommand}" Padding="8"
+                  Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="◀" FontSize="14"/>
         </Button>
-        <Button Command="{Binding GoToNextCommand}" Padding="8">
+        <Button 
+            Classes="control"
+            Command="{Binding GoToNextCommand}" Padding="8"
+                Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="▶" FontSize="14"/>
         </Button>
-        <Button Command="{Binding GoToTodayCommand}" Padding="8,4">
+        <Button 
+            Classes="control"
+            Command="{Binding GoToTodayCommand}" Padding="8,4"
+                Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Today]}" FontSize="14"/>
         </Button>
+
       </StackPanel>
 
       <TextBlock Grid.Column="1" 
@@ -36,12 +48,17 @@
                Text="{Binding YearMonthText.Text}"/>
 
       <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
-        <Button Command="{Binding SwitchToWeekViewCommand}" 
-                Padding="8,4">
+        <Button   Classes="control"
+                  Command="{Binding SwitchToWeekViewCommand}" 
+                  Padding="8,4"
+                  Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Week]}" FontSize="14"/>
         </Button>
-        <Button Command="{Binding SwitchToMonthViewCommand}" 
-                Padding="8,4">
+        <Button 
+            Classes="control"
+            Command="{Binding SwitchToMonthViewCommand}" 
+                Padding="8,4"
+                Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Month]}" FontSize="14"/>
         </Button>
       </StackPanel>

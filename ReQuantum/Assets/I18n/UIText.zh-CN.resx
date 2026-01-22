@@ -458,5 +458,25 @@
   </data>
   <data name="Deadline" xml:space="preserve">
     <value>截止</value>
+  <data name="SyncPTA" xml:space="preserve">
+    <value>同步PTA</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="GeneralSettings" xml:space="preserve">
+    <value>通用设置</value>
+  </data>
+  <data name="FollowingSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Dark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Light" xml:space="preserve">
+    <value>浅色</value>
   </data>
 </root>

@@ -8,8 +8,10 @@ namespace ReQuantum.Modules.Calendar.Presentations;
 
 public static class CalendarConverters
 {
+
     public static readonly IValueConverter IsTodayToBackgroundConverter = new FuncValueConverter<bool, IBrush?>(isToday =>
-        isToday ? new SolidColorBrush(Color.Parse("#2196F3")) : Brushes.Transparent);
+        isToday ? (Application.Current?.Resources?.TryGetResource("RegionSelectedTextBackgroundBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b ? b : new SolidColorBrush(Color.Parse("#ff0000"))) : Brushes.Transparent);
+
 
     public static readonly IValueConverter IsTodayToForegroundConverter = new FuncValueConverter<bool, object>(isToday =>
         isToday ? Brushes.White : AvaloniaProperty.UnsetValue);
@@ -21,16 +23,11 @@ public static class CalendarConverters
         isToday ? FontWeight.Bold : FontWeight.Normal);
 
     public static readonly IValueConverter IsSelectedToBackgroundConverter = new FuncValueConverter<bool, IBrush?>(isSelected =>
-    {
-        if (!isSelected) return Brushes.Transparent;
-        var isDark = Application.Current?.ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark;
-        return isDark 
-            ? new SolidColorBrush(Color.Parse("#332196F3")) 
-            : new SolidColorBrush(Color.Parse("#E3F2FD"));
-    });
+        isSelected ? (Application.Current?.Resources?.TryGetResource("RegionSelectedBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b ? b : new SolidColorBrush(Color.Parse("#ff0000"))) : Brushes.Transparent);
+
 
     public static readonly IValueConverter IsSelectedToBorderBrushConverter = new FuncValueConverter<bool, IBrush?>(isSelected =>
-        isSelected ? new SolidColorBrush(Color.Parse("#2196F3")) : Brushes.Transparent);
+        isSelected ? (Application.Current?.Resources?.TryGetResource("RegionSelectedBorderBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b ? b : new SolidColorBrush(Color.Parse("#ff0000"))) : Brushes.Transparent);
 
     public static readonly IValueConverter IsSelectedToBorderThicknessConverter = new FuncValueConverter<bool, Thickness>(isSelected =>
             isSelected ? new Thickness(2) : new Thickness(0));
