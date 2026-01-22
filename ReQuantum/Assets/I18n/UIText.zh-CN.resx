@@ -450,6 +450,15 @@
   <data name="GetProblemSetException" xml:space="preserve">
     <value>获取习题集异常</value>
   </data>
+  <data name="SyncPTA" xml:space="preserve">
+    <value>同步PTA</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
   <data name="Upcomingschedule" xml:space="preserve">
     <value>近期日程</value>
   </data>

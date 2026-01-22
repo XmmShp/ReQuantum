@@ -15,8 +15,9 @@
 
   <Grid>
     <!-- 日程区域 -->
-    <Border BorderThickness="1"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+    <Border BorderThickness="2"
+            Background="{DynamicResource RegionBackgroundBrush}"
+            BorderBrush="{DynamicResource EventBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -26,6 +27,7 @@
           <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0"
                    Text="{Binding EventsTitle.Text}"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
                    FontSize="18"
                    FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
@@ -36,12 +38,16 @@
               <iconPacks:PackIconMaterial Kind="DotsVertical" />
               <Button.ContextMenu>
                   <ContextMenu>
-                      <MenuItem Header="📅{Binding Localizer[SyncCoursesTable]}"
+                      <MenuItem Header="{Binding AddEventText}"
+                                Command="{Binding ShowAddDialogCommand}"></MenuItem>
+
+                      <MenuItem Header="{Binding SyncCoursesTableText}"
                                 Command="{Binding SyncZdbkScheduleCommand}"
                                 IsVisible="{Binding ShowZdbkSyncButton}"></MenuItem>
 
-                      <MenuItem Header="➕{Binding Localizer[AddEvent]}"
-                                Command="{Binding ShowAddDialogCommand}"></MenuItem>
+                      <MenuItem Header="{Binding SyncPTAText}"
+                                Command="{Binding SyncPtaCommand}"
+                                IsVisible="{Binding ShowPtaSyncButton}"></MenuItem>
                   </ContextMenu>
                   
               </Button.ContextMenu>
@@ -54,7 +60,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
               <Border BorderThickness="1"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      Background="{DynamicResource LightEventBrush}"
                       CornerRadius="4"
                       Padding="12"
                       Margin="0,4">
@@ -76,7 +82,8 @@
                             FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
                         Padding="8,4"
-                        VerticalAlignment="Top">
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource ButtonBrush}">
                     <TextBlock Text="{Binding ((presentations:EventListViewModel)DataContext).Localizer[Delete],
                                         RelativeSource={RelativeSource AncestorType=UserControl}, 
                                         FallbackValue=Delete}" 

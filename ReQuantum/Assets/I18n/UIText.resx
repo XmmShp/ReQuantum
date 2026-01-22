@@ -450,6 +450,15 @@
   <data name="GetProblemSetException" xml:space="preserve">
     <value>Problem set retrieval exception</value>
   </data>
+  <data name="SyncPTA" xml:space="preserve">
+    <value>SyncPTA</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
   <data name="Upcomingschedule" xml:space="preserve">
     <value>Upcoming schedule</value>
   </data>

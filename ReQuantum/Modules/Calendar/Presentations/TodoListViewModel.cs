@@ -25,7 +25,8 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
     private readonly ICoursesZjuService _coursesZjuService;
     private readonly IZjuSsoService _zjuSsoService;
 
-
+    public string SyncCoursesZjuText => "🔁" + UIText.SyncCoursesZju;
+    public string AddTodoText => "➕" + UIText.AddTodo;
 
     #region 数据集合
 

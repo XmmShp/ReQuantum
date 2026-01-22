@@ -23,8 +23,7 @@
                  Margin="0,0,0,8"/>
 
       <!-- Language Settings Section -->
-      <Border BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+      <Border Background="{DynamicResource AlternatingBackgroundBrush1}"
               CornerRadius="8"
               Padding="20">
         <StackPanel Spacing="16">
@@ -52,8 +51,7 @@
       </Border>
 
       <!-- ZJU SSO Account Management Section -->
-      <Border BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+      <Border Background="{DynamicResource AlternatingBackgroundBrush2}"
               CornerRadius="8"
               Padding="20">
         <StackPanel Spacing="16">
@@ -67,8 +65,7 @@
       </Border>
 
       <!-- PTA Login Section -->
-      <Border BorderThickness="1"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+      <Border Background="{DynamicResource AlternatingBackgroundBrush1}"
               CornerRadius="8"
               Padding="20">
         <StackPanel Spacing="16">
@@ -79,6 +76,18 @@
           <!-- Embedded PtaLoginView -->
           <views:PtaLoginView DataContext="{Binding PtaLoginViewModel}"/>
         </StackPanel>
+      </Border>
+
+      <Border Background="{DynamicResource AlternatingBackgroundBrush2}"
+              CornerRadius="8"
+              Padding="20">
+          <StackPanel Spacing="16">
+              <TextBlock Text="{Binding Localizer[PtaLogin]}"
+                         FontSize="20"
+                         FontWeight="SemiBold"/>
+
+              <views:GeneralSettingsView DataContext="{Binding GeneralSettingsViewModel}"/>
+          </StackPanel>
       </Border>
 
     </StackPanel>

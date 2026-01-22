@@ -12,34 +12,6 @@
         <viewModels:CourseSelectionViewModel />
     </Design.DataContext>
     <StackPanel>
-        <Grid Margin="100" 
-            ColumnDefinitions="100,100"
-              RowDefinitions="100,100">
-            <TextBlock Grid.Row="0" Grid.Column="0"
-                       Text="there"
-                       FontSize="36">
-
-            </TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1"
-                       Text="is"
-                       FontSize="36">
-
-            </TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="0"
-                       Text="no"
-                       Foreground="Red"
-                       FontSize="36">
-
-            </TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1"
-                       Text="notes"
-                       FontStyle="Italic"
-                       FontSize="36"
-                       FontStretch="Expanded">
-
-            </TextBlock>
-
-        </Grid>
 
     </StackPanel>
 

@@ -15,8 +15,9 @@
 
   <Grid>
     <!-- 待办区域 -->
-    <Border BorderThickness="1"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+    <Border BorderThickness="2"
+            Background="{DynamicResource RegionBackgroundBrush}"
+            BorderBrush="{DynamicResource TodoBrush}"
             CornerRadius="8"
             Padding="16">
       <StackPanel Spacing="12">
@@ -33,12 +34,12 @@
               <Button.ContextMenu>
                   <ContextMenu>
                       <!-- 学在浙大同步按钮 -->
-                      <MenuItem Header="🔁{Binding Localizer[SyncCoursesZju]}"
+                      <MenuItem Header="{Binding SyncCoursesZjuText}"
                                 FontSize="14"
                                 Command="{Binding SyncCoursesZjuTodosCommand}"
                                 IsVisible="{Binding ShowCoursesZjuSyncButton}"></MenuItem>
 
-                      <MenuItem Header="➕{Binding Localizer[AddTodo]}"
+                      <MenuItem Header="{Binding AddTodoText}"
                                 Command="{Binding ShowAddDialogCommand}"></MenuItem>
                   </ContextMenu>
                   
@@ -52,7 +53,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarTodo">
               <Border BorderThickness="1"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      Background="{DynamicResource LightTodoBrush}"
                       CornerRadius="4"
                       Padding="12"
                       Margin="0,4">
@@ -84,7 +85,8 @@
                           RelativeSource={RelativeSource AncestorType=UserControl},
                           FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
-                        Padding="8,4">
+                        Padding="8,4"
+                        Background="{DynamicResource ButtonBrush}">
                     <TextBlock Text="{Binding ((viewModels:TodoListViewModel)DataContext).Localizer[Delete],
                         RelativeSource={RelativeSource AncestorType=UserControl},
                         FallbackValue=Delete}" FontSize="12"/>
