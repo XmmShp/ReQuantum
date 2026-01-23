@@ -21,13 +21,13 @@ public interface IPtaProblemSetService
 [AutoInject(Lifetime.Singleton)]
 public class PtaProblemSetService : IPtaProblemSetService
 {
-    private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaBrowserAuthService _ptaAuthService;
     private readonly ILogger<PtaProblemSetService> _logger;
     private readonly ILocalizer _localizer;
 
     private const string ProblemSetsApiUrl = "https://pintia.cn/api/problem-sets?filter=%7B%7D&page=0&limit=30&order_by=END_AT&asc=false";
 
-    public PtaProblemSetService(IPtaAuthService ptaAuthService, ILogger<PtaProblemSetService> logger, ILocalizer localizer)
+    public PtaProblemSetService(IPtaBrowserAuthService ptaAuthService, ILogger<PtaProblemSetService> logger, ILocalizer localizer)
     {
         _ptaAuthService = ptaAuthService;
         _logger = logger;
