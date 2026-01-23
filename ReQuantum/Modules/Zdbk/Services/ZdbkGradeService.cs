@@ -8,9 +8,11 @@ namespace ReQuantum.Modules.Zdbk.Services;
 
 public interface IZdbkGradeService
 {
+    /// <param name="academicYear">学年（如 "2024-2025"）</param>
+    /// <param name="semester">学期（如 "秋"、"冬"、"春"、"夏"）</param>
     Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester);
 }
-[AutoInject(Lifetime.Singleton)]
+
 public class ZdbkGradeService : IZdbkGradeService
 {
     public async Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester)

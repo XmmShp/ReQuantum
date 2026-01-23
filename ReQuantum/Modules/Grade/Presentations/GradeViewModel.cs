@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
@@ -7,6 +9,8 @@ using ReQuantum.Infrastructure.Entities;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
+using ReQuantum.Modules.Zdbk.Models;
+using ReQuantum.Modules.Zdbk.Services;
 using ReQuantum.Services;
 using ReQuantum.Views;
 
@@ -26,8 +30,12 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     #endregion
 
     private readonly ILocalizer _localizer;
+    private readonly IZdbkGradeService _zdbkGradeService;
 
-    public GradeViewModel(ILocalizer localizer)
+    [ObservableProperty]
+    private ZdbkGrades _grades;
+
+    public GradeViewModel(ILocalizer localizer, IZdbkGradeService zdbkGradeService)
     {
 
         MenuItem = new MenuItem
@@ -37,6 +45,19 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
             OnSelected = () => Navigator.NavigateTo<GradeViewModel>()
         };
         _localizer = localizer;
-
+        _zdbkGradeService = zdbkGradeService;
+        LoadDataAsync();
     }
+
+    private async Task LoadDataAsync()
+    {
+        var result = await _zdbkGradeService.GetSemeserGradesAsync("2024-2025", "春");
+        if (result.IsSuccess)
+        {
+            Grades = result.Value;
+        }
+    }
+
+
+
 }
