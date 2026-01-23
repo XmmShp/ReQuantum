@@ -51,7 +51,24 @@
                       Padding="12"
                       Margin="0,4,5,4"
                       Background="{Binding NoteId,Converter={x:Static presentations:CalendarConverters.NoteIdToBackgroundConverter}}">
-                <Grid ColumnDefinitions="*,Auto">
+                  <Border.Styles>
+                      <Style>
+                          <Setter Property="Transitions"></Setter>
+                          <Style.Animations>
+                              <Animation Duration="0:0:0.5" FillMode="Forward" Easing="CubicEaseOut">
+                                  <KeyFrame KeyTime="0:0:0">
+                                      <Setter Property="Opacity" Value="0"/>
+                                      <Setter Property="TranslateTransform.Y" Value="20"/>
+                                  </KeyFrame>
+                                  <KeyFrame KeyTime="0:0:0.5">
+                                      <Setter Property="Opacity" Value="1"/>
+                                      <Setter Property="TranslateTransform.Y" Value="0"/>
+                                  </KeyFrame>
+                              </Animation>
+                          </Style.Animations>
+                      </Style>
+                  </Border.Styles>
+                  <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Grid.Column="0" 
                            Text="{Binding Content}" 
                            FontSize="14"

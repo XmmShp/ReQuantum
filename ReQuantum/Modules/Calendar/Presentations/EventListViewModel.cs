@@ -703,6 +703,4 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
             Events[i].EventId = i;
         }
     }
-
-
 }

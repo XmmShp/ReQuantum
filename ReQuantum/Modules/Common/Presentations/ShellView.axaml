@@ -9,14 +9,17 @@
              x:Class="ReQuantum.Infrastructure.Presentations.ShellView"
              x:Name="Root"
              x:DataType="presentations:ShellViewModel">
-  <Design.DataContext>
+
+
+    <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <presentations:ShellViewModel />
   </Design.DataContext>
 
   <Grid>
-    <!-- Landscape Layout: Collapsible side menu (height < width) -->
+
+      <!-- Landscape Layout: Collapsible side menu (height < width) -->
     <Grid x:Name="LandscapeLayout"
           IsVisible="{Binding Bounds, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={x:Static presentations:ShellView.IsLandscapeConverter}}">
       <Grid.ColumnDefinitions>
@@ -104,8 +107,15 @@
       </Border>
       <!-- Main Content -->
       <ContentControl Grid.Column="1" 
-                      Content="{Binding CurrentViewModel}"
-                      Margin="20"/>
+                      Margin="20">
+              <TransitioningContentControl Content="{Binding CurrentViewModel}">
+                  <TransitioningContentControl.PageTransition>
+                      <!-- 设置页面切换时的过渡效果，如淡入淡出或侧滑 -->
+                      <CrossFade Duration="0:0:0.25" />
+                  </TransitioningContentControl.PageTransition>
+              </TransitioningContentControl>
+      </ContentControl>
+
     </Grid>
 
     <!-- Portrait Layout: Bottom navigation with 4 buttons (height >= width) -->
