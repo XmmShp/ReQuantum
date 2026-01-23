@@ -3,16 +3,352 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:converters="clr-namespace:ReQuantum.Modules.CourseSelection.Presentations"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ReQuantum.Views.CourseSelectionView"
              x:DataType="viewModels:CourseSelectionViewModel">
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <viewModels:CourseSelectionViewModel />
-    </Design.DataContext>
-    <StackPanel>
 
-    </StackPanel>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <!-- Header and Login Status -->
+        <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,20">
+            <TextBlock Text="选课管理"
+                       FontSize="28"
+                       FontWeight="Bold"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="登录状态:" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding IsLoggedIn, Converter={x:Static converters:CourseSelectionConverters.BoolToStatusConverter}}"
+                           Foreground="{Binding IsLoggedIn, Converter={x:Static converters:CourseSelectionConverters.BoolToColorConverter}}"/>
+                <Button Content="刷新"
+                        Command="{Binding RefreshLoginStatusCommand}"
+                        Padding="8,4"
+                        Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <!-- Debug Info Panel -->
+            <Border Background="#E3F2FD"
+                    BorderBrush="#2196F3"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="调试信息" FontWeight="Bold" FontSize="14"/>
+                    <TextBlock Text="{Binding DebugInfo}"
+                               FontFamily="Consolas,Menlo,Monaco,Courier New,monospace"
+                               FontSize="11"
+                               Foreground="#333"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Not Logged In Warning -->
+            <Border Background="#FFF3CD"
+                    BorderBrush="#FFC107"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12"
+                    IsVisible="{Binding !IsLoggedIn}">
+                <TextBlock Text="请先登录 ZJU SSO 才能使用选课功能"
+                           Foreground="#856404"
+                           FontWeight="SemiBold"/>
+            </Border>
+        </StackPanel>
+
+        <!-- Statistics Panel -->
+        <Grid Grid.Row="1" Margin="0,0,0,20" IsVisible="{Binding IsLoggedIn}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Selected Courses Statistics -->
+            <Border Grid.Column="0"
+                    Background="#E3F2FD"
+                    BorderBrush="#2196F3"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16"
+                    Margin="0,0,10,0">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="已选课程" FontWeight="Bold" FontSize="16"/>
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <StackPanel>
+                            <TextBlock Text="课程数" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedCoursesCount}" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="学分" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding SelectedCredits, StringFormat={}{0:F1}}" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Button Content="刷新"
+                                Command="{Binding RefreshSelectedCoursesCommand}"
+                                Padding="8,4"
+                                VerticalAlignment="Bottom"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Graduation Requirements Statistics -->
+            <Border Grid.Column="1"
+                    Background="#F3E5F5"
+                    BorderBrush="#9C27B0"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16"
+                    Margin="10,0,0,0">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="毕业要求" FontWeight="Bold" FontSize="16"/>
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <StackPanel>
+                            <TextBlock Text="已完成课程" FontSize="12" Foreground="#666"/>
+                            <TextBlock FontSize="20" FontWeight="Bold">
+                                <Run Text="{Binding CompletedCourses}"/>
+                                <Run Text="/" FontSize="16"/>
+                                <Run Text="{Binding TotalRequiredCourses}" FontSize="16"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="已获学分" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding CompletedCredits, StringFormat={}{0:F1}}" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Button Content="刷新"
+                                Command="{Binding RefreshGraduationRequirementsCommand}"
+                                Padding="8,4"
+                                VerticalAlignment="Bottom"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="2" IsVisible="{Binding IsLoggedIn}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel: Course Category and List -->
+            <Border Grid.Column="0"
+                    BorderBrush="#DDD"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16"
+                    Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Category Selection -->
+                    <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,16">
+                        <TextBlock Text="课程分类" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding CourseCategories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Loading Indicator -->
+                    <ProgressBar Grid.Row="1"
+                                 IsIndeterminate="True"
+                                 IsVisible="{Binding IsLoadingCourses}"
+                                 Margin="0,0,0,8"/>
+
+                    <!-- Course List -->
+                    <ListBox Grid.Row="2"
+                             ItemsSource="{Binding AvailableCourses}"
+                             SelectedItem="{Binding SelectedCourse}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Spacing="4" Margin="0,4">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Code}"
+                                               FontSize="12"
+                                               Foreground="#666"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock FontSize="12">
+                                            <Run Text="学分: "/>
+                                            <Run Text="{Binding Credits}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12">
+                                            <Run Text="教学班: "/>
+                                            <Run Text="{Binding Sections.Count}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Padding" Value="8"/>
+                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            </Style>
+                            <Style Selector="ListBoxItem:selected">
+                                <Setter Property="Background" Value="#E3F2FD"/>
+                            </Style>
+                            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F5F5F5"/>
+                            </Style>
+                        </ListBox.Styles>
+                    </ListBox>
+
+                    <!-- Pagination -->
+                    <StackPanel Grid.Row="3"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Spacing="10"
+                                Margin="0,16,0,0">
+                        <Button Content="上一页"
+                                Command="{Binding PreviousPageCommand}"
+                                IsEnabled="{Binding !!CurrentPage}"
+                                Padding="12,6"/>
+                        <TextBlock Text="{Binding CurrentPage, StringFormat=第 {0} 页}"
+                                   VerticalAlignment="Center"
+                                   FontWeight="SemiBold"/>
+                        <Button Content="下一页"
+                                Command="{Binding NextPageCommand}"
+                                Padding="12,6"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Right Panel: Section Details -->
+            <Border Grid.Column="1"
+                    BorderBrush="#DDD"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16"
+                    Margin="10,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Selected Course Info -->
+                    <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,16">
+                        <TextBlock Text="教学班详情" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="{Binding SelectedCourse.Name}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   IsVisible="{Binding SelectedCourse, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        <TextBlock Text="请从左侧选择课程"
+                                   FontSize="14"
+                                   Foreground="#999"
+                                   IsVisible="{Binding SelectedCourse, Converter={x:Static ObjectConverters.IsNull}}"/>
+                    </StackPanel>
+
+                    <!-- Loading Indicator -->
+                    <ProgressBar Grid.Row="1"
+                                 IsIndeterminate="True"
+                                 IsVisible="{Binding IsLoadingSections}"
+                                 Margin="0,0,0,8"/>
+
+                    <!-- Sections List -->
+                    <ScrollViewer Grid.Row="2">
+                        <ItemsControl ItemsSource="{Binding Sections}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E0E0E0"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="12"
+                                            Margin="0,0,0,12"
+                                            Background="White">
+                                        <StackPanel Spacing="8">
+                                            <!-- Section Header -->
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Id}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="14"/>
+                                                <Border Grid.Column="1"
+                                                        Background="#4CAF50"
+                                                        CornerRadius="3"
+                                                        Padding="8,4">
+                                                    <TextBlock Text="{Binding AvailableSeats, StringFormat=剩余 {0}}"
+                                                               Foreground="White"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Section Details -->
+                                            <StackPanel Spacing="6">
+                                                <TextBlock FontSize="12">
+                                                    <Run Text="教师: " Foreground="#666"/>
+                                                    <Run Text="{Binding Instructors, Converter={x:Static converters:CourseSelectionConverters.CollectionToStringConverter}}"/>
+                                                </TextBlock>
+
+                                                <TextBlock FontSize="12">
+                                                    <Run Text="容量: " Foreground="#666"/>
+                                                    <Run Text="{Binding Capacity}"/>
+                                                </TextBlock>
+
+                                                <TextBlock FontSize="12">
+                                                    <Run Text="候补: " Foreground="#666"/>
+                                                    <Run Text="{Binding TotalWaitingCount}"/>
+                                                </TextBlock>
+
+                                                <!-- Schedule and Location -->
+                                                <ItemsControl ItemsSource="{Binding ScheduleLocationItems}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                                                <TextBlock Text="📅" FontSize="12"/>
+                                                                <TextBlock Text="{Binding Schedule}" FontSize="12"/>
+                                                                <TextBlock Text="@" FontSize="12" Foreground="#666"/>
+                                                                <TextBlock Text="{Binding Location}" FontSize="12"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="3"
+                Background="#F5F5F5"
+                BorderBrush="#DDD"
+                BorderThickness="0,1,0,0"
+                Padding="12,8"
+                Margin="0,20,0,0">
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="12"
+                       Foreground="#666"/>
+        </Border>
+    </Grid>
 </UserControl>
