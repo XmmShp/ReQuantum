@@ -1,3 +1,8 @@
+using System;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Templates;
@@ -13,11 +18,6 @@ using ReQuantum.Infrastructure.Services;
 using ReQuantum.Services;
 using ReQuantum.ViewModels;
 using Serilog;
-using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using ShellView = ReQuantum.Infrastructure.Presentations.ShellView;
 using ShellViewModel = ReQuantum.Infrastructure.Presentations.ShellViewModel;
 using ShellWindow = ReQuantum.Infrastructure.Presentations.ShellWindow;
@@ -71,7 +71,8 @@ public partial class App : Application
 
         serviceCollection.AddLogging(loggingBuilder => loggingBuilder.ClearProviders().AddSerilog(dispose: true));
 
-        serviceCollection.AddSingleton<IDataTemplate, GeneratedViewLocator>();
+        // IL2066 警告：泛型参数类型无法静态确定，原因：GeneratedViewLocator 是源生成器创建的类，编译时无法确定其具体类型，改为使用工厂方法
+        serviceCollection.AddSingleton<IDataTemplate>(sp => new GeneratedViewLocator(sp));
         serviceCollection.AddSingleton<System.Net.Http.HttpClient>();
         serviceCollection.AutoAddGeneratedServices();
 

@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ReQuantum.Modules.Calendar.Presentations;
 

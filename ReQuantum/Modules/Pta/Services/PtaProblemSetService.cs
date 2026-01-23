@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
@@ -5,11 +10,6 @@ using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Pta.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace ReQuantum.Modules.Pta.Services;
 
@@ -21,13 +21,13 @@ public interface IPtaProblemSetService
 [AutoInject(Lifetime.Singleton)]
 public class PtaProblemSetService : IPtaProblemSetService
 {
-    private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaBrowserAuthService _ptaAuthService;
     private readonly ILogger<PtaProblemSetService> _logger;
     private readonly ILocalizer _localizer;
 
     private const string ProblemSetsApiUrl = "https://pintia.cn/api/problem-sets?filter=%7B%7D&page=0&limit=30&order_by=END_AT&asc=false";
 
-    public PtaProblemSetService(IPtaAuthService ptaAuthService, ILogger<PtaProblemSetService> logger, ILocalizer localizer)
+    public PtaProblemSetService(IPtaBrowserAuthService ptaAuthService, ILogger<PtaProblemSetService> logger, ILocalizer localizer)
     {
         _ptaAuthService = ptaAuthService;
         _logger = logger;

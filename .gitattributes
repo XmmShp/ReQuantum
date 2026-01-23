@@ -7,6 +7,10 @@
 # 2. 显式标记常见代码/文本文件为 UTF-8
 # =============================================================================
 *.cs     text working-tree-encoding=UTF-8
+*.csx    text working-tree-encoding=UTF-8
+*.vb     text working-tree-encoding=UTF-8
+*.fs     text working-tree-encoding=UTF-8
+*.fsx    text working-tree-encoding=UTF-8
 *.cpp    text working-tree-encoding=UTF-8
 *.h      text working-tree-encoding=UTF-8
 *.c      text working-tree-encoding=UTF-8
@@ -20,6 +24,7 @@
 *.html   text working-tree-encoding=UTF-8
 *.css    text working-tree-encoding=UTF-8
 *.scss   text working-tree-encoding=UTF-8
+*.less   text working-tree-encoding=UTF-8
 *.json   text working-tree-encoding=UTF-8
 *.xml    text working-tree-encoding=UTF-8
 *.yml    text working-tree-encoding=UTF-8
@@ -30,22 +35,90 @@
 *.ps1    text working-tree-encoding=UTF-8 eol=lf
 
 # =============================================================================
-# 3. 排除二进制文件（避免被误判为文本）
+# 3. .NET 项目文件
+# =============================================================================
+*.sln    text working-tree-encoding=UTF-8 eol=crlf
+*.csproj  text working-tree-encoding=UTF-8 eol=crlf
+*.vbproj  text working-tree-encoding=UTF-8 eol=crlf
+*.fsproj  text working-tree-encoding=UTF-8 eol=crlf
+*.xproj   text working-tree-encoding=UTF-8
+*.props   text working-tree-encoding=UTF-8
+*.targets text working-tree-encoding=UTF-8
+*.config  text working-tree-encoding=UTF-8
+*.axaml   text working-tree-encoding=UTF-8
+*.axml    text working-tree-encoding=UTF-8
+*.resx    text working-tree-encoding=UTF-8
+*.resources text working-tree-encoding=UTF-8
+*.Designer.cs text working-tree-encoding=UTF-8
+*.designer.cs text working-tree-encoding=UTF-8
+*.Generated.cs text working-tree-encoding=UTF-8
+*.g.cs    text working-tree-encoding=UTF-8
+*.g.i.cs  text working-tree-encoding=UTF-8
+
+# =============================================================================
+# 4. 测试和构建文件
+# =============================================================================
+*.trx    text working-tree-encoding=UTF-8
+*.coverage text working-tree-encoding=UTF-8
+*.coveragexml text working-tree-encoding=UTF-8
+*.nupkg  binary
+*.snupkg binary
+
+# =============================================================================
+# 5. 排除二进制文件（避免被误判为文本）
 # =============================================================================
 *.png    binary
 *.jpg    binary
 *.jpeg   binary
 *.gif    binary
 *.ico    binary
+*.svg    text working-tree-encoding=UTF-8
+*.bmp    binary
+*.tiff   binary
+*.webp   binary
 *.pdf    binary
 *.zip    binary
+*.tar.gz  binary
+*.7z     binary
 *.exe    binary
 *.dll    binary
 *.so     binary
 *.dylib  binary
+*.a      binary
+*.lib    binary
 
 # =============================================================================
-# 4. 平台特定脚本保留 CRLF（仅 Windows 批处理）
+# 6. 数据库文件
+# =============================================================================
+*.db     binary
+*.sqlite binary
+*.sqlite3 binary
+
+# =============================================================================
+# 7. 平台特定脚本保留 CRLF（仅 Windows 批处理）
 # =============================================================================
 *.bat    text eol=crlf
 *.cmd    text eol=crlf
+*.reg    text eol=crlf
+*.inf    text eol=crlf
+
+# =============================================================================
+# 8. IDE 和编辑器文件
+# =============================================================================
+*.user   text
+*.suo    text
+*.userosscache text
+*.sln.docstates text
+
+# =============================================================================
+# 9. 锁定文件
+# =============================================================================
+package-lock.json text
+yarn.lock text
+*.lock   text
+
+# =============================================================================
+# 10. Git 配置文件（保持 LF）
+# =============================================================================
+*.gitattributes text eol=lf
+*.gitignore text eol=lf

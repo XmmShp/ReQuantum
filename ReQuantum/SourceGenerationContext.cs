@@ -1,10 +1,10 @@
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.CoursesZju.Models;
 using ReQuantum.Modules.Pta.Models;
 using ReQuantum.Modules.Zdbk.Models;
 using ReQuantum.Modules.ZjuSso.Models;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ReQuantum;
 

@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Interactivity;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Services;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace ReQuantum.Infrastructure.Presentations;
 

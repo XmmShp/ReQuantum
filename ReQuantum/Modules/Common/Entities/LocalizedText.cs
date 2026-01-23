@@ -1,8 +1,8 @@
+using System;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
-using System;
-using System.Globalization;
 
 namespace ReQuantum.Infrastructure.Entities;
 

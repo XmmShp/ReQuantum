@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
@@ -11,11 +16,6 @@ using ReQuantum.Modules.Zdbk.Services;
 using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.ViewModels;
 using ReQuantum.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using LocalizedText = ReQuantum.Infrastructure.Entities.LocalizedText;
 
 namespace ReQuantum.Modules.Calendar.Presentations;
@@ -30,34 +30,23 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private readonly IZjuSsoService _zjuSsoService;
     private readonly IPtaProblemSetService _ptaService;
     private readonly IPtaCalendarConvertService _ptaConverter;
-    private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaBrowserAuthService _ptaAuthService;
 
     public string SyncCoursesTableText => "📅" + UIText.SyncCoursesTable;
     public string AddEventText => "➕" + UIText.AddEvent;
 
     public string SyncPTAText => "📅" + UIText.SyncPTA;
-    //ddd
+
+    [ObservableProperty]
     private bool _isRepeating;
-    public bool IsRepeating
-    {
-        get => _isRepeating;
-        set => SetProperty(ref _isRepeating, value);
-    }
 
-    private int _repeatWeeks = 1; // 默认重复1周
-    public int RepeatWeeks
-    {
-        get => _repeatWeeks;
-        set => SetProperty(ref _repeatWeeks, value);
-    }
-    public List<int> RepeatOptions => new() { 1, 2, 4, 8, 12, 16 };
+    [ObservableProperty]
+    private int _repeatWeeks = 1;
 
-    private string _newEventNote;
-    public string NewEventNote
-    {
-        get => _newEventNote;
-        set => SetProperty(ref _newEventNote, value);
-    }
+    public List<int> RepeatOptions => [1, 2, 4, 8, 12, 16];
+
+    [ObservableProperty]
+    private string _newEventNote = string.Empty;
 
     //ddd
     /// <summary>
@@ -201,7 +190,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IZjuSsoService zjuSsoService,
         IPtaProblemSetService ptaService,
         IPtaCalendarConvertService ptaConverter,
-        IPtaAuthService ptaAuthService)
+        IPtaBrowserAuthService ptaAuthService)
     {
         _calendarService = calendarService;
         _zdbkService = zdbkService;
@@ -299,7 +288,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                 Content = NewEventContent.Trim(),
                 StartTime = NewEventStartTime,
                 EndTime = NewEventEndTime,
-                Note = NewEventNote?.Trim()
+                Note = NewEventNote?.Trim() ?? string.Empty
             };
 
             _calendarService.AddOrUpdateEvent(calendarEvent);
@@ -324,7 +313,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
                     Content = content,
                     StartTime = occurrenceDate,
                     EndTime = endDate.AddDays(i * 7),
-                    Note = NewEventNote?.Trim()
+                    Note = NewEventNote?.Trim() ?? string.Empty
                 };
 
                 _calendarService.AddOrUpdateEvent(calendarEvent);

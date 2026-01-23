@@ -1,4 +1,6 @@
-﻿using IconPacks.Avalonia.Material;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Entities;
@@ -7,8 +9,6 @@ using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
 using ReQuantum.Services;
 using ReQuantum.Views;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.ViewModels;
 

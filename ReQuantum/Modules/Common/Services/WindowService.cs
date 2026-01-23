@@ -1,7 +1,7 @@
-using Avalonia;
-using ReQuantum.Modules.Common.Attributes;
 using System;
 using System.ComponentModel;
+using Avalonia;
+using ReQuantum.Modules.Common.Attributes;
 
 namespace ReQuantum.Infrastructure.Services;
 

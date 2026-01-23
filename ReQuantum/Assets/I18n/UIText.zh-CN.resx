@@ -280,7 +280,7 @@
     <value>暂无待办</value>
   </data>
   <data name="NoNotes" xml:space="preserve">
-    <value>还没有便签哦</value>
+    <value>暂无便签</value>
   </data>
   <data name="EnterEventTitle" xml:space="preserve">
     <value>输入日程标题...</value>
@@ -363,29 +363,11 @@
   <data name="NoExams" xml:space="preserve">
     <value>该日期没有考试</value>
   </data>
-  <data name="PtaLogin" xml:space="preserve">
-    <value>PTA 登录</value>
-  </data>
   <data name="Email" xml:space="preserve">
     <value>邮箱</value>
   </data>
-  <data name="EnterPtaEmail" xml:space="preserve">
-    <value>请输入 PTA 账号邮箱</value>
-  </data>
-  <data name="NeedCaptchaUseBrowser" xml:space="preserve">
-    <value>需要验证码，点击此处使用浏览器登录</value>
-  </data>
-  <data name="EnterPtaSessionCookie" xml:space="preserve">
-    <value>输入 PTASession Cookie</value>
-  </data>
-  <data name="PastePtaSessionValue" xml:space="preserve">
-    <value>粘贴 PTASession 值（UUID 格式）</value>
-  </data>
   <data name="Submit" xml:space="preserve">
     <value>提交</value>
-  </data>
-  <data name="PtaLoggedIn" xml:space="preserve">
-    <value>PTA 已登录</value>
   </data>
   <data name="SyncAll" xml:space="preserve">
     <value>一键同步</value>
@@ -410,6 +392,18 @@
   </data>
   <data name="PtaAccountLogin" xml:space="preserve">
     <value>PTA 账号登录</value>
+  </data>
+  <data name="PtaClickToLogin" xml:space="preserve">
+    <value>点击跳转登录</value>
+  </data>
+  <data name="PtaLoginHelpText" xml:space="preserve">
+    <value>点击按钮将打开浏览器，您可以选择微信、学生证或普通登录方式完成登录</value>
+  </data>
+  <data name="BrowserLoginFailed" xml:space="preserve">
+    <value>调用浏览器登录失败！</value>
+  </data>
+  <data name="BrowserLoginException" xml:space="preserve">
+    <value>调用浏览器登录异常！</value>
   </data>
   <data name="CannotGetCalendar" xml:space="preserve">
     <value>无法获取校历</value>
@@ -441,6 +435,27 @@
   <data name="ParseExamDataFailed" xml:space="preserve">
     <value>解析考试数据失败</value>
   </data>
+  <data name="SyncPTA" xml:space="preserve">
+    <value>同步PTA</value>
+  </data>
+  <data name="PtaLoggingIn" xml:space="preserve">
+    <value>PTA 登陆中</value>
+  </data>
+  <data name="PtaLoginSuccess" xml:space="preserve">
+    <value>PTA 登录成功！</value>
+  </data>
+  <data name="PtaLoggedOut" xml:space="preserve">
+    <value>PTA 已退出</value>
+  </data>
+  <data name="PtaLoggedInAs" xml:space="preserve">
+    <value>你好：{0}</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
   <data name="GetProblemSetFailed" xml:space="preserve">
     <value>获取习题集失败</value>
   </data>
@@ -459,15 +474,6 @@
   <data name="Deadline" xml:space="preserve">
     <value>截止</value>
   </data>
-  <data name="SyncPTA" xml:space="preserve">
-    <value>同步PTA</value>
-  </data>
-  <data name="Appearance" xml:space="preserve">
-    <value>外观</value>
-  </data>
-  <data name="Theme" xml:space="preserve">
-    <value>主题</value>
-  </data>
   <data name="GeneralSettings" xml:space="preserve">
     <value>通用设置</value>
   </data>
@@ -484,5 +490,11 @@
     <value>浅色</value>
   <data name="Deadline" xml:space="preserve">
     <value>截止</value>
+  </data>
+  <data name="PtaLogin" xml:space="preserve">
+    <value>PTA 登录</value>
+  </data>
+  <data name="PtaLoggedIn" xml:space="preserve">
+    <value>PTA 已登录</value>
   </data>
 </root>
