@@ -14,7 +14,12 @@
   </Design.DataContext>
 
   <Grid>
-    <!-- 日程区域 -->
+      <Grid.Styles>
+          <Style Selector="TextBlock">
+              <Setter Property="Effect" Value="{x:Null}" />
+          </Style>
+      </Grid.Styles>
+      <!-- 日程区域 -->
     <Border BorderThickness="2"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource EventBorderBrush}"
@@ -59,10 +64,11 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
               <Border  BorderThickness="1"
+                       BoxShadow="5 5 10 0 #40000000"
                        Background="{Binding EventId,Converter={x:Static presentations:CalendarConverters.EventIdToBackgroundConverter}}"
                       CornerRadius="18"
                       Padding="12"
-                      Margin="0,4">
+                      Margin="0,4,5,4">
 
 
                   <Grid ColumnDefinitions="*,Auto">
