@@ -1,3 +1,6 @@
+#pragma warning disable IL2026 // JSON serialization may require types that cannot be statically analyzed
+#pragma warning disable IL3050 // JSON serialization may need runtime code generation for AOT
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;

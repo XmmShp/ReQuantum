@@ -9,6 +9,7 @@ using ReQuantum.Modules.Zdbk.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ReQuantum.Modules.Zdbk.Services;
@@ -47,18 +48,34 @@ public class ZdbkGraduationService : IZdbkGraduationService
         LoadGraduationRequirements();
     }
 
+    /// <summary>
+    /// 检查响应是否为重定向（Session 失效）
+    /// </summary>
+    private bool IsSessionExpired(HttpResponseMessage response)
+    {
+        if (response.StatusCode == System.Net.HttpStatusCode.Found ||
+            response.StatusCode == System.Net.HttpStatusCode.Redirect ||
+            response.StatusCode == System.Net.HttpStatusCode.MovedPermanently)
+        {
+            _logger.LogWarning("ZDBK Session 已失效（可能异地登录），清除状态");
+            _sessionService.ClearState();
+            return true;
+        }
+        return false;
+    }
+
     public async Task<Result<HashSet<StatefulCourse>>> RefreshGraduationRequirementsAsync()
     {
-        var state = _sessionService.State;
-        if (state == null)
-        {
-            return Result.Fail("未登录");
-        }
-
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
             return Result.Fail(clientResult.Message);
+        }
+
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("无法获取 ZDBK 会话状态");
         }
 
         using var client = clientResult.Value;
@@ -70,6 +87,13 @@ public class ZdbkGraduationService : IZdbkGraduationService
 
             // 发送请求
             var response = await client.GetAsync(requestUrl);
+
+            // 检查 Session 是否失效
+            if (IsSessionExpired(response))
+            {
+                return Result.Fail("登录状态已失效，请刷新后重试");
+            }
+
             response.EnsureSuccessStatusCode();
 
             // 解析HTML

@@ -1,3 +1,6 @@
+#pragma warning disable IL2026 // JSON serialization may require types that cannot be statically analyzed
+#pragma warning disable IL3050 // JSON serialization may need runtime code generation for AOT
+
 using Microsoft.Extensions.Logging;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
@@ -57,21 +60,39 @@ public class ZdbkCourseService : IZdbkCourseService
         LoadSelectedSections();
     }
 
+    /// <summary>
+    /// 检查响应是否为重定向（Session 失效）
+    /// </summary>
+    private bool IsSessionExpired(HttpResponseMessage response)
+    {
+        if (response.StatusCode == System.Net.HttpStatusCode.Found ||
+            response.StatusCode == System.Net.HttpStatusCode.Redirect ||
+            response.StatusCode == System.Net.HttpStatusCode.MovedPermanently)
+        {
+            _logger.LogWarning("ZDBK Session 已失效（可能异地登录），清除状态");
+            _sessionService.ClearState();
+            return true;
+        }
+        return false;
+    }
+
     public async Task<Result<HashSet<SelectableCourse>>> GetAvailableCoursesAsync(
         CourseCategory category,
         int startPage,
         int endPage)
     {
-        var state = _sessionService.State;
-        if (state == null)
-        {
-            return Result.Fail("未登录");
-        }
-
+        // 先获取认证客户端，这会创建 State（如果不存在）
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
             return Result.Fail(clientResult.Message);
+        }
+
+        // 现在检查 State（应该已经被创建了）
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("无法获取 ZDBK 会话状态");
         }
 
         using var client = clientResult.Value;
@@ -108,6 +129,13 @@ public class ZdbkCourseService : IZdbkCourseService
 
             // 发送请求
             var response = await client.PostAsync(requestUrl, content);
+
+            // 检查 Session 是否失效
+            if (IsSessionExpired(response))
+            {
+                return Result.Fail("登录状态已失效，请刷新后重试");
+            }
+
             response.EnsureSuccessStatusCode();
 
             // 解析响应
@@ -155,16 +183,16 @@ public class ZdbkCourseService : IZdbkCourseService
 
     public async Task<Result> UpdateSectionsAsync(SelectableCourse course)
     {
-        var state = _sessionService.State;
-        if (state == null)
-        {
-            return Result.Fail("未登录");
-        }
-
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
             return Result.Fail(clientResult.Message);
+        }
+
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("无法获取 ZDBK 会话状态");
         }
 
         using var client = clientResult.Value;
@@ -186,6 +214,13 @@ public class ZdbkCourseService : IZdbkCourseService
 
             // 发送请求
             var response = await client.PostAsync(requestUrl, content);
+
+            // 检查 Session 是否失效
+            if (IsSessionExpired(response))
+            {
+                return Result.Fail("登录状态已失效，请刷新后重试");
+            }
+
             response.EnsureSuccessStatusCode();
 
             // 解析响应
@@ -201,58 +236,72 @@ public class ZdbkCourseService : IZdbkCourseService
 
             foreach (var json in sectionData)
             {
-                // 解析容量信息 (格式: "余量/总容量")
-                var capacityStr = json.TryGetProperty("rs", out var rs) ? rs.GetString() : null;
-                var capacityParts = capacityStr?.Split('/');
-                var availableSeats = capacityParts?.Length > 0 && int.TryParse(capacityParts[0], out var a) ? a : 0;
-                var totalSeats = capacityParts?.Length > 1 && int.TryParse(capacityParts[1], out var t) ? t : 0;
-
-                // 解析等待人数 (格式: "专业候补~总候补")
-                var waitingStr = json.TryGetProperty("yxrs", out var yxrs) ? yxrs.GetString() : null;
-                var waitingParts = waitingStr?.Split('~');
-                var majorWaiting = waitingParts?.Length > 0 && int.TryParse(waitingParts[0], out var mw) ? mw : 0;
-                var totalWaiting = waitingParts?.Length > 1 && int.TryParse(waitingParts[1], out var tw) ? tw : 0;
-
-                var section = new SelectableSection
+                try
                 {
-                    Id = json.GetProperty("jxb_id").GetString() ?? string.Empty,
-                    Course = course,
-                    Instructors = json.TryGetProperty("jsxm", out var jsxm)
-                        ? jsxm.GetString()?.Split(',').ToHashSet() ?? new HashSet<string>()
-                        : new HashSet<string>(),
-                    TeachingForm = json.TryGetProperty("jxfs", out var jxfs) ? jxfs.GetString() ?? string.Empty : string.Empty,
-                    TeachingMethod = json.TryGetProperty("skfs", out var skfs) ? skfs.GetString() ?? string.Empty : string.Empty,
-                    IsInternational = json.TryGetProperty("gjhkc", out var gjhkc) && gjhkc.GetString() == "1",
-                    AvailableSeats = availableSeats,
-                    Capacity = totalSeats,
-                    MajorWaitingCount = majorWaiting,
-                    TotalWaitingCount = totalWaiting
-                };
-
-                // 解析上课时间和地点
-                var scheduleStr = json.TryGetProperty("sksj", out var sksj) ? sksj.GetString() : null;
-                var locationStr = json.TryGetProperty("skdd", out var skdd) ? skdd.GetString() : null;
-
-                if (!string.IsNullOrEmpty(scheduleStr) && !string.IsNullOrEmpty(locationStr))
-                {
-                    section.ScheduleAndLocations.Add((scheduleStr, locationStr));
-                }
-
-                // 解析考试时间
-                var examTimeStr = json.TryGetProperty("kssj", out var kssj) ? kssj.GetString() : null;
-                if (!string.IsNullOrEmpty(examTimeStr))
-                {
-                    try
+                    // 解析教学班ID（必需字段）
+                    if (!json.TryGetProperty("jxb_id", out var jxbId) || string.IsNullOrEmpty(jxbId.GetString()))
                     {
-                        section.ExamTime = TimeSlot.Parse(examTimeStr);
+                        _logger.LogWarning("教学班缺少 jxb_id，跳过");
+                        continue;
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning($"解析考试时间失败: {examTimeStr}, {ex.Message}");
-                    }
-                }
 
-                course.Sections.Add(section);
+                    // 解析容量信息 (格式: "余量/总容量")
+                    var capacityStr = json.TryGetProperty("rs", out var rs) ? rs.GetString() : null;
+                    var capacityParts = capacityStr?.Split('/');
+                    var availableSeats = capacityParts?.Length > 0 && int.TryParse(capacityParts[0], out var a) ? a : 0;
+                    var totalSeats = capacityParts?.Length > 1 && int.TryParse(capacityParts[1], out var t) ? t : 0;
+
+                    // 解析等待人数 (格式: "专业候补~总候补")
+                    var waitingStr = json.TryGetProperty("yxrs", out var yxrs) ? yxrs.GetString() : null;
+                    var waitingParts = waitingStr?.Split('~');
+                    var majorWaiting = waitingParts?.Length > 0 && int.TryParse(waitingParts[0], out var mw) ? mw : 0;
+                    var totalWaiting = waitingParts?.Length > 1 && int.TryParse(waitingParts[1], out var tw) ? tw : 0;
+
+                    var section = new SelectableSection
+                    {
+                        Id = jxbId.GetString() ?? string.Empty,
+                        Course = course,
+                        Instructors = json.TryGetProperty("jsxm", out var jsxm)
+                            ? jsxm.GetString()?.Split(',').ToHashSet() ?? new HashSet<string>()
+                            : new HashSet<string>(),
+                        TeachingForm = json.TryGetProperty("jxfs", out var jxfs) ? jxfs.GetString() ?? string.Empty : string.Empty,
+                        TeachingMethod = json.TryGetProperty("skfs", out var skfs) ? skfs.GetString() ?? string.Empty : string.Empty,
+                        IsInternational = json.TryGetProperty("gjhkc", out var gjhkc) && gjhkc.GetString() == "1",
+                        AvailableSeats = availableSeats,
+                        Capacity = totalSeats,
+                        MajorWaitingCount = majorWaiting,
+                        TotalWaitingCount = totalWaiting
+                    };
+
+                    // 解析上课时间和地点
+                    var scheduleStr = json.TryGetProperty("sksj", out var sksj) ? sksj.GetString() : null;
+                    var locationStr = json.TryGetProperty("skdd", out var skdd) ? skdd.GetString() : null;
+
+                    if (!string.IsNullOrEmpty(scheduleStr) && !string.IsNullOrEmpty(locationStr))
+                    {
+                        section.ScheduleAndLocations.Add((scheduleStr, locationStr));
+                    }
+
+                    // 解析考试时间
+                    var examTimeStr = json.TryGetProperty("kssj", out var kssj) ? kssj.GetString() : null;
+                    if (!string.IsNullOrEmpty(examTimeStr))
+                    {
+                        try
+                        {
+                            section.ExamTime = TimeSlot.Parse(examTimeStr);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning($"解析考试时间失败: {examTimeStr}, {ex.Message}");
+                        }
+                    }
+
+                    course.Sections.Add(section);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "解析教学班数据时出错，跳过该教学班");
+                }
             }
 
             _logger.LogInformation($"课程 {course.Name} 获取到 {course.Sections.Count} 个教学班");
@@ -267,16 +316,16 @@ public class ZdbkCourseService : IZdbkCourseService
 
     public async Task<Result> UpdateIntroductionAsync(Course course)
     {
-        var state = _sessionService.State;
-        if (state == null)
-        {
-            return Result.Fail("未登录");
-        }
-
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
             return Result.Fail(clientResult.Message);
+        }
+
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("无法获取 ZDBK 会话状态");
         }
 
         using var client = clientResult.Value;
@@ -288,6 +337,13 @@ public class ZdbkCourseService : IZdbkCourseService
 
             // 发送请求
             var response = await client.GetAsync(requestUrl);
+
+            // 检查 Session 是否失效
+            if (IsSessionExpired(response))
+            {
+                return Result.Fail("登录状态已失效，请刷新后重试");
+            }
+
             response.EnsureSuccessStatusCode();
 
             // 解析响应
@@ -314,16 +370,16 @@ public class ZdbkCourseService : IZdbkCourseService
 
     public async Task<Result<HashSet<SectionSnapshot>>> RefreshSelectedSectionsAsync()
     {
-        var state = _sessionService.State;
-        if (state == null)
-        {
-            return Result.Fail("未登录");
-        }
-
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
             return Result.Fail(clientResult.Message);
+        }
+
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("无法获取 ZDBK 会话状态");
         }
 
         using var client = clientResult.Value;
@@ -344,6 +400,13 @@ public class ZdbkCourseService : IZdbkCourseService
 
             // 发送请求
             var response = await client.PostAsync(requestUrl, content);
+
+            // 检查 Session 是否失效
+            if (IsSessionExpired(response))
+            {
+                return Result.Fail("登录状态已失效，请刷新后重试");
+            }
+
             response.EnsureSuccessStatusCode();
 
             // 解析响应

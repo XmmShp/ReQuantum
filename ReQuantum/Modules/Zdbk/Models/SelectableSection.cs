@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ReQuantum.Modules.Zdbk.Models;
 
@@ -18,6 +19,12 @@ public class SelectableSection : Section
                 decimal.Round((decimal)AvailableSeats / TotalWaitingCount, 2) :
                 1.00m;
 
+    /// <summary>
+    /// 用于XAML绑定的课表时间和地点列表
+    /// </summary>
+    public IEnumerable<ScheduleLocationItem> ScheduleLocationItems =>
+        ScheduleAndLocations.Select(x => new ScheduleLocationItem(x.Schedule, x.Location));
+
     public override SectionSnapshot CreateSnapshot()
     {
         return base.CreateSnapshot() with
@@ -31,5 +38,20 @@ public class SelectableSection : Section
                 ["SelectionProbability"] = SelectionProbability.ToString("F2")
             }
         };
+    }
+}
+
+/// <summary>
+/// 包装课表时间和地点信息，用于XAML绑定
+/// </summary>
+public class ScheduleLocationItem
+{
+    public string Schedule { get; }
+    public string Location { get; }
+
+    public ScheduleLocationItem(string schedule, string location)
+    {
+        Schedule = schedule;
+        Location = location;
     }
 }

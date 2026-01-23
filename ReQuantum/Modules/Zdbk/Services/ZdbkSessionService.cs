@@ -20,6 +20,7 @@ public interface IZdbkSessionService
     ZdbkState? State { get; }
     void UpdateState(ZdbkState state);
     void ClearState();
+    event Action? OnStateChanged;
 }
 
 [AutoInject(Lifetime.Singleton)]
@@ -37,6 +38,7 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
     private const string GetInfoUrl = "/jwglxt/xsxk/zzxkghb_cxZzxkGhbIndex.html";
 
     public ZdbkState? State => _state;
+    public event Action? OnStateChanged;
 
     public ZdbkSessionService(
         IZjuSsoService zjuSsoService,
@@ -52,15 +54,18 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
 
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync()
     {
-        // 1. Try to use existing state
+        // 1. Try to use existing state with valid cookies
         if (_state != null)
         {
-            // We can try to reuse the session, but for now let's stick to the robust flow of refreshing if needed or just creating a client with existing cookies.
-            // However, the original logic always refreshed via SSO.
-            // To be safe and consistent with previous behavior, we will proceed to SSO flow.
-            // But if we want to optimize, we could check cookie expiration.
+            // Return client with existing cookies without validation
+            // Let the calling code handle validation failures
+            return Result.Success(RequestClient.Create(new RequestOptions
+            {
+                Cookies = [_state.SessionCookie, _state.RouteCookie]
+            }));
         }
 
+        // 2. Need to authenticate via ZJU SSO
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(
             new RequestOptions { AllowRedirects = true });
 
@@ -98,10 +103,10 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
             var studentName = doc.DocumentNode.SelectSingleNode("//*[@id='chi']/div/div[1]/h5/span[1]/font/b")?.InnerText?.Trim();
             var studentIdText = doc.DocumentNode.SelectSingleNode("//*[@id='chi']/div/div[1]/h5/span[1]/text()")?.InnerText;
             var studentId = studentIdText != null ? Regex.Match(studentIdText, @"\((\d+)\)").Groups[1].Value : null;
-            var grade = doc.DocumentNode.SelectSingleNode("//*[@id='nj']")?.GetAttributeValue("value", null);
-            var major = doc.DocumentNode.SelectSingleNode("//*[@id='zydm']")?.GetAttributeValue("value", null);
+            var grade = doc.DocumentNode.SelectSingleNode("//*[@id='nj']")?.GetAttributeValue("value", string.Empty);
+            var major = doc.DocumentNode.SelectSingleNode("//*[@id='zydm']")?.GetAttributeValue("value", string.Empty);
             var academicYear = doc.DocumentNode.SelectSingleNode("//*[@id='xkxn']")?.InnerText?.Trim();
-            var semester = doc.DocumentNode.SelectSingleNode("//*[@id='xq']")?.GetAttributeValue("value", null);
+            var semester = doc.DocumentNode.SelectSingleNode("//*[@id='xq']")?.GetAttributeValue("value", string.Empty);
 
             _logger.LogInformation($"解析学生信息: 姓名={studentName}, 学号={studentId}, 年级={grade}, 专业={major}, 学年={academicYear}, 学期={semester}");
 
@@ -109,7 +114,7 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
             var college = _state?.College;
             var adminClass = _state?.AdministrativeClass;
 
-            _state = new ZdbkState(
+            var newState = new ZdbkState(
                 sessionCookie,
                 route,
                 studentId,
@@ -121,7 +126,9 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
                 academicYear,
                 semester
             );
-            SaveState();
+
+            // 使用 UpdateState 方法来触发事件
+            UpdateState(newState);
 
             return Result.Success(RequestClient.Create(new RequestOptions { Cookies = [sessionCookie, route] }));
         }
@@ -135,12 +142,14 @@ public class ZdbkSessionService : IZdbkSessionService, IDaemonService
     {
         _state = state;
         SaveState();
+        OnStateChanged?.Invoke();
     }
 
     public void ClearState()
     {
         _state = null;
         _storage.Remove(StateKey);
+        OnStateChanged?.Invoke();
     }
 
     private void LoadState() => _storage.TryGetWithEncryption(StateKey, out _state);
