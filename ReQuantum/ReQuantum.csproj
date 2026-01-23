@@ -74,6 +74,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Theme Color\" />
+    <Folder Include="Modules\Grade\Services\" />
   </ItemGroup>
 
   <ItemGroup>

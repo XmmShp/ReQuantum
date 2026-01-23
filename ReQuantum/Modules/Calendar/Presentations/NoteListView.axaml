@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
              xmlns:entities="clr-namespace:ReQuantum.Modules.Calendar.Entities"
+             xmlns:presentations="clr-namespace:ReQuantum.Modules.Calendar.Presentations"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
              x:Class="ReQuantum.Views.NoteListView"
              x:DataType="viewModels:NoteListViewModel">
@@ -40,14 +41,15 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarNote">
               <Border BorderThickness="1"
-                      CornerRadius="4"
+                      CornerRadius="18"
                       Padding="12"
                       Margin="0,4"
-                      Background="{DynamicResource LightNoteBrush}">
+                      Background="{Binding NoteId,Converter={x:Static presentations:CalendarConverters.NoteIdToBackgroundConverter}}">
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Grid.Column="0" 
                            Text="{Binding Content}" 
                            FontSize="14"
+                           FontWeight="Bold"
                            TextWrapping="Wrap"/>
                   <Button Grid.Column="1" 
                         Command="{Binding ((viewModels:NoteListViewModel)DataContext).DeleteNoteCommand, 

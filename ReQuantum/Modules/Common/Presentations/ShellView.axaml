@@ -25,11 +25,18 @@
       </Grid.ColumnDefinitions>
       
       <!-- Navigation Menu -->
-      <Border Grid.Column="0"
-              Background="{DynamicResource SidebarSelectedBrush}"
-              BorderBrush="{DynamicResource SidebarSelectedBorderBrush}"
-              BorderThickness="0,0,1,0">
-        <Border.Width>
+      <Border Grid.Column="0">
+
+          <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Offset="0.0" Color="{DynamicResource SidebarColor}" />
+                  <GradientStop Offset="1.0" Color="{DynamicResource SidebarColor2}" />
+              </LinearGradientBrush>
+          </Border.Background>
+              <Border.OpacityMask>
+
+    </Border.OpacityMask>
+          <Border.Width>
           <MultiBinding>
             <MultiBinding.Converter>
               <presentations:BoolToWidthConverter CollapsedWidth="60" ExpandedWidth="250"/>

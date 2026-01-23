@@ -52,8 +52,8 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarTodo">
               <Border BorderThickness="1"
-                      Background="{DynamicResource LightTodoBrush}"
-                      CornerRadius="4"
+                      Background="{Binding TodoId,Converter={x:Static presentations:CalendarConverters.NoteIdToBackgroundConverter}}"
+                      CornerRadius="18"
                       Padding="12"
                       Margin="0,4">
                 <Grid ColumnDefinitions="Auto,*,Auto">

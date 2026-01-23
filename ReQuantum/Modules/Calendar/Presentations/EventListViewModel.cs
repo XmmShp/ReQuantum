@@ -34,8 +34,10 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
 
     public string SyncCoursesTableText => "📅" + UIText.SyncCoursesTable;
     public string AddEventText => "➕" + UIText.AddEvent;
-
     public string SyncPTAText => "📅" + UIText.SyncPTA;
+
+    [ObservableProperty]
+    private int _eventId;
 
     [ObservableProperty]
     private bool _isRepeating;
@@ -230,6 +232,13 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     {
         // 加载选中日期的日程（跨越该日期的所有日程）
         var events = _calendarService.GetEventsByDate(SelectedDate);
+
+        // 为每一项分配一个序号，用于触发转换器颜色变换
+        for (int i = 0; i < events.Count; i++)
+        {
+            events[i].EventId = i;
+        }
+
         Events = new ObservableCollection<CalendarEvent>(events);
     }
 
@@ -296,6 +305,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
             if (DateOnly.FromDateTime(calendarEvent.StartTime) == SelectedDate)
             {
                 Events.Add(calendarEvent);
+                UpdateEventSequence(); // 插入后重新排序颜色索引
             }
         }
         else
@@ -352,6 +362,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     {
         _calendarService.DeleteEvent(calendarEvent.Id);
         Events.Remove(calendarEvent);
+        UpdateEventSequence(); // 插入后重新排序颜色索引
     }
 
     [RelayCommand]
@@ -684,5 +695,14 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     {
         SelectedDate = @event.Date;
     }
+
+    private void UpdateEventSequence()
+    {
+        for (int i = 0; i < Events.Count; i++)
+        {
+            Events[i].EventId = i;
+        }
+    }
+
 
 }

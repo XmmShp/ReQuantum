@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
+             xmlns:controls="https://github.com/avaloniaui/lib/controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ReQuantum.Views.GradeView"
+             x:DataType="viewModels:GradeViewModel">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:GradeViewModel />
+    </Design.DataContext>
+ 
+  <StackPanel Spacing="12">
+
+      <!-- 桌面端 -->
+    <Grid  IsVisible="{Binding WindowService.IsDesktopMode}">
+        <Grid>
+            
+        </Grid>
+    </Grid>
+
+    <!-- 移动端 -->
+    <Grid  IsVisible="{Binding !WindowService.IsDesktopMode}">
+
+    </Grid>
+
+
+  </StackPanel>
+  <!-- Add Resources Here -->
+</UserControl>

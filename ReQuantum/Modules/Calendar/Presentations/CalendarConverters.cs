@@ -32,6 +32,54 @@ public static class CalendarConverters
     public static readonly IValueConverter IsSelectedToBorderThicknessConverter = new FuncValueConverter<bool, Thickness>(isSelected =>
             isSelected ? new Thickness(2) : new Thickness(0));
 
+    public static readonly IValueConverter EventIdToBackgroundConverter = new FuncValueConverter<int, IBrush>(eventId =>
+    {
+        if (eventId % 12 >= 0 && eventId % 12 <= 2)
+            if (Application.Current?.Resources?.TryGetResource("LightEventBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 3 && eventId % 12 <= 5)
+            if (Application.Current?.Resources?.TryGetResource("LightEventBrush2", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 6 && eventId % 12 <= 8)
+            if (Application.Current?.Resources?.TryGetResource("LightEventBrush3", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 9 && eventId % 12 <= 11)
+            if (Application.Current?.Resources?.TryGetResource("LightEventBrush4", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        return Brushes.Red;//未能正确加载资源状况
+    });
+    public static readonly IValueConverter TodoIdToBackgroundConverter = new FuncValueConverter<int, IBrush>(eventId =>
+    {
+        if (eventId % 12 >= 0 && eventId % 12 <= 2)
+            if (Application.Current?.Resources?.TryGetResource("LightTodoBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 3 && eventId % 12 <= 5)
+            if (Application.Current?.Resources?.TryGetResource("LightTodoBrush2", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 6 && eventId % 12 <= 8)
+            if (Application.Current?.Resources?.TryGetResource("LightTodoBrush3", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 9 && eventId % 12 <= 11)
+            if (Application.Current?.Resources?.TryGetResource("LightTodoBrush4", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        return Brushes.Red;
+    });
+    public static readonly IValueConverter NoteIdToBackgroundConverter = new FuncValueConverter<int, IBrush>(eventId =>
+    {
+        if (eventId % 12 >= 0 && eventId % 12 <= 2)
+            if (Application.Current?.Resources?.TryGetResource("LightNoteBrush", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 3 && eventId % 12 <= 5)
+            if (Application.Current?.Resources?.TryGetResource("LightNoteBrush2", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 6 && eventId % 12 <= 8)
+            if (Application.Current?.Resources?.TryGetResource("LightNoteBrush3", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        if (eventId % 12 >= 9 && eventId % 12 <= 11)
+            if (Application.Current?.Resources?.TryGetResource("LightNoteBrush4", Application.Current.ActualThemeVariant, out var res) == true && res is IBrush b)
+                return b;
+        return Brushes.Red;
+    });
     /// <summary>
     /// 将小时数转换为像素位置（每小时30像素，移动端）
     /// </summary>
