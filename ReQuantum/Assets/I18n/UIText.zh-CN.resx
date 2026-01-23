@@ -492,4 +492,7 @@
   <data name="PtaLoggedIn" xml:space="preserve">
     <value>PTA 已登录</value>
   </data>
+  <data name="Grade" xml:space="preserve">
+    <value>成绩</value>
+  </data>
 </root>
