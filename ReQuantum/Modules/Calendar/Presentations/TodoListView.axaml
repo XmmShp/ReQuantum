@@ -70,7 +70,8 @@
                              FontSize="14"
                              TextWrapping="Wrap"
                              FontWeight="Medium"
-                             TextDecorations="{Binding IsCompleted, Converter={x:Static presentations:BoolToStrikethroughConverter.Instance}}"/>
+                             TextDecorations="{Binding IsCompleted, Converter={x:Static presentations:BoolToStrikethroughConverter.Instance}}"
+                             Foreground="{Binding IsCompleted, Converter={x:Static presentations:BoolToGrayIfTrueConverter.Instance}}"/>
                     <TextBlock FontSize="12" Opacity="0.7">
                       <Run Text="{Binding ((viewModels:TodoListViewModel)DataContext).Localizer[DueTime],
                         RelativeSource={RelativeSource AncestorType=UserControl},

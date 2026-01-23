@@ -43,6 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Assets\I18n\UIText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UIText.resx</DependentUpon>
+    </Compile>
     <Compile Update="Modules\Common\Presentations\ShellWindow.axaml.cs">
       <DependentUpon>ShellWindow.axaml</DependentUpon>
     </Compile>

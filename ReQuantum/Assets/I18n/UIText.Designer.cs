@@ -10,8 +10,8 @@
 
 namespace ReQuantum.Assets.I18n {
     using System;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,20 +23,20 @@ namespace ReQuantum.Assets.I18n {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class UIText {
-
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal UIText() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ReQuantum.Assets.I18n.UIText", typeof(UIText).Assembly);
@@ -45,13 +45,13 @@ namespace ReQuantum.Assets.I18n {
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -59,79 +59,79 @@ namespace ReQuantum.Assets.I18n {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to The account may be locked..
         /// </summary>
-        internal static string AccountMayBeLocked {
+        public static string AccountMayBeLocked {
             get {
                 return ResourceManager.GetString("AccountMayBeLocked", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
-        internal static string Add {
+        public static string Add {
             get {
                 return ResourceManager.GetString("Add", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add Event.
         /// </summary>
-        internal static string AddEvent {
+        public static string AddEvent {
             get {
                 return ResourceManager.GetString("AddEvent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add Note.
         /// </summary>
-        internal static string AddNote {
+        public static string AddNote {
             get {
                 return ResourceManager.GetString("AddNote", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add Todo.
         /// </summary>
-        internal static string AddTodo {
+        public static string AddTodo {
             get {
                 return ResourceManager.GetString("AddTodo", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to All semesters failed to fetch.
         /// </summary>
-        internal static string AllSemestersFailed {
+        public static string AllSemestersFailed {
             get {
                 return ResourceManager.GetString("AllSemestersFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Already logged in.
         /// </summary>
-        internal static string AlreadyLoggedIn {
+        public static string AlreadyLoggedIn {
             get {
                 return ResourceManager.GetString("AlreadyLoggedIn", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Appearance.
         /// </summary>
-        internal static string Appearance {
+        public static string Appearance {
             get {
                 return ResourceManager.GetString("Appearance", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Browser login exception: {0}.
         /// </summary>
@@ -140,7 +140,7 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("BrowserLoginException", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Browser login failed: {0}.
         /// </summary>
@@ -149,1340 +149,1037 @@ namespace ReQuantum.Assets.I18n {
                 return ResourceManager.GetString("BrowserLoginFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Calendar.
         /// </summary>
-        internal static string Calendar {
+        public static string Calendar {
             get {
                 return ResourceManager.GetString("Calendar", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
-        internal static string Cancel {
+        public static string Cancel {
             get {
                 return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Cannot get calendar.
         /// </summary>
-        internal static string CannotGetCalendar {
+        public static string CannotGetCalendar {
             get {
                 return ResourceManager.GetString("CannotGetCalendar", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to CollapseMenu.
         /// </summary>
-        internal static string CollapseMenu {
+        public static string CollapseMenu {
             get {
                 return ResourceManager.GetString("CollapseMenu", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Content.
         /// </summary>
-        internal static string Content {
+        public static string Content {
             get {
                 return ResourceManager.GetString("Content", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Course Selection.
         /// </summary>
-        internal static string CourseSelection {
+        public static string CourseSelection {
             get {
                 return ResourceManager.GetString("CourseSelection", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Course sync failed.
         /// </summary>
-        internal static string CourseSyncFailed {
+        public static string CourseSyncFailed {
             get {
                 return ResourceManager.GetString("CourseSyncFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Dark.
         /// </summary>
-        internal static string Dark {
+        public static string Dark {
             get {
                 return ResourceManager.GetString("Dark", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Current date is not within semester range.
         /// </summary>
-        internal static string DateNotInSemester {
+        public static string DateNotInSemester {
             get {
                 return ResourceManager.GetString("DateNotInSemester", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Deadline.
         /// </summary>
-        internal static string Deadline {
+        public static string Deadline {
             get {
                 return ResourceManager.GetString("Deadline", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
-        internal static string Delete {
+        public static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Due Date.
         /// </summary>
-        internal static string DueDate {
+        public static string DueDate {
             get {
                 return ResourceManager.GetString("DueDate", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Due: {0:yyyy-MM-dd HH:mm}.
         /// </summary>
-        internal static string DueOn {
+        public static string DueOn {
             get {
                 return ResourceManager.GetString("DueOn", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Due Time.
         /// </summary>
-        internal static string DueTime {
+        public static string DueTime {
             get {
                 return ResourceManager.GetString("DueTime", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Email.
         /// </summary>
-        internal static string Email {
+        public static string Email {
             get {
                 return ResourceManager.GetString("Email", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to End Time.
         /// </summary>
-        internal static string EndTime {
+        public static string EndTime {
             get {
                 return ResourceManager.GetString("EndTime", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter event content....
         /// </summary>
-        internal static string EnterEventContent {
+        public static string EnterEventContent {
             get {
                 return ResourceManager.GetString("EnterEventContent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter event title....
         /// </summary>
-        internal static string EnterEventTitle {
+        public static string EnterEventTitle {
             get {
                 return ResourceManager.GetString("EnterEventTitle", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter note....
         /// </summary>
-        internal static string EnterNote {
+        public static string EnterNote {
             get {
                 return ResourceManager.GetString("EnterNote", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter note content....
         /// </summary>
-        internal static string EnterNoteContent {
+        public static string EnterNoteContent {
             get {
                 return ResourceManager.GetString("EnterNoteContent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter your password.
         /// </summary>
-        internal static string EnterPassword {
+        public static string EnterPassword {
             get {
                 return ResourceManager.GetString("EnterPassword", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Enter PTA email.
-        /// </summary>
-        public static string EnterPtaEmail {
-            get {
-                return ResourceManager.GetString("EnterPtaEmail", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Enter PTASession Cookie.
-        /// </summary>
-        public static string EnterPtaSessionCookie {
-            get {
-                return ResourceManager.GetString("EnterPtaSessionCookie", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter todo content....
         /// </summary>
-        internal static string EnterTodoContent {
+        public static string EnterTodoContent {
             get {
                 return ResourceManager.GetString("EnterTodoContent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Enter your username.
         /// </summary>
-        internal static string EnterUsername {
+        public static string EnterUsername {
             get {
                 return ResourceManager.GetString("EnterUsername", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to End time cannot be earlier than or equal to start time.
         /// </summary>
-        internal static string EventEndTimeBeforeStart {
+        public static string EventEndTimeBeforeStart {
             get {
                 return ResourceManager.GetString("EventEndTimeBeforeStart", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to You are creating an event in the past.
         /// </summary>
-        internal static string EventInPast {
+        public static string EventInPast {
             get {
                 return ResourceManager.GetString("EventInPast", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Events.
         /// </summary>
-        internal static string Events {
+        public static string Events {
             get {
                 return ResourceManager.GetString("Events", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Events - {0:MMM dd, yyyy}.
         /// </summary>
-        internal static string EventsOnDate {
+        public static string EventsOnDate {
             get {
                 return ResourceManager.GetString("EventsOnDate", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Exams - {0:MMM dd, yyyy}.
         /// </summary>
-        internal static string ExamsOnDate {
+        public static string ExamsOnDate {
             get {
                 return ResourceManager.GetString("ExamsOnDate", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Exam sync failed.
         /// </summary>
-        internal static string ExamSyncFailed {
+        public static string ExamSyncFailed {
             get {
                 return ResourceManager.GetString("ExamSyncFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to ExpandMenu.
         /// </summary>
-        internal static string ExpandMenu {
+        public static string ExpandMenu {
             get {
                 return ResourceManager.GetString("ExpandMenu", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get execution value..
         /// </summary>
-        internal static string FailedToGetExecutionValue {
+        public static string FailedToGetExecutionValue {
             get {
                 return ResourceManager.GetString("FailedToGetExecutionValue", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get exponent..
         /// </summary>
-        internal static string FailedToGetExponent {
+        public static string FailedToGetExponent {
             get {
                 return ResourceManager.GetString("FailedToGetExponent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get modulus..
         /// </summary>
-        internal static string FailedToGetModulus {
+        public static string FailedToGetModulus {
             get {
                 return ResourceManager.GetString("FailedToGetModulus", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Following system.
         /// </summary>
-        internal static string FollowingSystem {
+        public static string FollowingSystem {
             get {
                 return ResourceManager.GetString("FollowingSystem", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Fri.
         /// </summary>
-        internal static string Friday {
+        public static string Friday {
             get {
                 return ResourceManager.GetString("Friday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to General Settings.
         /// </summary>
-        internal static string GeneralSettings {
+        public static string GeneralSettings {
             get {
                 return ResourceManager.GetString("GeneralSettings", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get course schedule.
         /// </summary>
-        internal static string GetCourseFailed {
+        public static string GetCourseFailed {
             get {
                 return ResourceManager.GetString("GetCourseFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get exam information.
         /// </summary>
-        internal static string GetExamInfoFailed {
+        public static string GetExamInfoFailed {
             get {
                 return ResourceManager.GetString("GetExamInfoFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Problem set retrieval exception.
         /// </summary>
-        internal static string GetProblemSetException {
+        public static string GetProblemSetException {
             get {
                 return ResourceManager.GetString("GetProblemSetException", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to get problem sets.
         /// </summary>
-        internal static string GetProblemSetFailed {
+        public static string GetProblemSetFailed {
             get {
                 return ResourceManager.GetString("GetProblemSetFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello, World.
         /// </summary>
-        internal static string HelloWorld {
+        public static string HelloWorld {
             get {
                 return ResourceManager.GetString("HelloWorld", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Home.
         /// </summary>
-        internal static string Home {
+        public static string Home {
             get {
                 return ResourceManager.GetString("Home", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Incorrect username or password..
         /// </summary>
-        internal static string IncorrectUsernameOrPassword {
+        public static string IncorrectUsernameOrPassword {
             get {
                 return ResourceManager.GetString("IncorrectUsernameOrPassword", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Language Settings.
         /// </summary>
-        internal static string LanguageSettings {
+        public static string LanguageSettings {
             get {
                 return ResourceManager.GetString("LanguageSettings", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Light.
         /// </summary>
-        internal static string Light {
+        public static string Light {
             get {
                 return ResourceManager.GetString("Light", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logged in as:.
         /// </summary>
-        internal static string LoggedInAs {
+        public static string LoggedInAs {
             get {
                 return ResourceManager.GetString("LoggedInAs", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logging in....
         /// </summary>
-        internal static string LoggingIn {
+        public static string LoggingIn {
             get {
                 return ResourceManager.GetString("LoggingIn", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
-        internal static string Login {
+        public static string Login {
             get {
                 return ResourceManager.GetString("Login", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Login failed: {0}.
         /// </summary>
-        internal static string LoginFailed {
+        public static string LoginFailed {
             get {
                 return ResourceManager.GetString("LoginFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Login successful..
         /// </summary>
-        internal static string LoginSuccessful {
+        public static string LoginSuccessful {
             get {
                 return ResourceManager.GetString("LoginSuccessful", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
-        internal static string Logout {
+        public static string Logout {
             get {
                 return ResourceManager.GetString("Logout", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logout successful.
         /// </summary>
-        internal static string LogoutSuccessful {
+        public static string LogoutSuccessful {
             get {
                 return ResourceManager.GetString("LogoutSuccessful", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Menu.
         /// </summary>
-        internal static string Menu {
+        public static string Menu {
             get {
                 return ResourceManager.GetString("Menu", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Mon.
         /// </summary>
-        internal static string Monday {
+        public static string Monday {
             get {
                 return ResourceManager.GetString("Monday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Month.
         /// </summary>
-        internal static string Month {
+        public static string Month {
             get {
                 return ResourceManager.GetString("Month", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to {0} more items.
         /// </summary>
-        internal static string MoreItems {
+        public static string MoreItems {
             get {
                 return ResourceManager.GetString("MoreItems", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha required, click here to login via browser.
-        /// </summary>
-        public static string NeedCaptchaUseBrowser {
-            get {
-                return ResourceManager.GetString("NeedCaptchaUseBrowser", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to No events.
         /// </summary>
-        internal static string NoEvents {
+        public static string NoEvents {
             get {
                 return ResourceManager.GetString("NoEvents", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to No exams on this date.
         /// </summary>
-        internal static string NoExams {
+        public static string NoExams {
             get {
                 return ResourceManager.GetString("NoExams", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to No notes.
         /// </summary>
-        internal static string NoNotes {
+        public static string NoNotes {
             get {
                 return ResourceManager.GetString("NoNotes", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Note.
         /// </summary>
-        internal static string Note {
+        public static string Note {
             get {
                 return ResourceManager.GetString("Note", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Notes.
         /// </summary>
-        internal static string Notes {
+        public static string Notes {
             get {
                 return ResourceManager.GetString("Notes", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to User is not logged in..
         /// </summary>
-        internal static string NotLoggedIn {
+        public static string NotLoggedIn {
             get {
                 return ResourceManager.GetString("NotLoggedIn", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Not logged in or student ID not found.
         /// </summary>
-        internal static string NotLoggedInOrNoStudentId {
+        public static string NotLoggedInOrNoStudentId {
             get {
                 return ResourceManager.GetString("NotLoggedInOrNoStudentId", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to No todos.
         /// </summary>
-        internal static string NoTodos {
+        public static string NoTodos {
             get {
                 return ResourceManager.GetString("NoTodos", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse course data.
         /// </summary>
-        internal static string ParseCourseDataFailed {
+        public static string ParseCourseDataFailed {
             get {
                 return ResourceManager.GetString("ParseCourseDataFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse exam data.
         /// </summary>
-        internal static string ParseExamDataFailed {
+        public static string ParseExamDataFailed {
             get {
                 return ResourceManager.GetString("ParseExamDataFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Failed to parse problem set response.
         /// </summary>
-        internal static string ParseProblemSetFailed {
+        public static string ParseProblemSetFailed {
             get {
                 return ResourceManager.GetString("ParseProblemSetFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
-        internal static string Password {
+        public static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Paste PTASession value (UUID format).
-        /// </summary>
-        public static string PastePtaSessionValue {
-            get {
-                return ResourceManager.GetString("PastePtaSessionValue", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Pintia Login.
         /// </summary>
-        internal static string PintiaLogin {
+        public static string PintiaLogin {
             get {
                 return ResourceManager.GetString("PintiaLogin", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Please enter password.
         /// </summary>
-        internal static string PleaseEnterPassword {
+        public static string PleaseEnterPassword {
             get {
                 return ResourceManager.GetString("PleaseEnterPassword", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Please enter username.
         /// </summary>
-        internal static string PleaseEnterUsername {
+        public static string PleaseEnterUsername {
             get {
                 return ResourceManager.GetString("PleaseEnterUsername", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Account Login.
         /// </summary>
-        internal static string PtaAccountLogin {
+        public static string PtaAccountLogin {
             get {
                 return ResourceManager.GetString("PtaAccountLogin", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Click to Login.
         /// </summary>
-        internal static string PtaClickToLogin {
+        public static string PtaClickToLogin {
             get {
                 return ResourceManager.GetString("PtaClickToLogin", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Captcha submission failed: {0}.
-        /// </summary>
-        public static string PtaCaptchaSubmitFailed {
-            get {
-                return ResourceManager.GetString("PtaCaptchaSubmitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha submitted, waiting for result....
-        /// </summary>
-        public static string PtaCaptchaSubmittedWaiting {
-            get {
-                return ResourceManager.GetString("PtaCaptchaSubmittedWaiting", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Cookie login successful.
-        /// </summary>
-        public static string PtaCookieLoginSuccess {
-            get {
-                return ResourceManager.GetString("PtaCookieLoginSuccess", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to get QR code: {0}.
-        /// </summary>
-        public static string PtaGetQrCodeFailed {
-            get {
-                return ResourceManager.GetString("PtaGetQrCodeFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to How to get PTASession:
-        ///1. Complete login in browser (including captcha)
-        ///2. Press F12 to open developer tools
-        ///3. Go to Application/Storage tab
-        ///4. Select Cookies → https://pintia.cn on the left
-        ///5. Find PTASession, copy its value
-        ///6. Paste to the input box below.
-        /// </summary>
-        public static string PtaHowToGetSession {
-            get {
-                return ResourceManager.GetString("PtaHowToGetSession", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Initialization failed: {0}.
-        /// </summary>
-        public static string PtaInitFailed {
-            get {
-                return ResourceManager.GetString("PtaInitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Initializing browser environment....
-        /// </summary>
-        public static string PtaInitializingBrowser {
-            get {
-                return ResourceManager.GetString("PtaInitializingBrowser", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to QR code loading exception: {0}.
-        /// </summary>
-        public static string PtaLoadQrCodeException {
-            get {
-                return ResourceManager.GetString("PtaLoadQrCodeException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to PTA Logged In.
+        ///   Looks up a localized string similar to Logged in.
         /// </summary>
         public static string PtaLoggedIn {
             get {
                 return ResourceManager.GetString("PtaLoggedIn", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to You are Logged in as: {0}.
         /// </summary>
-        internal static string PtaLoggedInAs {
+        public static string PtaLoggedInAs {
             get {
                 return ResourceManager.GetString("PtaLoggedInAs", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logged out.
         /// </summary>
-        internal static string PtaLoggedOut {
+        public static string PtaLoggedOut {
             get {
                 return ResourceManager.GetString("PtaLoggedOut", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Logging in....
         /// </summary>
-        internal static string PtaLoggingIn {
+        public static string PtaLoggingIn {
             get {
                 return ResourceManager.GetString("PtaLoggingIn", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Logging in with cookie....
-        /// </summary>
-        public static string PtaLoggingInWithCookie {
-            get {
-                return ResourceManager.GetString("PtaLoggingInWithCookie", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to PTA Login.
+        ///   Looks up a localized string similar to PtaLogin.
         /// </summary>
         public static string PtaLogin {
             get {
                 return ResourceManager.GetString("PtaLogin", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Click the button to open browser. You can choose WeChat, Student ID, or regular login method.
         /// </summary>
-        internal static string PtaLoginHelpText {
+        public static string PtaLoginHelpText {
             get {
                 return ResourceManager.GetString("PtaLoginHelpText", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login exception: {0}.
-        /// </summary>
-        public static string PtaLoginException {
-            get {
-                return ResourceManager.GetString("PtaLoginException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login failed: {0}.
-        /// </summary>
-        public static string PtaLoginFailedWithReason {
-            get {
-                return ResourceManager.GetString("PtaLoginFailedWithReason", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Login successful.
         /// </summary>
-        internal static string PtaLoginSuccess {
+        public static string PtaLoginSuccess {
             get {
                 return ResourceManager.GetString("PtaLoginSuccess", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Login timeout or failed: {0}.
-        /// </summary>
-        public static string PtaLoginTimeoutOrFailed {
-            get {
-                return ResourceManager.GetString("PtaLoginTimeoutOrFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to login? Manually paste PTASession.
-        /// </summary>
-        public static string PtaManualPasteSession {
-            get {
-                return ResourceManager.GetString("PtaManualPasteSession", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Captcha required, starting smart login....
-        /// </summary>
-        public static string PtaNeedCaptchaStartingPlaywright {
-            get {
-                return ResourceManager.GetString("PtaNeedCaptchaStartingPlaywright", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to open browser: {0}.
-        /// </summary>
-        public static string PtaOpenBrowserFailed {
-            get {
-                return ResourceManager.GetString("PtaOpenBrowserFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Smart login exception: {0}.
-        /// </summary>
-        public static string PtaPlaywrightLoginException {
-            get {
-                return ResourceManager.GetString("PtaPlaywrightLoginException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter captcha.
-        /// </summary>
-        public static string PtaPleaseEnterCaptcha {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterCaptcha", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter email.
-        /// </summary>
-        public static string PtaPleaseEnterEmail {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterEmail", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter email and password first.
-        /// </summary>
-        public static string PtaPleaseEnterEmailAndPassword {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterEmailAndPassword", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please enter PTASession value.
-        /// </summary>
-        public static string PtaPleaseEnterSessionValue {
-            get {
-                return ResourceManager.GetString("PtaPleaseEnterSessionValue", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Loading QR code....
-        /// </summary>
-        public static string PtaQrCodeLoading {
-            get {
-                return ResourceManager.GetString("PtaQrCodeLoading", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to QR mode exception: {0}.
-        /// </summary>
-        public static string PtaQrModeException {
-            get {
-                return ResourceManager.GetString("PtaQrModeException", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Scan with WeChat.
-        /// </summary>
-        public static string PtaScanQrCode {
-            get {
-                return ResourceManager.GetString("PtaScanQrCode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Please scan with WeChat to login.
-        /// </summary>
-        public static string PtaScanWithWeChat {
-            get {
-                return ResourceManager.GetString("PtaScanWithWeChat", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submission failed: {0}.
-        /// </summary>
-        public static string PtaSubmitFailed {
-            get {
-                return ResourceManager.GetString("PtaSubmitFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submitting captcha....
-        /// </summary>
-        public static string PtaSubmittingCaptcha {
-            get {
-                return ResourceManager.GetString("PtaSubmittingCaptcha", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Submitting login information....
-        /// </summary>
-        public static string PtaSubmittingLogin {
-            get {
-                return ResourceManager.GetString("PtaSubmittingLogin", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Switched to password login.
-        /// </summary>
-        public static string PtaSwitchedToPasswordMode {
-            get {
-                return ResourceManager.GetString("PtaSwitchedToPasswordMode", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to PTA sync exception.
         /// </summary>
-        internal static string PtaSyncException {
+        public static string PtaSyncException {
             get {
                 return ResourceManager.GetString("PtaSyncException", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to PTA assignment sync failed.
         /// </summary>
-        internal static string PtaSyncFailed {
+        public static string PtaSyncFailed {
             get {
                 return ResourceManager.GetString("PtaSyncFailed", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Waiting for login result....
-        /// </summary>
-        public static string PtaWaitingForResult {
-            get {
-                return ResourceManager.GetString("PtaWaitingForResult", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Recent Notes.
         /// </summary>
-        internal static string RecentNotes {
+        public static string RecentNotes {
             get {
                 return ResourceManager.GetString("RecentNotes", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to  Repeat Times：.
         /// </summary>
-        internal static string RepeatTimes {
+        public static string RepeatTimes {
             get {
                 return ResourceManager.GetString("RepeatTimes", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to 🔁 Repeat eveyweek.
         /// </summary>
-        internal static string RepeatWeekly {
+        public static string RepeatWeekly {
             get {
                 return ResourceManager.GetString("RepeatWeekly", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sat.
         /// </summary>
-        internal static string Saturday {
+        public static string Saturday {
             get {
                 return ResourceManager.GetString("Saturday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Select Language.
         /// </summary>
-        internal static string SelectLanguage {
+        public static string SelectLanguage {
             get {
                 return ResourceManager.GetString("SelectLanguage", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
-        internal static string Settings {
+        public static string Settings {
             get {
                 return ResourceManager.GetString("Settings", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SSO authentication failed.
         /// </summary>
-        internal static string SsoAuthFailed {
+        public static string SsoAuthFailed {
             get {
                 return ResourceManager.GetString("SsoAuthFailed", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Start Time.
         /// </summary>
-        internal static string StartTime {
+        public static string StartTime {
             get {
                 return ResourceManager.GetString("StartTime", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Student ID not found.
         /// </summary>
-        internal static string StudentIdNotFound {
+        public static string StudentIdNotFound {
             get {
                 return ResourceManager.GetString("StudentIdNotFound", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Submit.
         /// </summary>
-        internal static string Submit {
+        public static string Submit {
             get {
                 return ResourceManager.GetString("Submit", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sun.
         /// </summary>
-        internal static string Sunday {
+        public static string Sunday {
             get {
                 return ResourceManager.GetString("Sunday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sync All.
         /// </summary>
-        internal static string SyncAll {
+        public static string SyncAll {
             get {
                 return ResourceManager.GetString("SyncAll", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sync courses table.
         /// </summary>
-        internal static string SyncCoursesTable {
+        public static string SyncCoursesTable {
             get {
                 return ResourceManager.GetString("SyncCoursesTable", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sync ZJU.
         /// </summary>
-        internal static string SyncCoursesZju {
+        public static string SyncCoursesZju {
             get {
                 return ResourceManager.GetString("SyncCoursesZju", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Errors occurred during synchronization.
         /// </summary>
-        internal static string SyncErrorOccurred {
+        public static string SyncErrorOccurred {
             get {
                 return ResourceManager.GetString("SyncErrorOccurred", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SyncPTA.
         /// </summary>
-        internal static string SyncPTA {
+        public static string SyncPTA {
             get {
                 return ResourceManager.GetString("SyncPTA", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Theme.
         /// </summary>
-        internal static string Theme {
+        public static string Theme {
             get {
                 return ResourceManager.GetString("Theme", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Thu.
         /// </summary>
-        internal static string Thursday {
+        public static string Thursday {
             get {
                 return ResourceManager.GetString("Thursday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Title.
         /// </summary>
-        internal static string Title {
+        public static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Today.
         /// </summary>
-        internal static string Today {
+        public static string Today {
             get {
                 return ResourceManager.GetString("Today", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to You are creating a todo in the past.
         /// </summary>
-        internal static string TodoInPast {
+        public static string TodoInPast {
             get {
                 return ResourceManager.GetString("TodoInPast", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Todos.
         /// </summary>
-        internal static string Todos {
+        public static string Todos {
             get {
                 return ResourceManager.GetString("Todos", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Tue.
         /// </summary>
-        internal static string Tuesday {
+        public static string Tuesday {
             get {
                 return ResourceManager.GetString("Tuesday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Unknown error occurred..
         /// </summary>
-        internal static string UnknownError {
+        public static string UnknownError {
             get {
                 return ResourceManager.GetString("UnknownError", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Upcoming schedule.
         /// </summary>
-        internal static string Upcomingschedule {
+        public static string Upcomingschedule {
             get {
                 return ResourceManager.GetString("Upcomingschedule", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Username.
         /// </summary>
-        internal static string Username {
+        public static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Wed.
         /// </summary>
-        internal static string Wednesday {
+        public static string Wednesday {
             get {
                 return ResourceManager.GetString("Wednesday", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Week.
         /// </summary>
-        internal static string Week {
+        public static string Week {
             get {
                 return ResourceManager.GetString("Week", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Year.
         /// </summary>
-        internal static string Year {
+        public static string Year {
             get {
                 return ResourceManager.GetString("Year", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to {0}/{1}.
         /// </summary>
-        internal static string YearMonthFormat {
+        public static string YearMonthFormat {
             get {
                 return ResourceManager.GetString("YearMonthFormat", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to ZJU sync exception.
         /// </summary>
-        internal static string ZdbkSyncException {
+        public static string ZdbkSyncException {
             get {
                 return ResourceManager.GetString("ZdbkSyncException", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to ZJU SSO Account Management.
         /// </summary>
-        internal static string ZjuSsoAccountManagement {
+        public static string ZjuSsoAccountManagement {
             get {
                 return ResourceManager.GetString("ZjuSsoAccountManagement", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to ZJU SSO Login.
         /// </summary>
-        internal static string ZjuSsoLogin {
+        public static string ZjuSsoLogin {
             get {
                 return ResourceManager.GetString("ZjuSsoLogin", resourceCulture);
             }
