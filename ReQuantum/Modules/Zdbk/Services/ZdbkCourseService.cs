@@ -22,25 +22,39 @@ public interface IZdbkCourseService
     Task<Result<HashSet<SelectableCourse>>> GetAvailableCoursesAsync(CourseCategory category, int startPage, int endPage);
     Task<Result> UpdateSectionsAsync(SelectableCourse course);
     Task<Result> UpdateIntroductionAsync(Course course);
+    Task<Result<HashSet<SectionSnapshot>>> RefreshSelectedSectionsAsync();
+    HashSet<SectionSnapshot>? SelectedSections { get; }
 }
 
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkCourseService : IZdbkCourseService
 {
     private readonly IZdbkSessionService _sessionService;
+    private readonly IStorage _storage;
     private readonly ILogger<ZdbkCourseService> _logger;
 
     private const string BaseUrl = "https://zdbk.zju.edu.cn/jwglxt";
     private const string GetCourseUrl = "/xsxk/zzxkghb_cxZzxkGhbKcList.html";
     private const string GetSectionUrl = "/xsxk/zzxkghb_cxZzxkGhbJxbList.html";
     private const string GetIntroductionUrl = "/xkjjsc/kcjjck_cxXkjjPage.html";
+    private const string GetSelectedSectionsUrl = "/xsxk/zzxkghb_cxZzxkGhbChoosed.html";
+    private const string StorageKey = "Zdbk:SelectedSections";
+
+    private HashSet<SectionSnapshot>? _selectedSections;
+
+    public HashSet<SectionSnapshot>? SelectedSections => _selectedSections;
 
     public ZdbkCourseService(
         IZdbkSessionService sessionService,
+        IStorage storage,
         ILogger<ZdbkCourseService> logger)
     {
         _sessionService = sessionService;
+        _storage = storage;
         _logger = logger;
+
+        // 加载缓存
+        LoadSelectedSections();
     }
 
     public async Task<Result<HashSet<SelectableCourse>>> GetAvailableCoursesAsync(
@@ -295,6 +309,150 @@ public class ZdbkCourseService : IZdbkCourseService
         {
             _logger.LogError(ex, "获取课程介绍失败");
             return Result.Fail($"获取课程介绍失败: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<HashSet<SectionSnapshot>>> RefreshSelectedSectionsAsync()
+    {
+        var state = _sessionService.State;
+        if (state == null)
+        {
+            return Result.Fail("未登录");
+        }
+
+        var clientResult = await _sessionService.GetAuthenticatedClientAsync();
+        if (!clientResult.IsSuccess)
+        {
+            return Result.Fail(clientResult.Message);
+        }
+
+        using var client = clientResult.Value;
+
+        try
+        {
+            // 构造请求URL
+            var requestUrl = $"{BaseUrl}{GetSelectedSectionsUrl}?gnmkdm=N253530&su={state.StudentId}";
+
+            // 构造POST数据
+            var formData = new Dictionary<string, string>
+            {
+                { "xn", state.AcademicYear ?? "" },
+                { "xq", state.Semester ?? "" }
+            };
+
+            var content = new FormUrlEncodedContent(formData);
+
+            // 发送请求
+            var response = await client.PostAsync(requestUrl, content);
+            response.EnsureSuccessStatusCode();
+
+            // 解析响应
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            var sectionData = JsonSerializer.Deserialize<List<JsonElement>>(jsonContent);
+
+            if (sectionData == null)
+            {
+                return Result.Fail("解析已选课程数据失败");
+            }
+
+            var snapshots = new HashSet<SectionSnapshot>();
+
+            foreach (var json in sectionData)
+            {
+                try
+                {
+                    // 解析课程和教学班信息
+                    var courseName = json.GetProperty("kcmc").GetString() ?? string.Empty;
+                    var courseId = json.GetProperty("kch").GetString() ?? string.Empty;
+                    var creditsStr = json.TryGetProperty("xf", out var xf) ? xf.GetString() : null;
+                    var credits = creditsStr != null && decimal.TryParse(creditsStr, out var c) ? c : 0m;
+
+                    var sectionId = json.GetProperty("jxb_id").GetString() ?? string.Empty;
+                    var instructors = json.TryGetProperty("teaxms", out var teaxms)
+                        ? teaxms.GetString()?.Split(',').ToHashSet() ?? new HashSet<string>()
+                        : new HashSet<string>();
+
+                    // 解析上课时间和地点
+                    var scheduleAndLocations = new HashSet<(string Schedule, string Location)>();
+                    var scheduleStr = json.TryGetProperty("sksj", out var sksj) ? sksj.GetString() : null;
+                    var locationStr = json.TryGetProperty("jxdd", out var jxdd) ? jxdd.GetString() : null;
+
+                    if (!string.IsNullOrEmpty(scheduleStr) && !string.IsNullOrEmpty(locationStr))
+                    {
+                        scheduleAndLocations.Add((scheduleStr, locationStr));
+                    }
+
+                    // 解析考试时间
+                    TimeSlot? examTime = null;
+                    var examTimeStr = json.TryGetProperty("kssj", out var kssj) ? kssj.GetString() : null;
+                    if (!string.IsNullOrEmpty(examTimeStr))
+                    {
+                        try
+                        {
+                            examTime = TimeSlot.Parse(examTimeStr);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning($"解析考试时间失败: {examTimeStr}, {ex.Message}");
+                        }
+                    }
+
+                    var teachingForm = json.TryGetProperty("jxfs", out var jxfs) ? jxfs.GetString() ?? string.Empty : string.Empty;
+                    var teachingMethod = json.TryGetProperty("skfs", out var skfs) ? skfs.GetString() ?? string.Empty : string.Empty;
+                    var isInternational = json.TryGetProperty("gjhkc", out var gjhkc) && gjhkc.GetString() == "1";
+
+                    var snapshot = new SectionSnapshot
+                    {
+                        Id = sectionId,
+                        CourseName = courseName,
+                        CourseId = courseId,
+                        CourseCredits = credits,
+                        Instructors = instructors,
+                        ScheduleAndLocations = scheduleAndLocations,
+                        ExamTime = examTime,
+                        TeachingForm = teachingForm,
+                        TeachingMethod = teachingMethod,
+                        IsInternational = isInternational,
+                        Semesters = $"{state.AcademicYear}-{state.Semester}"
+                    };
+
+                    snapshots.Add(snapshot);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "解析单个已选课程失败，跳过");
+                }
+            }
+
+            // 更新缓存
+            _selectedSections = snapshots;
+            SaveSelectedSections();
+
+            _logger.LogInformation($"成功获取 {snapshots.Count} 门已选课程");
+            return Result.Success(snapshots);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取已选课程失败");
+            return Result.Fail($"获取已选课程失败: {ex.Message}");
+        }
+    }
+
+    private void LoadSelectedSections()
+    {
+        if (_storage.TryGet<HashSet<SectionSnapshot>>(StorageKey, out var sections) && sections != null)
+        {
+            _selectedSections = sections;
+            _logger.LogInformation($"从缓存加载 {sections.Count} 门已选课程");
+        }
+    }
+
+    private void SaveSelectedSections()
+    {
+        if (_selectedSections != null)
+        {
+            _storage.Set(StorageKey, _selectedSections);
+            _logger.LogDebug("已选课程已保存到缓存");
         }
     }
 }
