@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:ReQuantum.ViewModels"
              xmlns:controls="https://github.com/avaloniaui/lib/controls"
+             xmlns:models="clr-namespace:ReQuantum.Modules.Zdbk.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ReQuantum.Views.GradeView"
              x:DataType="viewModels:GradeViewModel">
@@ -17,7 +18,7 @@
 
       <!-- 桌面端 -->
       <Grid IsVisible="{Binding WindowService.IsDesktopMode}" 
-            ColumnDefinitions="*, *" 
+            ColumnDefinitions="Auto, Auto" 
             RowDefinitions=" 100, 500"> 
         
           <!-- 第一块（左上） -->
@@ -31,14 +32,40 @@
           </Panel>
 
           <!-- 第三块（左下） -->
-          <Panel Grid.Row="1" Grid.Column="0">
-              <TextBlock Text="课程成绩" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          </Panel>
+          <Border Grid.Row="1" Grid.Column="0">
+              <ItemsControl ItemsSource="{Binding Grades.CoursesGrade}">
+                  <!-- 这就是模具 -->
+                  <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="models:ZdbkCoursesGrade">
+                          <!-- 这里定义每一行的视觉结构 -->
+                          <Border CornerRadius="16" Margin="5 5 20 5" Background="{DynamicResource CourseGradePanelBrush}"
+                                  BoxShadow="5 5 10 0 #40000000">
+                              <Grid ColumnDefinitions="Auto, Auto"
+                                    RowDefinitions="Auto,Auto,Auto"
+                                    Margin="10">
+                                  <TextBlock Grid.Column="0" Text="{Binding CourseName}" FontWeight="Medium" />
+                                  <TextBlock Grid.Column="1" Text="{Binding Grade100}" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="1"  Grid.Column="0" Text="{Binding  Term}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}" FontSize="10"/>
+                                  <TextBlock Grid.Row="1"  Grid.Column="1" Text="{Binding  CourseCode}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}"  FontSize="10"/>
+                                  <ProgressBar Grid.Row="2" 
+                                               Height="6" 
+                                               Margin="0,4"
+                                               Minimum="0" 
+                                               Maximum="100" 
+                                               Value="{Binding Grade100}" 
+                                               CornerRadius="3"
+                                               Foreground="{DynamicResource ProgressBarBrush}"
+                                               Background="#10000000"/>
+                              </Grid>
+                          </Border>
+                      </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+              </ItemsControl>
+          </Border>
 
           <!-- 第四块（右下） -->
           <Panel Grid.Row="1" Grid.Column="1">
               <TextBlock Text="可视化图表" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Text="{Binding Grades.CoursesGrade[0].CourseCode}"></TextBlock>
           </Panel>
 
           <!-- 水平分割线：位于第0行底部，跨越2列 -->

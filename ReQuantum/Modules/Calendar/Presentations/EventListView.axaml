@@ -15,7 +15,7 @@
 
   <Grid>
     <!-- 日程区域 -->
-    <Border BorderThickness="2"
+    <Border BorderThickness="4"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource EventBorderBrush}"
             CornerRadius="8"

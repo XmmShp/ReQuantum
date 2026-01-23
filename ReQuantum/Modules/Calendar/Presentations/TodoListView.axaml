@@ -15,7 +15,7 @@
 
   <Grid>
     <!-- 待办区域 -->
-    <Border BorderThickness="2"
+    <Border BorderThickness="4"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource TodoBorderBrush}"
             CornerRadius="8"

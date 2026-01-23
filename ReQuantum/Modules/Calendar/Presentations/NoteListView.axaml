@@ -14,7 +14,7 @@
 
   <Grid>
     <!-- 便签区域 -->
-    <Border BorderThickness="2"
+    <Border BorderThickness="4"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource NoteBorderBrush}"
             CornerRadius="8"

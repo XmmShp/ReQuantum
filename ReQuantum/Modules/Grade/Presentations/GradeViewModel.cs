@@ -59,5 +59,4 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     }
 
 
-
 }
