@@ -10,6 +10,7 @@ namespace ReQuantum.Modules.Calendar.Entities;
 public partial class CalendarTodo : ObservableObject
 {
     public Guid Id { get; set; }
+    public int TodoId { get; set; }
     public string Content { get; set; } = string.Empty;
     public DateTime DueTime { get; set; } // 截止时间（包含日期和时间）
 

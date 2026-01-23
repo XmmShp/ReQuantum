@@ -59,16 +59,18 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
               <Border  BorderThickness="1"
-                      Background="{DynamicResource LightEventBrush}"
-                      CornerRadius="4"
+                       Background="{Binding EventId,Converter={x:Static presentations:CalendarConverters.EventIdToBackgroundConverter}}"
+                      CornerRadius="18"
                       Padding="12"
                       Margin="0,4">
-                <Grid ColumnDefinitions="*,Auto">
+
+
+                  <Grid ColumnDefinitions="*,Auto">
                   <StackPanel Grid.Column="0" Spacing="4">
                     <TextBlock Text="{Binding Content}" 
                              FontSize="14"
                              TextWrapping="Wrap"
-                             FontWeight="Medium"/>
+                             FontWeight="Bold"/>
                     <TextBlock FontSize="12" Opacity="0.7">
                       <Run Text="{Binding StartTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
                       <Run Text=" - "/>

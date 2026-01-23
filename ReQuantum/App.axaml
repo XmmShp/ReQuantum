@@ -18,14 +18,26 @@
                 
                  <!-- 浅色模式资源 (Light) -->
                  <ResourceDictionary x:Key="Light">
+                     
+                     <Color x:Key="RegionBackgroundColor">#FFFFFF</Color> <!-- 白色背景 -->
                      <SolidColorBrush x:Key="RegionBackgroundBrush" Color="#FFFFFF"/> <!-- 白色背景 -->
+                     
+                     
                      <SolidColorBrush x:Key="NestedRegionBackgroundBrush" Color="#F8F9FA"/> <!-- 复合浅灰背景 -->
                      <SolidColorBrush x:Key="RegionBorderBrush" Color="#E0E0E0"/>     <!-- 浅灰边框 -->
                      <SolidColorBrush x:Key="PrimaryTextBrush" Color="#000000"/>      <!-- 黑色文字 -->
                      <SolidColorBrush x:Key="SmallTextBrush" Color="#555555"/>      <!-- 灰色小字 -->
                      <SolidColorBrush x:Key="AlternatingBackgroundBrush1" Color="#55D9B3EB"/> <!-- 交错背景1 -->
                      <SolidColorBrush x:Key="AlternatingBackgroundBrush2" Color="#55B4B2EB"/> <!-- 交错背景2 -->
-                     <SolidColorBrush x:Key="SidebarBrush" Color="#88BB54EB"/>     <!-- 侧边栏选中 -->
+                     
+                     <Color x:Key="SidebarColor">#88BB54EB</Color>      <!-- 侧边栏 -->
+                     <SolidColorBrush x:Key="SidebarBrush" Color="#88BB54EB"/>     <!-- 侧边栏 -->
+                     
+                     <Color x:Key="SidebarColor2">#889B9AE1</Color>      <!-- 侧边栏 -->
+                     <SolidColorBrush x:Key="SidebarBrush2" Color="#889B9AE1"/>     <!-- 侧边栏 -->
+
+
+
                      <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#44BB54EB"/>     <!-- 侧边栏选中 -->
                      <SolidColorBrush x:Key="SidebarSelectedBorderBrush" Color="#88FF54C3"/>     <!-- 侧边栏选中 -->
                      <SolidColorBrush x:Key="SidebarSelectedHoverBrush" Color="#226527EF"/>     <!-- 侧边栏选中 -->
@@ -34,16 +46,25 @@
                      <SolidColorBrush x:Key="RegionSelectedBorderBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
                      <SolidColorBrush x:Key="RegionHoveredBrush" Color="#11AD54EB"/>      <!-- 区域悬浮 -->
                      <SolidColorBrush x:Key="EventBrush" Color="#66EB54C3"/>      <!-- 日程 -->
-                     <SolidColorBrush x:Key="EventBorderBrush" Color="#EB54C3"/>      <!-- 日程 -->
-                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程文本 -->
-                     <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程 -->
+                     <SolidColorBrush x:Key="EventBorderBrush" Color="#EB54C3"/>      <!-- 日程边框 -->
+                     <SolidColorBrush x:Key="EventTextBrush" Color="#000000"/>      <!-- 日程文本 -->
+                     <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程1 -->
+                     <SolidColorBrush x:Key="LightEventBrush2" Color="#22F4BCE5"/>      <!-- 浅色日程2 -->
+                     <SolidColorBrush x:Key="LightEventBrush3" Color="#22ED3EBF"/>      <!-- 浅色日程3 -->
+                     <SolidColorBrush x:Key="LightEventBrush4" Color="#22BB96D0"/>      <!-- 浅色日程4 -->
                      <SolidColorBrush x:Key="TodoBrush" Color="#44AD54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="TodoBorderBrush" Color="#AD54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办文本 -->
+                     <SolidColorBrush x:Key="TodoBorderBrush" Color="#AD54EB"/>      <!-- 代办边框  -->
+                     <SolidColorBrush x:Key="TodoTextBrush" Color="#000000"/>      <!-- 代办文本 -->
                      <SolidColorBrush x:Key="LightTodoBrush" Color="#22AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="LightTodoBrush2" Color="#22AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="LightTodoBrush3" Color="#22AD54EB"/>      <!-- 浅色代办 -->
+                     <SolidColorBrush x:Key="LightTodoBrush4" Color="#22AD54EB"/>      <!-- 浅色代办 -->
                      <SolidColorBrush x:Key="NoteBrush" Color="#445D54EB"/>      <!-- 便签 -->
-                     <SolidColorBrush x:Key="NoteBorderBrush" Color="#5D54EB"/>      <!-- 便签 -->
+                     <SolidColorBrush x:Key="NoteBorderBrush" Color="#5D54EB"/>      <!-- 便签边框  -->
                      <SolidColorBrush x:Key="LightNoteBrush" Color="#225D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush2" Color="#225D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush3" Color="#225D54EB"/>      <!-- 浅色便签 -->
+                     <SolidColorBrush x:Key="LightNoteBrush4" Color="#225D54EB"/>      <!-- 浅色便签 -->
                      <SolidColorBrush x:Key="DeleteButtonBrush" Color="#F682AB"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="DeleteTextBrush" Color="#FF5555"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="ButtonBrush" Color="#556527EF"/>      <!-- 按钮颜色 -->
@@ -72,11 +93,11 @@
                      <SolidColorBrush x:Key="RegionHoveredBrush" Color="#11AD54EB"/>      <!-- 区域悬浮 -->
                      <SolidColorBrush x:Key="EventBrush" Color="#66EB54C3"/>      <!-- 日程 -->
                      <SolidColorBrush x:Key="EventBorderBrush" Color="#EB54C3"/>      <!-- 日程 -->
-                     <SolidColorBrush x:Key="EventTextBrush" Color="#88FF54C3"/>      <!-- 日程文本 -->
+                     <SolidColorBrush x:Key="EventTextBrush" Color="#FFFFFF"/>      <!-- 日程文本 -->
                      <SolidColorBrush x:Key="LightEventBrush" Color="#22EB54C3"/>      <!-- 浅色日程 -->
                      <SolidColorBrush x:Key="TodoBrush" Color="#44AD54EB"/>      <!-- 代办 -->
                      <SolidColorBrush x:Key="TodoBorderBrush" Color="#AD54EB"/>      <!-- 代办 -->
-                     <SolidColorBrush x:Key="TodoTextBrush" Color="#44BB54EB"/>      <!-- 代办文本 -->
+                     <SolidColorBrush x:Key="TodoTextBrush" Color="#FFFFFF"/>      <!-- 代办文本 -->
                      <SolidColorBrush x:Key="LightTodoBrush" Color="#22AD54EB"/>      <!-- 浅色代办 -->
                      <SolidColorBrush x:Key="NoteBrush" Color="#445D54EB"/>      <!-- 便签 -->
                      <SolidColorBrush x:Key="NoteBorderBrush" Color="#5D54EB"/>      <!-- 便签 -->
@@ -96,13 +117,16 @@
     <Application.Styles>
         <FluentTheme />
 
-        <Style Selector="Button.Delete">
-            <Setter Property="Background" Value="{DynamicResource RegionBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource DeleteButtonBrush}"/>
-
-        </Style>
-        <Style Selector="Button.Delete TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource DeleteTextBrush}"/>
+        <Style Selector="TextBlock">
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect OffsetX="2" 
+                                      OffsetY="2" 
+                                      BlurRadius="4" 
+                                      Color="{DynamicResource SystemBaseLowColor}" 
+                                      Opacity="0.6" />
+                </Setter.Value>
+            </Setter>
         </Style>
 
 

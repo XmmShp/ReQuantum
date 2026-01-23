@@ -201,13 +201,14 @@
                           <Border IsVisible="{Binding IsTodo}"
                                   Background="{DynamicResource LightTodoBrush}"
                                   BorderBrush="{DynamicResource TodoBrush}"
-                                  BorderThickness="2,0,0,0"
+                                  BorderThickness="4,0,0,0"
                                   CornerRadius="2"
                                   Padding="4,2"
                                   Margin="0,1">
                             <TextBlock Text="{Binding Content}"
                                      FontSize="12"
                                      Foreground="{DynamicResource TodoTextBrush}"
+                                     FontWeight="Medium"
                                      TextTrimming="CharacterEllipsis"
                                      MaxLines="1"/>
                           </Border>
@@ -215,13 +216,14 @@
                           <Border IsVisible="{Binding IsEvent}"
                                   Background="{DynamicResource LightEventBrush}"
                                   BorderBrush="{DynamicResource EventBrush}"
-                                  BorderThickness="2,0,0,0"
+                                  BorderThickness="4,0,0,0"
                                   CornerRadius="2"
                                   Padding="4,2"
                                   Margin="0,1">
                             <TextBlock Text="{Binding Content}"
                                      FontSize="12"
                                      Foreground="{DynamicResource EventTextBrush}"
+                                     FontWeight="Medium"
                                      TextTrimming="CharacterEllipsis"
                                      MaxLines="1"/>
                           </Border>
