@@ -16,11 +16,40 @@
   <StackPanel Spacing="12">
 
       <!-- 桌面端 -->
-    <Grid  IsVisible="{Binding WindowService.IsDesktopMode}">
-        <Grid>
-            
-        </Grid>
-    </Grid>
+      <Grid IsVisible="{Binding WindowService.IsDesktopMode}" 
+            ColumnDefinitions="*, *" 
+            RowDefinitions=" 100, 500"> 
+        
+          <!-- 第一块（左上） -->
+          <Panel Grid.Row="0" Grid.Column="0">
+              <TextBlock Text="学期切换" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Panel>
+
+          <!-- 第二块（右上） -->
+          <Panel Grid.Row="0" Grid.Column="1">
+              <TextBlock Text="成绩总览" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Panel>
+
+          <!-- 第三块（左下） -->
+          <Panel Grid.Row="1" Grid.Column="0">
+              <TextBlock Text="课程成绩" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Panel>
+
+          <!-- 第四块（右下） -->
+          <Panel Grid.Row="1" Grid.Column="1">
+              <TextBlock Text="可视化图表" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Panel>
+
+          <!-- 水平分割线：位于第0行底部，跨越2列 -->
+          <Rectangle Grid.Row="0" Grid.ColumnSpan="2" 
+                     Height="1" Fill="Gray" Opacity="0.3"
+                     VerticalAlignment="Bottom"/>
+        
+          <!-- 垂直分割线：位于第0列右侧，跨越2行 -->
+          <Rectangle Grid.Column="0" Grid.RowSpan="2" 
+                     Width="1" Fill="Gray" Opacity="0.3"
+                     HorizontalAlignment="Right"/>
+      </Grid>
 
     <!-- 移动端 -->
     <Grid  IsVisible="{Binding !WindowService.IsDesktopMode}">
