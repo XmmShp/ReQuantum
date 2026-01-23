@@ -43,11 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Assets\I18n\UIText.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UIText.resx</DependentUpon>
-    </Compile>
     <Compile Update="Modules\Common\Presentations\ShellWindow.axaml.cs">
       <DependentUpon>ShellWindow.axaml</DependentUpon>
     </Compile>
@@ -76,5 +71,11 @@
     <Folder Include="Assets\Theme Color\" />
     <Folder Include="Modules\Grade\Models\" />
     <Folder Include="Modules\Grade\Presentation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Update="Assets\I18n\UIText.resx">
+      <Generator></Generator>
+    </AvaloniaResource>
   </ItemGroup>
 </Project>

@@ -30,7 +30,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
     private readonly IZjuSsoService _zjuSsoService;
     private readonly IPtaProblemSetService _ptaService;
     private readonly IPtaCalendarConvertService _ptaConverter;
-    private readonly IPtaAuthService _ptaAuthService;
+    private readonly IPtaBrowserAuthService _ptaAuthService;
 
     public string SyncCoursesTableText => "📅" + UIText.SyncCoursesTable;
     public string AddEventText => "➕" + UIText.AddEvent;
@@ -192,7 +192,7 @@ public partial class EventListViewModel : ViewModelBase<EventListView>, IEventHa
         IZjuSsoService zjuSsoService,
         IPtaProblemSetService ptaService,
         IPtaCalendarConvertService ptaConverter,
-        IPtaAuthService ptaAuthService)
+        IPtaBrowserAuthService ptaAuthService)
     {
         _calendarService = calendarService;
         _zdbkService = zdbkService;

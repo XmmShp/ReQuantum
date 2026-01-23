@@ -11,229 +11,95 @@
   </Design.DataContext>
 
   <StackPanel Spacing="16">
-      <!-- Login Form (visible when not logged in) -->
-      <StackPanel Spacing="16" IsVisible="{Binding !IsLoggedIn}">
 
-        <!-- Mode Switcher -->
-        <Border CornerRadius="8" HorizontalAlignment="Center" ClipToBounds="True" 
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="密码登录" 
-                        Command="{Binding SwitchToPasswordModeCommand}" 
-                        IsEnabled="{Binding IsQrLoginMode}"
-                        CornerRadius="0"
-                        Padding="20,10"/>
-                <Button Content="微信扫码" 
-                        Command="{Binding SwitchToQrLoginCommand}" 
-                        IsEnabled="{Binding !IsQrLoginMode}"
-                        CornerRadius="0"
-                        Padding="20,10"/>
+    <!-- Login Section (visible when not logged in) -->
+    <StackPanel Spacing="16" IsVisible="{Binding !IsLoggedIn}">
+      <Border BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="32"
+              HorizontalAlignment="Center"
+              MinWidth="400">
+        <StackPanel Spacing="20">
+          <TextBlock Text="{Binding Localizer[PtaAccountLogin]}"
+                     FontSize="18"
+                     FontWeight="SemiBold"
+                     HorizontalAlignment="Center"/>
+
+          <!-- Status Message -->
+          <TextBlock Text="{Binding StatusMessage}"
+                     FontSize="13"
+                     TextWrapping="Wrap"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     MinHeight="40"
+                     IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+          <!-- Login Button -->
+          <Button Command="{Binding LoginCommand}"
+                  HorizontalAlignment="Stretch"
+                  Padding="20,14"
+                  IsEnabled="{Binding !IsLoading}">
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+              <TextBlock Text="🌐" FontSize="18" IsVisible="{Binding !IsLoading}"/>
+              <TextBlock Text="{Binding Localizer[PtaClickToLogin]}"
+                         FontSize="15"
+                         FontWeight="SemiBold"
+                         IsVisible="{Binding !IsLoading}"/>
+              <TextBlock Text="{Binding Localizer[LoggingIn]}"
+                         FontSize="15"
+                         FontWeight="SemiBold"
+                         IsVisible="{Binding IsLoading}"/>
             </StackPanel>
-        </Border>
+          </Button>
 
-        <!-- Password Login Form -->
-        <Border IsVisible="{Binding !IsQrLoginMode}"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                CornerRadius="8"
-                Padding="20">
-          <StackPanel Spacing="16">
-            <TextBlock Text="{Binding Localizer[PtaAccountLogin]}"
-                       FontSize="18"
-                       FontWeight="SemiBold"
-                       HorizontalAlignment="Center"/>
-
-            <!-- Email Input -->
-            <StackPanel Spacing="8">
-              <TextBlock Text="{Binding Localizer[Email]}"
-                         FontSize="14"
-                         FontWeight="Medium"/>
-              <TextBox Text="{Binding Email}"
-                       Watermark="{Binding Localizer[EnterPtaEmail]}"
-                       FontSize="14"
-                       Padding="12,8"/>
-            </StackPanel>
-
-            <!-- Password Input -->
-            <StackPanel Spacing="8">
-              <TextBlock Text="{Binding Localizer[Password]}"
-                         FontSize="14"
-                         FontWeight="Medium"/>
-              <TextBox Text="{Binding Password}"
-                       PasswordChar="●"
-                       Watermark="{Binding Localizer[EnterPassword]}"
-                       FontSize="14"
-                       Padding="12,8"/>
-            </StackPanel>
-
-            <!-- Captcha Section -->
-            <Border IsVisible="{Binding IsCaptchaVisible}" 
-                    Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" 
-                    Padding="15" CornerRadius="6">
-                <StackPanel Spacing="10">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="⚠" Foreground="Orange" VerticalAlignment="Center"/>
-                        <TextBlock Text="需要安全验证" FontWeight="Bold" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    
-                    <Image Source="{Binding CaptchaBitmap}" Height="60" HorizontalAlignment="Left"/>
-                    
-                    <Grid ColumnDefinitions="*, Auto">
-                        <TextBox Text="{Binding CaptchaCode}" Watermark="请输入图中的字符" Margin="0,0,10,0"/>
-                        <Button Grid.Column="1" Command="{Binding SubmitCaptchaCommand}" Content="提交验证"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- Status Message -->
-            <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="12"
-                       Foreground="{DynamicResource SystemControlErrorTextForegroundBrush}"
-                       TextWrapping="Wrap"
-                       HorizontalAlignment="Center"
-                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-
-            <!-- Login Button -->
-            <Button Command="{Binding LoginCommand}"
-                    HorizontalAlignment="Stretch"
-                    Padding="16,12"
-                    IsVisible="{Binding !IsCaptchaVisible}"
-                    IsEnabled="{Binding !IsLoading}">
-              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                <TextBlock Text="🔐" FontSize="16" IsVisible="{Binding !IsLoading}"/>
-                <TextBlock Text="{Binding Localizer[Login]}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           IsVisible="{Binding !IsLoading}"/>
-                <TextBlock Text="{Binding Localizer[LoggingIn]}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           IsVisible="{Binding IsLoading}"/>
-              </StackPanel>
-            </Button>
-            
-            <Button Command="{Binding OpenBrowserLoginCommand}"
-                    Content="{Binding Localizer[PtaManualPasteSession]}"
-                    Classes="theme-transparent"
-                    FontSize="12"
-                    HorizontalAlignment="Center"
-                    Opacity="0.7"/>
-          </StackPanel>
-        </Border>
-
-        <!-- QR Login Form -->
-        <Border IsVisible="{Binding IsQrLoginMode}"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                CornerRadius="8"
-                Padding="20"
-                MinHeight="300">
-            <StackPanel Spacing="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Localizer[PtaScanWithWeChat]}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                
-                <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" 
-                        BorderThickness="1" CornerRadius="4" Padding="10" Background="White">
-                    <Panel Width="200" Height="200">
-                        <Image Source="{Binding QrCodeBitmap}" 
-                               IsVisible="{Binding QrCodeBitmap, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                        
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                                    IsVisible="{Binding QrCodeBitmap, Converter={x:Static ObjectConverters.IsNull}}">
-                            <ProgressBar IsIndeterminate="True"/>
-                            <TextBlock Text="正在加载二维码..." Margin="0,10,0,0" FontSize="12"/>
-                        </StackPanel>
-                    </Panel>
-                </Border>
-
-                <TextBlock Text="{Binding StatusMessage}" 
-                           HorizontalAlignment="Center" 
-                           TextWrapping="Wrap"
-                           MaxWidth="250"
-                           TextAlignment="Center"/>
-            </StackPanel>
-        </Border>
-
-        <!-- Cookie Input (visible when ShowCookieInput is true) -->
-        <Border BorderThickness="1"
-                BorderBrush="Orange"
-                CornerRadius="8"
-                Padding="20"
-                IsVisible="{Binding ShowCookieInput}">
-          <StackPanel Spacing="16">
-            <TextBlock Text="{Binding Localizer[EnterPtaSessionCookie]}"
-                       FontSize="16"
-                       FontWeight="SemiBold"
-                       HorizontalAlignment="Center"/>
-
-            <TextBlock Text="{Binding DebugInfo}"
-                       FontFamily="Consolas"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Opacity="0.7"
-                       Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                       Padding="12"/>
-
-            <TextBox Text="{Binding PtaSessionInput}"
-                     Watermark="{Binding Localizer[PastePtaSessionValue]}"
+          <!-- Help Text -->
+          <TextBlock Text="{Binding Localizer[PtaLoginHelpText]}"
                      FontSize="12"
-                     FontFamily="Consolas"
-                     Padding="12,8"/>
+                     Opacity="0.6"
+                     TextWrapping="Wrap"
+                     TextAlignment="Center"
+                     HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
-              <Button Command="{Binding SubmitCookieCommand}"
-                      Padding="24,10">
-                <TextBlock FontSize="14"
-                           FontWeight="SemiBold">
-                  <Run Text="✓ "/>
-                  <Run Text="{Binding Localizer[Submit]}"/>
-                </TextBlock>
-              </Button>
-              <Button Command="{Binding CancelCookieInputCommand}"
-                      Padding="24,10">
-                <TextBlock FontSize="14">
-                  <Run Text="✕ "/>
-                  <Run Text="{Binding Localizer[Cancel]}"/>
-                </TextBlock>
-              </Button>
-            </StackPanel>
-          </StackPanel>
-        </Border>
+    <!-- Logged In Status (visible when logged in) -->
+    <StackPanel Spacing="16" IsVisible="{Binding IsLoggedIn}">
+      <Border BorderThickness="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+              CornerRadius="8"
+              Padding="32"
+              HorizontalAlignment="Center"
+              MinWidth="400">
+        <StackPanel Spacing="16">
+          <TextBlock FontSize="18"
+                     FontWeight="Bold"
+                     Foreground="Green"
+                     HorizontalAlignment="Center">
+            <Run Text="✓ "/>
+            <Run Text="{Binding Localizer[PtaLoggedIn]}"/>
+          </TextBlock>
 
-      </StackPanel>
-
-      <!-- Logged In Status (visible when logged in) -->
-      <StackPanel Spacing="16" IsVisible="{Binding IsLoggedIn}">
-        <Border BorderThickness="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                CornerRadius="8"
-                Padding="20"
-                HorizontalAlignment="Center">
-          <StackPanel Spacing="12">
-            <TextBlock FontSize="18"
-                       FontWeight="Bold"
-                       Foreground="Green"
-                       HorizontalAlignment="Center">
-              <Run Text="✓ "/>
-              <Run Text="{Binding Localizer[PtaLoggedIn]}"/>
-            </TextBlock>
-
-            <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="14"
-                       Opacity="0.8"
-                       HorizontalAlignment="Center"
-                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-          </StackPanel>
-        </Border>
-
-        <!-- Logout Button -->
-        <Button Command="{Binding LogoutCommand}"
-                HorizontalAlignment="Center"
-                Padding="24,12">
-          <TextBlock Text="{Binding Localizer[Logout]}"
+          <TextBlock Text="{Binding StatusMessage}"
                      FontSize="14"
-                     FontWeight="SemiBold"/>
-        </Button>
-      </StackPanel>
+                     Opacity="0.8"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Logout Button -->
+      <Button Command="{Binding LogoutCommand}"
+              HorizontalAlignment="Center"
+              Padding="32,12">
+        <TextBlock Text="{Binding Localizer[Logout]}"
+                   FontSize="14"
+                   FontWeight="SemiBold"/>
+      </Button>
+    </StackPanel>
 
   </StackPanel>
 </UserControl>
