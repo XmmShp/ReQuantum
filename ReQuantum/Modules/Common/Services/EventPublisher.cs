@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using ReQuantum.Modules.Common.Attributes;
-using System;
 
 namespace ReQuantum.Infrastructure.Services;
 

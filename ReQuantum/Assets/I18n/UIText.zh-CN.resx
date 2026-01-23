@@ -280,7 +280,7 @@
     <value>暂无待办</value>
   </data>
   <data name="NoNotes" xml:space="preserve">
-    <value>暂无便签</value>
+    <value>还没有便签哦</value>
   </data>
   <data name="EnterEventTitle" xml:space="preserve">
     <value>输入日程标题...</value>
@@ -449,6 +449,15 @@
   </data>
   <data name="GetProblemSetException" xml:space="preserve">
     <value>获取习题集异常</value>
+  </data>
+  <data name="Upcomingschedule" xml:space="preserve">
+    <value>近期日程</value>
+  </data>
+  <data name="RecentNotes" xml:space="preserve">
+    <value>最近便签</value>
+  </data>
+  <data name="Deadline" xml:space="preserve">
+    <value>截止</value>
   </data>
   <data name="SyncPTA" xml:space="preserve">
     <value>同步PTA</value>

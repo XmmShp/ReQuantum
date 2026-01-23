@@ -1,3 +1,7 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
@@ -11,10 +15,6 @@ using ReQuantum.Modules.CoursesZju.Services;
 using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.Utilities;
 using ReQuantum.Views;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ReQuantum.ViewModels;
 

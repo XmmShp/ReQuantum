@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Infrastructure.Abstractions;
@@ -5,7 +6,6 @@ using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.Calendar.Services;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Views;
-using System.Collections.ObjectModel;
 
 namespace ReQuantum.ViewModels;
 

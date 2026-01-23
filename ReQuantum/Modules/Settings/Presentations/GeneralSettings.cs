@@ -1,11 +1,11 @@
-﻿using Avalonia;
+using System.Linq;
+using Avalonia;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Views;
-using System.Linq;
 
 namespace ReQuantum.ViewModels;
 

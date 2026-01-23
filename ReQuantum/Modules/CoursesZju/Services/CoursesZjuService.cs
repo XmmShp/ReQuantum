@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Calendar.Entities;
 using ReQuantum.Modules.Common.Attributes;
+using ReQuantum.Modules.Common.Extensions;
 using ReQuantum.Modules.CoursesZju.Models;
 using ReQuantum.Modules.ZjuSso.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using ReQuantum.Modules.Common.Extensions;
 
 namespace ReQuantum.Modules.CoursesZju.Services;
 
@@ -127,7 +127,7 @@ public static class CalendarTodoExtensions
     {
         public bool IsFromCoursesZju
         {
-            get => todo.Properties.Get<bool>(IsFromCoursesZjuKey); 
+            get => todo.Properties.Get<bool>(IsFromCoursesZjuKey);
             set => todo.Properties[IsFromCoursesZjuKey] = value;
         }
     }
