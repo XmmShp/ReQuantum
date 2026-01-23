@@ -288,3 +288,28 @@ public class StringIsNotNullOrEmptyConverter : IValueConverter
         return AvaloniaProperty.UnsetValue;
     }
 }
+
+/// <summary>
+/// 布尔值转灰色画笔：true → 灰色，false → 使用原样式（避免文字消失）
+/// </summary>
+public class BoolToGrayIfTrueConverter : IValueConverter
+{
+    public static readonly BoolToGrayIfTrueConverter Instance = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        // 当值为 true 时，返回灰色
+        if (value is bool boolean && boolean)
+        {
+            return new SolidColorBrush(0xFF888888); // #888888 灰色
+        }
+
+        // 当值为 false 时，返回 UnsetValue → 表示“我不设置这个属性”
+        return AvaloniaProperty.UnsetValue;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return AvaloniaProperty.UnsetValue;
+    }
+}
