@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ReQuantum.Infrastructure.Models;
@@ -24,7 +25,7 @@ public interface IZdbkGradeService
     Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester);
 }
 
-//[AutoInject(Lifetime.Singleton)]
+[AutoInject(Lifetime.Singleton)]
 public class ZdbkGradeService : IZdbkGradeService
 {
     private readonly IZdbkSessionService _sessionService;
@@ -32,7 +33,6 @@ public class ZdbkGradeService : IZdbkGradeService
 
     private const string BaseUrl = "https://zdbk.zju.edu.cn/jwglxt";
     private const string GetGradeUrl = "/cxdy/xscjcx_cxXscjIndex.html";
-    // TODO: 补充具体的成绩查询网址，例如 "/cjcx/cjcx_cxDgXscj.html"
 
     public ZdbkGradeService(
         IZdbkSessionService sessionService,
@@ -85,21 +85,26 @@ public class ZdbkGradeService : IZdbkGradeService
             }
 
 
-            var requestUrl = $"{BaseUrl}{GetGradeUrl}?gnmkdm=N305005&su={state.StudentId}";
+            var requestUrl = $"{BaseUrl}{GetGradeUrl}?doType=query&gnmkdm=N508301&su={state.StudentId}";
 
-            // 构造 POST 报文（参数名需要根据实际接口调整）
+            // 构造 POST 报文
             var formData = new Dictionary<string, string>
             {
-                { "xn", state.AcademicYear ?? "" },
-                { "xq", state.Semester ?? "" },
+                { "xn", academicYear ?? "" },
+                { "xq", semester == "秋" || semester == "冬" ? "1" : "2"},
                 { "zscjl", "" },
                 { "zscjr", "" },
+                { "_search", "false" },
                 { "queryModel.currentPage", "1" },
                 { "queryModel.showCount", "5000" },
-                { "queryModel.sortOrder", "asc" }
+                { "queryModel.sortName", "xkkh"},
+                { "queryModel.sortOrder", "asc" },
+                { "time", "1"  }
             };
 
             var content = new FormUrlEncodedContent(formData);
+
+            // 发送请求
             var response = await client.PostAsync(requestUrl, content);
 
             // 检查 Session 是否失效
@@ -108,32 +113,57 @@ public class ZdbkGradeService : IZdbkGradeService
                 return Result.Fail("登录状态已失效，请重新登录后重试");
             }
 
-
             response.EnsureSuccessStatusCode();
 
             // 解析 JSON 数据
             var jsonContent = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(jsonContent);
             var root = doc.RootElement;
+            IEnumerable<JsonElement> items;
 
-            // 假设数据在 "items" 数组中，字段名参考一般教务系统结构
-            if (!root.TryGetProperty("items", out var items) || items.ValueKind != JsonValueKind.Array)
+            if (root.ValueKind == JsonValueKind.Array)
             {
-                return Result.Fail("无法从响应中解析成绩列表");
+                items = root.EnumerateArray();
+            }
+            else if (root.ValueKind == JsonValueKind.Object &&
+                     root.TryGetProperty("items", out var itemsProp) &&
+                     itemsProp.ValueKind == JsonValueKind.Array)
+            {
+                items = itemsProp.EnumerateArray();
+            }
+            else
+            {
+                return Result.Fail("解析课程数据失败：响应格式不符合预期");
             }
 
 
             var grades = new ZdbkGrades
             {
-                CoursesGrade = items.EnumerateArray().Select(json => new ZdbkCoursesGrade
+                CoursesGrade = items.Select(json =>
                 {
-                    CourseName = json.TryGetProperty("kcmc", out var kcmc) ? kcmc.GetString() ?? "" : "",
-                    CourseCode = json.TryGetProperty("xkkh", out var xkkh) ? xkkh.GetString() ?? "" : "",
-                    Grade100 = json.TryGetProperty("cj", out var cj) && double.TryParse(cj.GetString(), out var g100) ? g100 : 0,
-                    Grade5 = json.TryGetProperty("jd", out var jd) && double.TryParse(jd.GetString(), out var g5) ? g5 : 0,
-                    Credit = json.TryGetProperty("xf", out var xf) && double.TryParse(xf.GetString(), out var cr) ? cr : 0,
-                    Semester = json.TryGetProperty("xnxqm", out var xnxqm) ? xnxqm.GetString() ?? "" : ""
+                    var xkkh = json.TryGetProperty("xkkh", out var xkkhProp) ? xkkhProp.GetString() ?? "" : "";
+                    var match = Regex.Match(xkkh, @"^\((?<year>\d{4}-\d{4})-(?<term>\d+)\)-(?<code>[^-]+)");
+                    string extractedYear = string.Empty;
+                    string extractedTerm = string.Empty;
+                    string courseCode = string.Empty;
+                    if (match.Success)
+                    {
+                        extractedYear = match.Groups["year"].Value;
+                        extractedTerm = match.Groups["term"].Value;
+                        courseCode = match.Groups["code"].Value;
+                    }
+                    return new ZdbkCoursesGrade
+                    {
+                        CourseName = json.TryGetProperty("kcmc", out var kcmc) ? kcmc.GetString() ?? "" : "",
+                        CourseCode = courseCode,
+                        Grade100 = json.TryGetProperty("cj", out var cj) && double.TryParse(cj.GetString(), out var g100) ? g100 : 0,
+                        Grade5 = json.TryGetProperty("jd", out var jd) && double.TryParse(jd.GetString(), out var g5) ? g5 : 0,
+                        Credit = json.TryGetProperty("xf", out var xf) && double.TryParse(xf.GetString(), out var cr) ? cr : 0,
+                        AcademicYear = extractedYear,
+                        Semester = extractedTerm
+                    };
                 }).ToList()
+
             };
 
             // 汇总计算
@@ -141,6 +171,11 @@ public class ZdbkGradeService : IZdbkGradeService
             if (grades.Credit > 0)
             {
                 grades.GradePoint5 = grades.CoursesGrade.Sum(x => x.Grade5 * x.Credit) / grades.Credit;
+                grades.GradePoint100 = grades.CoursesGrade.Sum(x => x.Grade100 * x.Credit) / grades.Credit;
+                grades.MajorCredit = grades.Credit;
+                grades.MajorGradePoint = grades.GradePoint5;
+                grades.GradePoint4 = grades.GradePoint5 * 4 / 5;
+
             }
 
             return Result.Success(grades);
@@ -156,7 +191,7 @@ public class ZdbkGradeService : IZdbkGradeService
 
 
 
-[AutoInject(Lifetime.Singleton)]
+//[AutoInject(Lifetime.Singleton)]
 public class DefaultGradeService : IZdbkGradeService
 
 {
