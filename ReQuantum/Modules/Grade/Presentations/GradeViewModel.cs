@@ -37,7 +37,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     public ObservableCollection<string> AvailableYears { get; } = [];
 
     // 3. 自动生成 AvailableTerms 属性
-    public ObservableCollection<string> AvailableTerms { get; } =  [ "秋冬","春夏","短" ];
+    public ObservableCollection<string> AvailableTerms { get; } = ["秋冬", "春夏", "短"];
 
     // 4. 手动实现 SelectedYear 和 SelectedTerm，确保逻辑触发不依赖生成器的 partial 方法
     private string _selectedYear = string.Empty;

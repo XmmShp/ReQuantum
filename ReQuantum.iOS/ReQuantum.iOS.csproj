@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
 	<PublishAot>true</PublishAot>
     <TargetFramework>net10.0-ios</TargetFramework>
-    <TargetPlatformVersion>26.2</TargetPlatformVersion>
+    <TargetPlatformVersion>26.1</TargetPlatformVersion>
     <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>

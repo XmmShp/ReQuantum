@@ -73,4 +73,3 @@ public class ZdbkCoursesGrade
     /// </summary>
     public string Term { get; set; } = string.Empty;
 }
-
