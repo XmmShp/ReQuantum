@@ -18,18 +18,86 @@
       <!-- 桌面端 -->
       <Grid IsVisible="{Binding WindowService.IsDesktopMode}" 
             ColumnDefinitions="*, *" 
-            RowDefinitions=" 100, 500"> 
+            RowDefinitions=" 150, 500"> 
         
           <!-- 第一块（左上） -->
-          <Panel Grid.Row="0" Grid.Column="0">
-              <TextBlock Text="学期切换" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Panel Grid.Row="0" Grid.Column="0" Background="Transparent">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+
+                  <StackPanel Spacing="5">
+                      <TextBlock Text="学年" FontSize="12" Foreground="Gray"/>
+                      <ComboBox ItemsSource="{Binding AvailableYears}"
+                                SelectedItem="{Binding SelectedYear}"
+                                Width="140"/>
+                  </StackPanel>
+
+                  <StackPanel Spacing="5">
+                      <TextBlock Text="学期" FontSize="12" Foreground="Gray"/>
+                      <ComboBox ItemsSource="{Binding AvailableTerms}"
+                                SelectedItem="{Binding SelectedTerm}"
+                                Width="80"/>
+                  </StackPanel>
+
+              </StackPanel>
           </Panel>
 
           <!-- 第二块（右上） -->
           <Panel Grid.Row="0" Grid.Column="1">
-              <TextBlock Text="成绩总览" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          </Panel>
+              <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          IsVisible="{Binding Grades, Converter={x:Static ObjectConverters.IsNotNull}}">
 
+                  <StackPanel Spacing="10">
+                      <Border Background="#F0F4FF" CornerRadius="8" Padding="15,10" Width="140">
+                          <StackPanel>
+                              <TextBlock Text="总学分 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.Credit}" FontSize="20" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                      <Border Background="#E3F2FD" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#BBDEFB" BorderThickness="1">
+                          <StackPanel>
+                              <TextBlock Text="本学期学分" FontSize="11" Foreground="#1976D2" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.Credit}" FontSize="20" FontWeight="Bold" Foreground="#1976D2" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                  </StackPanel>
+
+                  <StackPanel Spacing="10">
+                      <Border Background="#FFF0F0" CornerRadius="8" Padding="15,10" Width="140">
+                          <StackPanel>
+                              <TextBlock Text="平均绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.GradePoint5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#D32F2F" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                      <Border Background="#FFEBEE" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#FFCDD2" BorderThickness="1">
+                          <StackPanel>
+                              <TextBlock Text="本学期绩点" FontSize="11" Foreground="#C62828" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.GradePoint5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#C62828" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                  </StackPanel>
+
+                  <StackPanel Spacing="10">
+                      <Border Background="#F0FFF4" CornerRadius="8" Padding="15,10" Width="140">
+                          <StackPanel>
+                              <TextBlock Text="主修绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.MajorGradePoint, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#2E7D32" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                      <Border Background="#E8F5E9" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#C8E6C9" BorderThickness="1">
+                          <StackPanel>
+                              <TextBlock Text="本学期主修绩点" FontSize="11" Foreground="#2E7D32" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Grades.MajorGradePoint, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#1B5E20" HorizontalAlignment="Center"/>
+                          </StackPanel>
+                      </Border>
+                  </StackPanel>
+
+              </StackPanel>
+
+              <TextBlock Text="暂无数据" Foreground="Gray"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         IsVisible="{Binding Grades, Converter={x:Static ObjectConverters.IsNull}}"/>
+          </Panel>
+          
           <!-- 第三块（左下） -->
           <Panel Grid.Row="1" Grid.Column="0">
               <TextBlock Text="课程成绩" HorizontalAlignment="Center" VerticalAlignment="Center"/>
