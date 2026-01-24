@@ -1,11 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
@@ -14,6 +7,12 @@ using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Zdbk.Models;
 using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace ReQuantum.Modules.Zdbk.Services;
 
@@ -24,35 +23,25 @@ public interface IZdbkSectionScheduleService
 }
 
 [AutoInject(Lifetime.Singleton)]
-public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonService
+public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
     private readonly IZjuSsoService _zjuSsoService;
     private readonly IAcademicCalendarService _calendarService;
-    private readonly IStorage _storage;
+    private readonly IZdbkSessionService _sessionService;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
-    private readonly ILocalizer _localizer;
-    private ZdbkState? _state;
 
-    private const string StateKey = "Zdbk:State";
-    private const string BaseUrl = "https://zdbk.zju.edu.cn";
-    private const string SsoLoginUrl = "https://zjuam.zju.edu.cn/cas/login";
-    private const string SsoRedirectUrl = "/jwglxt/xtgl/login_ssologin.html";
     private const string CourseScheduleApiBase = "https://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html";
 
     public ZdbkSectionScheduleService(
         IZjuSsoService zjuSsoService,
         IAcademicCalendarService calendarService,
-        IStorage storage,
-        ILogger<ZdbkSectionScheduleService> logger,
-        ILocalizer localizer)
+        IZdbkSessionService sessionService,
+        ILogger<ZdbkSectionScheduleService> logger)
     {
         _zjuSsoService = zjuSsoService;
         _calendarService = calendarService;
-        _storage = storage;
+        _sessionService = sessionService;
         _logger = logger;
-        _localizer = localizer;
-        _zjuSsoService.OnLogout += () => _state = null;
-        LoadState();
     }
 
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCurrentSemesterScheduleAsync()
@@ -64,7 +53,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             if (!calendarResult.IsSuccess)
             {
-                return Result.Fail($"{_localizer[nameof(UIText.CannotGetCalendar)]}: {calendarResult.Message}");
+                return Result.Fail($"无法获取校历：{calendarResult.Message}");
             }
 
             var calendar = calendarResult.Value;
@@ -73,7 +62,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (weekNumber == null)
             {
-                return Result.Fail(_localizer[nameof(UIText.DateNotInSemester)]);
+                return Result.Fail("当前日期不在学期范围内");
             }
 
             var currentSemester = calendar.GetSemesterNameForWeek(weekNumber.Value);
@@ -93,9 +82,10 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (result1.IsSuccess) combinedSections.AddRange(result1.Value.SectionList);
             if (result2.IsSuccess) combinedSections.AddRange(result2.Value.SectionList);
+
             if (combinedSections.Count == 0)
             {
-                return Result.Fail(_localizer[nameof(UIText.AllSemestersFailed)]);
+                return Result.Fail("所有学期均无法获取");
             }
 
             // 返回合并的结果，但保留两个学期的信息
@@ -115,7 +105,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching schedules");
-            return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {ex.Message}");
+            return Result.Fail($"获取课程表失败：{ex.Message}");
         }
     }
 
@@ -131,13 +121,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCourseScheduleAsync(string academicYear, string semester)
     {
-        var clientResult = await GetAuthenticatedClient();
+        var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess) return Result.Fail(clientResult.Message);
 
         var client = clientResult.Value;
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
         {
-            return Result.Fail(_localizer[nameof(UIText.StudentIdNotFound)]);
+            return Result.Fail("未获取到学号信息");
         }
 
         try
@@ -158,8 +148,8 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
             var response = await client.PostAsync(apiUrl, content);
             if (!response.IsSuccessStatusCode)
             {
-                _state = null;
-                return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {response.StatusCode}");
+                _sessionService.ClearState();
+                return Result.Fail($"获取课程表失败: {response.StatusCode}");
             }
 
             var scheduleResponse = await response.Content.ReadFromJsonAsync(
@@ -167,7 +157,22 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
 
             if (scheduleResponse is null)
             {
-                return Result.Fail(_localizer[nameof(UIText.ParseCourseDataFailed)]);
+                return Result.Fail("解析课程表数据失败");
+            }
+
+            // Update state with student info
+            if (_sessionService.State != null)
+            {
+                var s = _sessionService.State;
+                var updatedState = s with
+                {
+                    StudentId = scheduleResponse.StudentId ?? s.StudentId,
+                    StudentName = scheduleResponse.StudentName ?? s.StudentName,
+                    AdministrativeClass = scheduleResponse.AdministrativeClass ?? s.AdministrativeClass,
+                    College = scheduleResponse.College ?? s.College,
+                    Major = scheduleResponse.Major ?? s.Major
+                };
+                _sessionService.UpdateState(updatedState);
             }
 
             // 添加日志：显示返回的课程的Term字段
@@ -181,35 +186,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting schedule");
-            return Result.Fail($"{_localizer[nameof(UIText.GetCourseFailed)]}: {ex.Message}");
-        }
-    }
-
-    private async Task<Result<RequestClient>> GetAuthenticatedClient()
-    {
-        var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(
-            new RequestOptions { AllowRedirects = true });
-
-        if (!clientResult.IsSuccess) return Result.Fail(clientResult.Message);
-
-        try
-        {
-            var client = clientResult.Value;
-            var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            await client.GetAsync(ssoUrl);
-
-            var allCookies = client.CookieContainer.GetAllCookies();
-            var sessionCookie = allCookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
-            var route = allCookies.Last(ck => ck is { Name: "route" });
-
-            _state = new ZdbkState(sessionCookie, route);
-            SaveState();
-
-            return Result.Success(RequestClient.Create(new RequestOptions { Cookies = [sessionCookie, route] }));
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"{_localizer[nameof(UIText.SsoAuthFailed)]}: {ex.Message}");
+            return Result.Fail($"获取课程表失败：{ex.Message}");
         }
     }
 
@@ -219,20 +196,11 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService, IDaemonSe
         "春" or "夏" => "2",
         _ => throw new ArgumentOutOfRangeException(nameof(semester))
     };
-
-    private void LoadState() => _storage.TryGetWithEncryption(StateKey, out _state);
-
-    private void SaveState()
-    {
-        if (_state is null) _storage.Remove(StateKey);
-        else _storage.SetWithEncryption(StateKey, _state);
-    }
 }
 
 public static class CalendarEventExtensions
 {
     private const string Zdbk = "Zdbk";
-    private const string ZdbkExam = "ZdbkExam";
 
     extension(CalendarEvent evt)
     {
@@ -243,16 +211,6 @@ public static class CalendarEventExtensions
             {
                 if (evt.From == Zdbk && !value) evt.From = string.Empty;
                 else if (evt.From != Zdbk && value) evt.From = Zdbk;
-            }
-        }
-
-        public bool IsFromZdbkExam
-        {
-            get => evt.From == ZdbkExam;
-            set
-            {
-                if (evt.From == ZdbkExam && !value) evt.From = string.Empty;
-                else if (evt.From != ZdbkExam && value) evt.From = ZdbkExam;
             }
         }
     }

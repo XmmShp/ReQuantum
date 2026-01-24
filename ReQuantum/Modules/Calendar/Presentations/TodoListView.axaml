@@ -14,8 +14,13 @@
   </Design.DataContext>
 
   <Grid>
-    <!-- 待办区域 -->
-    <Border BorderThickness="4"
+      <Grid.Styles>
+          <Style Selector="TextBlock">
+              <Setter Property="Effect" Value="{x:Null}" />
+          </Style>
+      </Grid.Styles>
+      <!-- 待办区域 -->
+    <Border BorderThickness="2"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource TodoBorderBrush}"
             CornerRadius="8"
@@ -52,11 +57,29 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarTodo">
               <Border BorderThickness="1"
+                      BoxShadow="5 5 10 0 #40000000"
                       Background="{Binding TodoId,Converter={x:Static presentations:CalendarConverters.NoteIdToBackgroundConverter}}"
                       CornerRadius="18"
                       Padding="12"
-                      Margin="0,4">
-                <Grid ColumnDefinitions="Auto,*,Auto">
+                      Margin="0,4,5,4">
+                  <Border.Styles>
+                      <Style>
+                          <Setter Property="Transitions"></Setter>
+                          <Style.Animations>
+                              <Animation Duration="0:0:0.5" FillMode="Forward" Easing="CubicEaseOut">
+                                  <KeyFrame KeyTime="0:0:0">
+                                      <Setter Property="Opacity" Value="0"/>
+                                      <Setter Property="TranslateTransform.Y" Value="20"/>
+                                  </KeyFrame>
+                                  <KeyFrame KeyTime="0:0:0.5">
+                                      <Setter Property="Opacity" Value="1"/>
+                                      <Setter Property="TranslateTransform.Y" Value="0"/>
+                                  </KeyFrame>
+                              </Animation>
+                          </Style.Animations>
+                      </Style>
+                  </Border.Styles>
+                  <Grid ColumnDefinitions="Auto,*,Auto">
                   <CheckBox Grid.Column="0" 
                           IsChecked="{Binding IsCompleted, FallbackValue=False, Mode=OneWay}"
                           Command="{Binding ((viewModels:TodoListViewModel)DataContext).ToggleTodoCompleteCommand,
@@ -69,8 +92,9 @@
                     <TextBlock Text="{Binding Content}" 
                              FontSize="14"
                              TextWrapping="Wrap"
-                             FontWeight="Bold"
-                             TextDecorations="{Binding IsCompleted, Converter={x:Static presentations:BoolToStrikethroughConverter.Instance}}"/>
+                             FontWeight="Medium"
+                             TextDecorations="{Binding IsCompleted, Converter={x:Static presentations:BoolToStrikethroughConverter.Instance}}"
+                             Foreground="{Binding IsCompleted, Converter={x:Static presentations:BoolToGrayIfTrueConverter.Instance}}"/>
                     <TextBlock FontSize="12" Opacity="0.7">
                       <Run Text="{Binding ((viewModels:TodoListViewModel)DataContext).Localizer[DueTime],
                         RelativeSource={RelativeSource AncestorType=UserControl},

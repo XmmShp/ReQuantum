@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
@@ -12,6 +13,7 @@ using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
 using ReQuantum.Modules.Zdbk.Models;
 using ReQuantum.Modules.Zdbk.Services;
+using ReQuantum.Modules.ZjuSso.Services;
 using ReQuantum.Services;
 using ReQuantum.Views;
 
@@ -26,9 +28,14 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type ViewModelType => typeof(GradeViewModel);
     #endregion
+    // 登录状态
+    [ObservableProperty]
+    private bool _isLoggedIn;
 
     private readonly ILocalizer _localizer;
     private readonly IZdbkGradeService _zdbkGradeService;
+    private readonly IZdbkSessionService _sessionService;
+    private readonly IZjuSsoService _zjuSsoService;
 
     // 1. 自动生成 Grades 属性 (对应字段 _grades)
     [ObservableProperty]
@@ -66,10 +73,16 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
         }
     }
 
-    public GradeViewModel(ILocalizer localizer, IZdbkGradeService zdbkGradeService)
+    public GradeViewModel(
+        ILocalizer localizer,
+        IZdbkGradeService zdbkGradeService,
+        IZdbkSessionService sessionService,
+        IZjuSsoService zjuSsoService)
     {
         _localizer = localizer;
         _zdbkGradeService = zdbkGradeService;
+        _zjuSsoService = zjuSsoService;
+        _sessionService = sessionService;
 
         MenuItem = new MenuItem
         {
@@ -101,8 +114,40 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
 
         // 第一次手动加载
         _ = LoadDataAsync();
+
+        // 订阅 ZJU SSO 登录状态变化
+        _zjuSsoService.OnLogin += HandleLogin;
+        _zjuSsoService.OnLogout += HandleLogout;
+
+        // 检查登录状态
+        UpdateLoginStatus();
+
+        // 如果已登录，初始化数据
+        if (IsLoggedIn)
+        {
+            _ = LoadDataAsync();
+        }
+
+        _ = LoadDataAsync();
     }
 
+    private void HandleLogin()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            UpdateLoginStatus();
+            _ = LoadDataAsync();
+        });
+    }
+
+    private void HandleLogout()
+    {
+        Dispatcher.UIThread.Post(UpdateLoginStatus);
+    }
+    private void UpdateLoginStatus()
+    {
+        IsLoggedIn = _zjuSsoService.IsAuthenticated;
+    }
     private async Task LoadDataAsync()
     {
         if (string.IsNullOrEmpty(SelectedYear) || string.IsNullOrEmpty(SelectedTerm)) return;
@@ -114,7 +159,27 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
         }
         else
         {
-            Grades = null;
+            Grades = new ZdbkGrades
+            {
+                Credit = 0,
+                MajorCredit = 0,
+                GradePoint5 = 0,
+                GradePoint4 = 0,
+                GradePoint100 = 0,
+                MajorGradePoint = 0,
+                CoursesGrade =
+                [
+                    new ZdbkCoursesGrade
+                    {
+                        CourseName = $"{result.Message}",
+                        CourseCode = "Wrong",
+                        Grade100 = 0,
+                        Grade5 = 0,
+                        Credit = 0,
+                        Semester = ""
+                    }
+                ]
+            };
         }
     }
 }

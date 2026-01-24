@@ -67,9 +67,13 @@ public class ZdbkCoursesGrade
     /// </summary>
     public double Credit { get; set; }
 
+    ///<summary>
+    /// 学年
+    /// </summary>
 
+    public string AcademicYear { get; set; } = string.Empty;
     /// <summary>
     /// 学期
     /// </summary>
-    public string Term { get; set; } = string.Empty;
+    public string Semester { get; set; } = string.Empty;
 }

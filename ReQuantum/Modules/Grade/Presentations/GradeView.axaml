@@ -101,6 +101,7 @@
           
           <!-- 第三块（左下） -->
           <Border Grid.Row="1" Grid.Column="0">
+              <ScrollViewer>
               <ItemsControl ItemsSource="{Binding Grades.CoursesGrade}">
                   <!-- 这就是模具 -->
                   <ItemsControl.ItemTemplate>
@@ -113,7 +114,7 @@
                                     Margin="10">
                                   <TextBlock Grid.Column="0" Text="{Binding CourseName}" FontWeight="Medium" />
                                   <TextBlock Grid.Column="1" Text="{Binding Grade100}" FontWeight="Bold" />
-                                  <TextBlock Grid.Row="1"  Grid.Column="0" Text="{Binding  Term}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}" FontSize="10"/>
+                                  <TextBlock Grid.Row="1"  Grid.Column="0" Text="{Binding  AcademicYear}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}" FontSize="10"/>
                                   <TextBlock Grid.Row="1"  Grid.Column="1" Text="{Binding  CourseCode}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}"  FontSize="10"/>
                                   <ProgressBar Grid.Row="2" 
                                                Height="6" 
@@ -129,6 +130,7 @@
                       </DataTemplate>
                   </ItemsControl.ItemTemplate>
               </ItemsControl>
+              </ScrollViewer>
           </Border>
 
           <!-- 第四块（右下） -->

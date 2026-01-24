@@ -485,7 +485,7 @@
   </data>
   <data name="Light" xml:space="preserve">
     <value>浅色</value>
-  </data>
+    </data>
   <data name="PtaLogin" xml:space="preserve">
     <value>PTA 登录</value>
   </data>

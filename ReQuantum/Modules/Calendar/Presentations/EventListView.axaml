@@ -12,10 +12,15 @@
   <Design.DataContext>
     <presentations:EventListViewModel />
   </Design.DataContext>
-
   <Grid>
-    <!-- 日程区域 -->
-    <Border BorderThickness="4"
+      <Grid.Styles>
+          <Style Selector="TextBlock">
+              <Setter Property="Effect" Value="{x:Null}" />
+          </Style>
+      </Grid.Styles>
+
+      <!-- 日程区域 -->
+    <Border BorderThickness="2"
             Background="{DynamicResource RegionBackgroundBrush}"
             BorderBrush="{DynamicResource EventBorderBrush}"
             CornerRadius="8"
@@ -56,21 +61,40 @@
 
         <!-- 日程列表 -->
         <ItemsControl ItemsSource="{Binding Events}">
-          <ItemsControl.ItemTemplate>
+            <ItemsControl.ItemTemplate>
             <DataTemplate DataType="entities:CalendarEvent">
-              <Border  BorderThickness="1"
-                       Background="{Binding EventId,Converter={x:Static presentations:CalendarConverters.EventIdToBackgroundConverter}}"
-                      CornerRadius="18"
-                      Padding="12"
-                      Margin="0,4">
 
+                <Border  BorderThickness="1"
+                         BoxShadow="5 5 10 0 #40000000"
+                         Background="{Binding EventId,Converter={x:Static presentations:CalendarConverters.EventIdToBackgroundConverter}}"
+                         CornerRadius="18"
+                         Padding="12"
+                         Margin="0,4,5,4">
+                    <Border.Styles>
+                        <Style>
+                            <Setter Property="Transitions"></Setter>
+                            <Style.Animations>
+                                <Animation Duration="0:0:0.5" FillMode="Forward" Easing="CubicEaseOut">
+                                    <KeyFrame KeyTime="0:0:0">
+                                        <Setter Property="Opacity" Value="0"/>
+                                        <Setter Property="TranslateTransform.Y" Value="20"/>
+                                    </KeyFrame>
+                                    <KeyFrame KeyTime="0:0:0.5">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="TranslateTransform.Y" Value="0"/>
+                                    </KeyFrame>
+                                </Animation>
+                            </Style.Animations>
+                        </Style>
+                    </Border.Styles>
 
                   <Grid ColumnDefinitions="*,Auto">
-                  <StackPanel Grid.Column="0" Spacing="4">
-                    <TextBlock Text="{Binding Content}" 
-                             FontSize="14"
-                             TextWrapping="Wrap"
-                             FontWeight="Bold"/>
+
+                      <StackPanel Grid.Column="0" Spacing="4">
+                          <TextBlock Text="{Binding Content}" 
+                                     FontSize="14"
+                                     TextWrapping="Wrap"
+                                     FontWeight="Bold"/>
                     <TextBlock FontSize="12" Opacity="0.7">
                       <Run Text="{Binding StartTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
                       <Run Text=" - "/>
