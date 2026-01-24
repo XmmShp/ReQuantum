@@ -43,15 +43,12 @@
                Text="{Binding YearMonthText.Text}"/>
 
       <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
-        <Button   Classes="control"
-                  Command="{Binding SwitchToWeekViewCommand}" 
+        <Button   Command="{Binding SwitchToWeekViewCommand}" 
                   Padding="8,4"
                   Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Week]}" FontSize="14"/>
         </Button>
-        <Button 
-            Classes="control"
-            Command="{Binding SwitchToMonthViewCommand}" 
+        <Button Command="{Binding SwitchToMonthViewCommand}" 
                 Padding="8,4"
                 Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Month]}" FontSize="14"/>

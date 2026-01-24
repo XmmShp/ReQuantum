@@ -36,9 +36,9 @@
 		  <!-- 近期日程 -->
 		  <Border Grid.Column="0"
 				  Padding="12"
-				  Background="#F8F9FA"
+				  Background="{DynamicResource RegionBackgroundBrush}"
 				  BorderThickness="1"
-				  BorderBrush="#E9ECEF"
+				  BorderBrush="{DynamicResource RegionBorderBrush}"
 				  CornerRadius="8"
 				  MinHeight="120">
 			  <StackPanel Spacing="8">
@@ -67,9 +67,9 @@
 		  <!-- 近期待办 -->
 		  <Border Grid.Column="1"
 				  Padding="12"
-				  Background="#F8F9FA"
+				  Background="{DynamicResource RegionBackgroundBrush}"
 				  BorderThickness="1"
-				  BorderBrush="#E9ECEF"
+				  BorderBrush="{DynamicResource RegionBorderBrush}"
 				  CornerRadius="8"
 				  MinHeight="120">
 			  <StackPanel Spacing="8">
@@ -98,9 +98,9 @@
 		  <!-- 最近便签 -->
 		  <Border Grid.Column="2"
 				  Padding="12"
-				  Background="#F8F9FA"
+				  Background="{DynamicResource RegionBackgroundBrush}"
 				  BorderThickness="1"
-				  BorderBrush="#E9ECEF"
+				  BorderBrush="{DynamicResource RegionBorderBrush}"
 				  CornerRadius="8"
 				  MinHeight="120">
 			  <StackPanel Spacing="8">

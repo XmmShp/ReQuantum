@@ -14,7 +14,6 @@ using ReQuantum.Infrastructure.Entities;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Menu.Abstractions;
-using ReQuantum.Modules.Zdbk.Constants;
 using ReQuantum.Modules.Zdbk.Enums;
 using ReQuantum.Modules.Zdbk.Models;
 using ReQuantum.Modules.Zdbk.Services;
@@ -61,6 +60,7 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
 
     // 教学班列表
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNoSections))]
     private ObservableCollection<SelectableSection> _sections = new();
 
     // 加载状态
@@ -68,17 +68,26 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
     private bool _isLoadingCourses;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNoSections))]
     private bool _isLoadingSections;
 
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
+    public bool IsNoSections => Sections.Count == 0 && !_isLoadingSections;
+
     // 分页
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreviousPage))]
     private int _currentPage = 1;
 
     [ObservableProperty]
-    private int _pageSize = 20;
+    private int _pageSize = 5;
+
+    [ObservableProperty]
+    private bool _hasNextPage;
+
+    public bool HasPreviousPage => CurrentPage > 1;
 
     // 已选课程统计
     [ObservableProperty]
@@ -96,6 +105,18 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
 
     [ObservableProperty]
     private decimal _completedCredits;
+
+    [ObservableProperty]
+    private bool _isDebug = false;
+
+    [RelayCommand]
+    private void ChangeDebugStatus()
+    {
+        IsDebug = !IsDebug;
+    }
+
+
+
 
     // 调试信息
     [ObservableProperty]
@@ -207,6 +228,7 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
     {
         if (value != null)
         {
+            CurrentPage = 1;
             _ = LoadCoursesAsync();
         }
         UpdateDebugInfo();
@@ -246,11 +268,13 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
             if (result.IsSuccess)
             {
                 AvailableCourses.Clear();
-                foreach (var course in result.Value.OrderBy(c => c.Code))
+                var courses = result.Value.OrderBy(c => c.Code).ToList();
+                foreach (var course in courses)
                 {
                     AvailableCourses.Add(course);
                 }
 
+                HasNextPage = courses.Count >= PageSize;
                 StatusMessage = $"成功加载 {AvailableCourses.Count} 门课程";
             }
             else

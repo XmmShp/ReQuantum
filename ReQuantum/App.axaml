@@ -39,7 +39,7 @@
 
                      <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#44BB54EB"/>     <!-- 侧边栏选中 -->
                      <SolidColorBrush x:Key="SidebarSelectedBorderBrush" Color="#88FF54C3"/>     <!-- 侧边栏选中 -->
-                     <SolidColorBrush x:Key="SidebarSelectedHoverBrush" Color="#226527EF"/>     <!-- 侧边栏选中 -->
+                     <SolidColorBrush x:Key="SidebarSelectedHoverBrush" Color="#226527EF"/>     <!-- 侧边栏悬浮 -->
                      <SolidColorBrush x:Key="RegionSelectedTextBackgroundBrush" Color="#AD54EB"/>      <!-- 日期选中文本背景 -->
                      <SolidColorBrush x:Key="RegionSelectedBrush" Color="#22AD54EB"/>      <!-- 区域选中 -->
                      <SolidColorBrush x:Key="RegionSelectedBorderBrush" Color="#AD54EB"/>      <!-- 区域选中 -->
@@ -128,8 +128,8 @@
                      <SolidColorBrush x:Key="ButtonBrush" Color="#556527EF"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="ButtonHoverBrush" Color="#33A583F0"/>      <!-- 按钮颜色 -->
                      <SolidColorBrush x:Key="SplitLineBrush" Color="#6527EF"/>      <!-- 竖分线颜色 -->
-                     <SolidColorBrush x:Key="ProgressBarBrush" Color="#A47CF7"/> <!-- 进度条颜色 -->
-                     <SolidColorBrush x:Key="CourseGradePanelBrush" Color="#55AD54EB"/> <!-- 课程成绩面板颜色 -->
+                     <SolidColorBrush x:Key="ProgressBarBrush" Color="#6527EF"/> <!-- 进度条颜色 -->
+                     <SolidColorBrush x:Key="CourseGradePanelBrush" Color="#44AD54EB"/> <!-- 课程成绩面板颜色 -->
                  </ResourceDictionary>
                 
              </ResourceDictionary.ThemeDictionaries>

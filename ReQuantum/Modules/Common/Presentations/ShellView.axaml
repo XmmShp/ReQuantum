@@ -110,7 +110,7 @@
                       Margin="20">
               <TransitioningContentControl Content="{Binding CurrentViewModel}">
                   <TransitioningContentControl.PageTransition>
-                      <!-- 设置页面切换时的过渡效果，如淡入淡出或侧滑 -->
+                      <!-- 设置页面切换时淡入淡出的过渡效果 -->
                       <CrossFade Duration="0:0:0.18" />
                   </TransitioningContentControl.PageTransition>
               </TransitioningContentControl>
