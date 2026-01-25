@@ -38,20 +38,25 @@
                                 SelectedItem="{Binding SelectedTerm}"
                                 Width="80"/>
                   </StackPanel>
-
               </StackPanel>
           </Panel>
 
           <!-- 第二块（右上） -->
           <Panel Grid.Row="0" Grid.Column="1">
               <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center" VerticalAlignment="Center"
-                          IsVisible="{Binding Grades, Converter={x:Static ObjectConverters.IsNotNull}}">
+                          IsVisible="{Binding Grades, Converter={x:Static ObjectConverters.IsNotNull}}"
+                          Margin="0,0,0,20">
 
-                  <StackPanel Spacing="10">
+                  <StackPanel.Styles>
+                      <Style Selector="StackPanel Border">
+                          <Setter Property="BoxShadow" Value="5 5 10 0 #40000000"/>
+                      </Style>
+                  </StackPanel.Styles>
+                      <StackPanel Spacing="10">
                       <Border Background="#F0F4FF" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
                               <TextBlock Text="总学分 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
-                              <TextBlock Text="{Binding Grades.Credit}" FontSize="20" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding TotalCredits}" FontSize="20" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#E3F2FD" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#BBDEFB" BorderThickness="1">
@@ -66,7 +71,7 @@
                       <Border Background="#FFF0F0" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
                               <TextBlock Text="平均绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
-                              <TextBlock Text="{Binding Grades.GradePoint5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#D32F2F" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Gpa5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#D32F2F" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#FFEBEE" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#FFCDD2" BorderThickness="1">
@@ -81,7 +86,7 @@
                       <Border Background="#F0FFF4" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
                               <TextBlock Text="主修绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
-                              <TextBlock Text="{Binding Grades.MajorGradePoint, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#2E7D32" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding MajorGpa5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#2E7D32" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#E8F5E9" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#C8E6C9" BorderThickness="1">
@@ -102,34 +107,37 @@
           <!-- 第三块（左下） -->
           <Border Grid.Row="1" Grid.Column="0">
               <ScrollViewer>
-              <ItemsControl ItemsSource="{Binding Grades.CoursesGrade}">
-                  <!-- 这就是模具 -->
-                  <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="models:ZdbkCoursesGrade">
-                          <!-- 这里定义每一行的视觉结构 -->
-                          <Border CornerRadius="16" Margin="5 5 20 5" Background="{DynamicResource CourseGradePanelBrush}"
-                                  BoxShadow="5 5 10 0 #40000000">
-                              <Grid ColumnDefinitions="Auto, Auto"
-                                    RowDefinitions="Auto,Auto,Auto"
-                                    Margin="10">
-                                  <TextBlock Grid.Column="0" Text="{Binding CourseName}" FontWeight="Medium" />
-                                  <TextBlock Grid.Column="1" Text="{Binding Grade100}" FontWeight="Bold" />
-                                  <TextBlock Grid.Row="1"  Grid.Column="0" Text="{Binding  AcademicYear}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}" FontSize="10"/>
-                                  <TextBlock Grid.Row="1"  Grid.Column="1" Text="{Binding  CourseCode}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}"  FontSize="10"/>
-                                  <ProgressBar Grid.Row="2" 
-                                               Height="6" 
-                                               Margin="0,4"
-                                               Minimum="0" 
-                                               Maximum="100" 
-                                               Value="{Binding Grade100}" 
-                                               CornerRadius="3"
-                                               Foreground="{DynamicResource ProgressBarBrush}"
-                                               Background="#10000000"/>
-                              </Grid>
-                          </Border>
-                      </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-              </ItemsControl>
+                  <StackPanel>
+                      <TextBlock IsVisible="{Binding !Grades.CoursesGrade.Count }" Text="暂无成绩"></TextBlock>
+
+
+                      <ItemsControl ItemsSource="{Binding Grades.CoursesGrade}">
+                          <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="models:ZdbkCoursesGrade">
+                                  <Border CornerRadius="16" Margin="5 5 20 5" Background="{DynamicResource CourseGradePanelBrush}"
+                                          BoxShadow="5 5 10 0 #40000000">
+                                      <Grid ColumnDefinitions="Auto, Auto"
+                                            RowDefinitions="Auto,Auto,Auto"
+                                            Margin="10">
+                                          <TextBlock Grid.Column="0" Text="{Binding CourseName}" FontWeight="Medium" />
+                                          <TextBlock Grid.Column="1" Text="{Binding Grade100}" FontWeight="Bold" />
+                                          <TextBlock Grid.Row="1"  Grid.Column="0" Text="{Binding  AcademicYear}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}" FontSize="10"/>
+                                          <TextBlock Grid.Row="1"  Grid.Column="1" Text="{Binding  CourseCode}" FontWeight="Thin" Foreground="{DynamicResource SmallTextBrush}"  FontSize="10"/>
+                                          <ProgressBar Grid.Row="2" 
+                                                       Height="6" 
+                                                       Margin="0,4"
+                                                       Minimum="0" 
+                                                       Maximum="100" 
+                                                       Value="{Binding Grade100}" 
+                                                       CornerRadius="3"
+                                                       Foreground="{DynamicResource ProgressBarBrush}"
+                                                       Background="#10000000"/>
+                                      </Grid>
+                                  </Border>
+                              </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                  </StackPanel>
               </ScrollViewer>
           </Border>
 

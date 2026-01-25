@@ -2,8 +2,6 @@ using System.Collections.Generic;
 
 namespace ReQuantum.Modules.Zdbk.Models;
 
-
-
 public class ZdbkGrades
 {
     /// <summary>

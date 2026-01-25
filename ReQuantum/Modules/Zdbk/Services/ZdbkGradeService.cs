@@ -22,26 +22,68 @@ public interface IZdbkGradeService
 {
     /// <param name="academicYear">学年（如 "2024-2025"）</param>
     /// <param name="semester">学期（如 "秋"、"冬"、"春"、"夏"）</param>
-    Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester);
+    Task<Result<ZdbkGrades>> GetSemesterGradesAsync(string academicYear, string semester);
+
+
+    Task<Result<ZdbkGrades>> GetGradesAsync();
+
+    /// <summary>
+    /// 刷新成绩
+    /// </summary>
+    Task<Result<ZdbkGrades>> RefreshGradesAsync();
+
+    /// <summary>
+    /// 获取缓存的成绩
+    /// </summary>
+    ZdbkGrades? GetCachedGrades();
 }
 
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkGradeService : IZdbkGradeService
 {
+    private readonly IStorage _storage;
     private readonly IZdbkSessionService _sessionService;
     private readonly ILogger<ZdbkGradeService> _logger;
 
+    private const string StorageKey = "Zdbk:Grades";
     private const string BaseUrl = "https://zdbk.zju.edu.cn/jwglxt";
     private const string GetGradeUrl = "/cxdy/xscjcx_cxXscjIndex.html";
+    private ZdbkGrades? _cachedGrades;
 
     public ZdbkGradeService(
+        IStorage storage,
         IZdbkSessionService sessionService,
         ILogger<ZdbkGradeService> logger)
     {
+        _storage = storage;
         _sessionService = sessionService;
         _logger = logger;
+
+        // 启动时加载缓存
+        LoadCachedGrades();
     }
 
+    private void LoadCachedGrades()
+    {
+        if (_storage.TryGet<ZdbkGrades>(StorageKey, out var grade) && grade != null)
+        {
+            _cachedGrades = grade;
+            _logger.LogInformation(
+                "Loaded cached grades with {Count} courses",
+                grade.CoursesGrade?.Count ?? 0);
+        }
+        else
+        {
+            _logger.LogInformation("No cached grades found");
+        }
+    }
+
+    private void SaveGrades(ZdbkGrades grades)
+    {
+        _cachedGrades = grades;
+        _storage.Set(StorageKey, grades);
+        _logger.LogDebug("Saved grades to storage");
+    }
     /// <summary>
     /// 检查响应是否为重定向（Session 失效）
     /// </summary>
@@ -58,7 +100,53 @@ public class ZdbkGradeService : IZdbkGradeService
         return false;
     }
 
-    public async Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester)
+    public async Task<Result<ZdbkGrades>> GetGradesAsync()
+    {
+        if (_cachedGrades != null)
+        {
+            _logger.LogDebug("Using cached grades");
+            return Result.Success(_cachedGrades);
+        }
+
+        var refreshResult = await RefreshGradesAsync();
+        return refreshResult;
+    }
+
+    public async Task<Result<ZdbkGrades>> GetSemesterGradesAsync(string academicYear, string semester)
+    {
+        if (_cachedGrades != null)
+        {
+            _logger.LogDebug("Using cached grades for {Year} {Semester}", academicYear, semester);
+            return Result.Success(FilterGrades(_cachedGrades, academicYear, semester));
+        }
+
+        var refreshResult = await RefreshGradesAsync();
+        if (!refreshResult.IsSuccess || refreshResult.Value == null)
+        {
+            return Result.Fail(refreshResult.Message);
+        }
+
+        return Result.Success(FilterGrades(refreshResult.Value, academicYear, semester));
+    }
+
+    public async Task<Result<ZdbkGrades>> RefreshGradesAsync()
+    {
+        var fetchResult = await FetchGradesAsync(null, null);
+        if (!fetchResult.IsSuccess || fetchResult.Value == null)
+        {
+            return Result.Fail(fetchResult.Message);
+        }
+
+        SaveGrades(fetchResult.Value);
+        return Result.Success(fetchResult.Value);
+    }
+
+    public ZdbkGrades? GetCachedGrades()
+    {
+        return _cachedGrades;
+    }
+
+    private async Task<Result<ZdbkGrades>> FetchGradesAsync(string? academicYear, string? semester)
     {
         // 获取认证客户端
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
@@ -79,19 +167,15 @@ public class ZdbkGradeService : IZdbkGradeService
 
         try
         {
-            if (string.IsNullOrEmpty(GetGradeUrl))
-            {
-                return Result.Fail("尚未配置成绩查询网址，请在 ZdbkGradeService 中补充 GetGradeUrl");
-            }
-
-
             var requestUrl = $"{BaseUrl}{GetGradeUrl}?doType=query&gnmkdm=N508301&su={state.StudentId}";
+
+            var termCode = ConvertToTermCode(semester);
 
             // 构造 POST 报文
             var formData = new Dictionary<string, string>
             {
-                { "xn", academicYear ?? "" },
-                { "xq", semester == "秋" || semester == "冬" ? "1" : "2"},
+                { "xn", academicYear ?? string.Empty },
+                { "xq", termCode ?? string.Empty},
                 { "zscjl", "" },
                 { "zscjr", "" },
                 { "_search", "false" },
@@ -136,7 +220,6 @@ public class ZdbkGradeService : IZdbkGradeService
                 return Result.Fail("解析课程数据失败：响应格式不符合预期");
             }
 
-
             var grades = new ZdbkGrades
             {
                 CoursesGrade = items.Select(json =>
@@ -162,7 +245,10 @@ public class ZdbkGradeService : IZdbkGradeService
                         AcademicYear = extractedYear,
                         Semester = extractedTerm
                     };
-                }).ToList()
+                }).Where(c =>
+                    (string.IsNullOrWhiteSpace(academicYear) || c.AcademicYear == academicYear) &&
+                    (string.IsNullOrWhiteSpace(termCode) || c.Semester == termCode))
+                .ToList()
 
             };
 
@@ -182,20 +268,57 @@ public class ZdbkGradeService : IZdbkGradeService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "从 ZDBK 获取成绩时发生异常");
             return Result.Fail($"获取成绩失败: {ex.Message}");
         }
 
     }
+
+    private static string? ConvertToTermCode(string? semester)
+    {
+        return semester switch
+        {
+            "秋" or "冬" or "秋冬" => "1",
+            "春" or "夏" or "春夏" => "2",
+            _ => null
+        };
+    }
+
+    private static ZdbkGrades FilterGrades(ZdbkGrades source, string academicYear, string semester)
+    {
+        var termCode = ConvertToTermCode(semester);
+        var filteredCourses = source.CoursesGrade
+            .Where(c =>
+                (string.IsNullOrWhiteSpace(academicYear) || c.AcademicYear == academicYear) &&
+                (string.IsNullOrWhiteSpace(termCode) || c.Semester == termCode))
+            .ToList();
+
+        var grades = new ZdbkGrades
+        {
+            CoursesGrade = filteredCourses
+        };
+
+        grades.Credit = grades.CoursesGrade.Sum(x => x.Credit);
+        if (grades.Credit > 0)
+        {
+            grades.GradePoint5 = grades.CoursesGrade.Sum(x => x.Grade5 * x.Credit) / grades.Credit;
+            grades.GradePoint100 = grades.CoursesGrade.Sum(x => x.Grade100 * x.Credit) / grades.Credit;
+            grades.MajorCredit = grades.Credit;
+            grades.MajorGradePoint = grades.GradePoint5;
+            grades.GradePoint4 = grades.GradePoint5 * 4 / 5;
+
+        }
+
+        return grades;
+    }
 }
 
 
+#region 调试使用
 
 //[AutoInject(Lifetime.Singleton)]
 public class DefaultGradeService : IZdbkGradeService
-
 {
-    public Task<Result<ZdbkGrades>> GetSemeserGradesAsync(string academicYear, string semester)
+    public Task<Result<ZdbkGrades>> GetSemesterGradesAsync(string academicYear, string semester)
     {
         var result = new ZdbkGrades
         {
@@ -217,4 +340,39 @@ public class DefaultGradeService : IZdbkGradeService
 
         return Task.FromResult(Result.Success(result));
     }
+
+
+    public Task<Result<ZdbkGrades>> GetGradesAsync()
+    {
+        var result = new ZdbkGrades
+        {
+            Credit = 18.5,
+            MajorCredit = 12.0,
+            GradePoint5 = 4.2,
+            GradePoint4 = 3.6,
+            GradePoint100 = 88.5,
+            MajorGradePoint = 4.5,
+            CoursesGrade = new List<ZdbkCoursesGrade>
+            {
+                new ZdbkCoursesGrade { CourseName = "高级程序设计", CourseCode = "CS101", Grade100 = 95, Grade5 = 5.0, Credit = 4.0, Semester = "2023-2024-1" },
+                new ZdbkCoursesGrade { CourseName = "线性代数", CourseCode = "MATH102", Grade100 = 82, Grade5 = 3.2, Credit = 3.5, Semester = "2023-2024-1" },
+                new ZdbkCoursesGrade { CourseName = "大学物理", CourseCode = "PHYS103", Grade100 = 88, Grade5 = 3.8, Credit = 4.0, Semester = "2023-2024-1" },
+                new ZdbkCoursesGrade { CourseName = "思想道德修养与法律基础", CourseCode = "MARX104", Grade100 = 91, Grade5 = 4.1, Credit = 3.0, Semester = "2023-2024-1" },
+                new ZdbkCoursesGrade { CourseName = "体育(1)", CourseCode = "PE105", Grade100 = 85, Grade5 = 3.5, Credit = 1.0, Semester = "2023-2024-1" }
+            }
+        };
+
+        return Task.FromResult(Result.Success(result));
+    }
+
+    public Task<Result<ZdbkGrades>> RefreshGradesAsync()
+    {
+        return GetGradesAsync();
+    }
+
+    public ZdbkGrades? GetCachedGrades()
+    {
+        return null;
+    }
 }
+#endregion

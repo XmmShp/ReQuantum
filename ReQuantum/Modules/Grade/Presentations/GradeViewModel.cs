@@ -23,14 +23,17 @@ namespace ReQuantum.ViewModels;
 public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvider
 {
     #region MenuItemProvider APIs
+
     public MenuItem MenuItem { get; }
     public uint Order => 0;
+
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type ViewModelType => typeof(GradeViewModel);
+
     #endregion
+
     // 登录状态
-    [ObservableProperty]
-    private bool _isLoggedIn;
+    [ObservableProperty] private bool _isLoggedIn;
 
     private readonly ILocalizer _localizer;
     private readonly IZdbkGradeService _zdbkGradeService;
@@ -38,40 +41,22 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     private readonly IZjuSsoService _zjuSsoService;
 
     // 1. 自动生成 Grades 属性 (对应字段 _grades)
-    [ObservableProperty]
-    private ZdbkGrades? _grades;
+    [ObservableProperty] private ZdbkGrades? _grades;
 
     public ObservableCollection<string> AvailableYears { get; } = [];
 
     // 3. 自动生成 AvailableTerms 属性
     public ObservableCollection<string> AvailableTerms { get; } = ["秋冬", "春夏", "短"];
 
-    // 4. 手动实现 SelectedYear 和 SelectedTerm，确保逻辑触发不依赖生成器的 partial 方法
-    private string _selectedYear = string.Empty;
-    public string SelectedYear
-    {
-        get => _selectedYear;
-        set
-        {
-            if (SetProperty(ref _selectedYear, value))
-            {
-                _ = LoadDataAsync();
-            }
-        }
-    }
+    [ObservableProperty] private string _selectedYear = string.Empty;
 
-    private string _selectedTerm = string.Empty;
-    public string SelectedTerm
-    {
-        get => _selectedTerm;
-        set
-        {
-            if (SetProperty(ref _selectedTerm, value))
-            {
-                _ = LoadDataAsync();
-            }
-        }
-    }
+    [ObservableProperty] private string _selectedTerm = string.Empty;
+
+    [ObservableProperty] private float _totalCredits = -1;
+    [ObservableProperty] private float _gpa5 = -1;
+    [ObservableProperty] private float _gpa100 = -1;
+    [ObservableProperty] private float _majorGpa5 = -1;
+
 
     public GradeViewModel(
         ILocalizer localizer,
@@ -104,13 +89,8 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
             AvailableYears.Add($"{year + i}-{year + i + 1}");
         }
 
-        // 设置初始值 (直接设字段不触发 LoadData，避免重复调用)
-        _selectedYear = $"{year}-{year + 1}";
-        _selectedTerm = "秋冬";
-
-        // 通知 UI 更新
-        OnPropertyChanged(nameof(SelectedYear));
-        OnPropertyChanged(nameof(SelectedTerm));
+        SelectedYear = $"{year - 1}-{year}";
+        SelectedTerm = "秋冬";
 
         // 第一次手动加载
         _ = LoadDataAsync();
@@ -128,7 +108,6 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
             _ = LoadDataAsync();
         }
 
-        _ = LoadDataAsync();
     }
 
     private void HandleLogin()
@@ -144,15 +123,26 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     {
         Dispatcher.UIThread.Post(UpdateLoginStatus);
     }
+
     private void UpdateLoginStatus()
     {
         IsLoggedIn = _zjuSsoService.IsAuthenticated;
     }
+
+    partial void OnSelectedYearChanged(string value)
+    {
+        _ = LoadDataAsync();
+    }
+
+    partial void OnSelectedTermChanged(string value)
+    {
+        _ = LoadDataAsync();
+    }
+
     private async Task LoadDataAsync()
     {
-        if (string.IsNullOrEmpty(SelectedYear) || string.IsNullOrEmpty(SelectedTerm)) return;
 
-        var result = await _zdbkGradeService.GetSemeserGradesAsync(SelectedYear, SelectedTerm);
+        var result = await _zdbkGradeService.GetSemesterGradesAsync(SelectedYear, SelectedTerm);
         if (result.IsSuccess)
         {
             Grades = result.Value;
@@ -180,6 +170,18 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
                     }
                 ]
             };
+        }
+
+        result = await _zdbkGradeService.GetGradesAsync();
+        if (result.IsSuccess)
+        {
+            if (result.Value != null)
+            {
+                TotalCredits = (float)result.Value.Credit;
+                Gpa5 = (float)result.Value.GradePoint5;
+                Gpa100 = (float)result.Value.GradePoint100;
+                MajorGpa5 = (float)result.Value.MajorGradePoint;
+            }
         }
     }
 }
