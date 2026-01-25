@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Material;
 using ReQuantum.Assets.I18n;
@@ -40,7 +39,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     private readonly IZdbkSessionService _sessionService;
     private readonly IZjuSsoService _zjuSsoService;
 
-    // 1. 自动生成 Grades 属性 (对应字段 _grades)
+
     [ObservableProperty] private ZdbkGrades? _grades;
 
     public ObservableCollection<string> AvailableYears { get; } = [];
@@ -56,7 +55,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     [ObservableProperty] private float _gpa5 = -1;
     [ObservableProperty] private float _gpa100 = -1;
     [ObservableProperty] private float _majorGpa5 = -1;
-
+    private bool _initialized;
 
     public GradeViewModel(
         ILocalizer localizer,
@@ -73,7 +72,11 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
         {
             Title = new LocalizedText { Key = nameof(UIText.Grade) },
             IconKind = PackIconMaterialKind.CommentSearch,
-            OnSelected = () => Navigator.NavigateTo<GradeViewModel>()
+            OnSelected = () =>
+            {
+                Navigator.NavigateTo<GradeViewModel>();
+                EnsureGradesLoaded();
+            }
         };
 
         InitializeData();
@@ -89,11 +92,10 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
             AvailableYears.Add($"{year + i}-{year + i + 1}");
         }
 
+        _initialized = false;
         SelectedYear = $"{year - 1}-{year}";
         SelectedTerm = "秋冬";
-
-        // 第一次手动加载
-        _ = LoadDataAsync();
+        _initialized = true;
 
         // 订阅 ZJU SSO 登录状态变化
         _zjuSsoService.OnLogin += HandleLogin;
@@ -102,7 +104,6 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
         // 检查登录状态
         UpdateLoginStatus();
 
-        // 如果已登录，初始化数据
         if (IsLoggedIn)
         {
             _ = LoadDataAsync();
@@ -112,16 +113,17 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
 
     private void HandleLogin()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            UpdateLoginStatus();
-            _ = LoadDataAsync();
-        });
+        UpdateLoginStatus();
+        _ = LoadDataAsync();
     }
 
     private void HandleLogout()
     {
-        Dispatcher.UIThread.Post(UpdateLoginStatus);
+        UpdateLoginStatus();
+        if (_initialized && IsLoggedIn)
+        {
+            _ = LoadDataAsync();
+        }
     }
 
     private void UpdateLoginStatus()
@@ -131,57 +133,75 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
 
     partial void OnSelectedYearChanged(string value)
     {
+        if (!_initialized || !IsLoggedIn) return;
         _ = LoadDataAsync();
     }
 
     partial void OnSelectedTermChanged(string value)
     {
+        if (!_initialized || !IsLoggedIn) return;
         _ = LoadDataAsync();
     }
 
     private async Task LoadDataAsync()
     {
 
-        var result = await _zdbkGradeService.GetSemesterGradesAsync(SelectedYear, SelectedTerm);
-        if (result.IsSuccess)
+        if (!IsLoggedIn) return;
+        if (string.IsNullOrWhiteSpace(SelectedYear) || string.IsNullOrWhiteSpace(SelectedTerm)) return;
+        var semResult = await _zdbkGradeService.GetSemesterGradesAsync(SelectedYear, SelectedTerm);
+
+        Grades = semResult.IsSuccess ? semResult.Value : new ZdbkGrades
         {
-            Grades = result.Value;
+            Credit = 0,
+            MajorCredit = 0,
+            GradePoint5 = 0,
+            GradePoint4 = 0,
+            GradePoint100 = 0,
+            MajorGradePoint = 0,
+            CoursesGrade =
+            [
+                new ZdbkCoursesGrade
+                {
+                    CourseName = $"{semResult.Message}",
+                    CourseCode = "Wrong",
+                    Grade100 = 0,
+                    Grade5 = 0,
+                    Credit = 0,
+                    Semester = ""
+                }
+            ]
+        };
+
+
+        var allResult = await _zdbkGradeService.GetGradesAsync();
+
+        if (allResult.IsSuccess && allResult.Value != null)
+        {
+            TotalCredits = (float)allResult.Value.Credit;
+            Gpa5 = (float)allResult.Value.GradePoint5;
+            Gpa100 = (float)allResult.Value.GradePoint100;
+            MajorGpa5 = (float)allResult.Value.MajorGradePoint;
         }
-        else
+    }
+
+    private void EnsureGradesLoaded()
+    {
+        UpdateLoginStatus();
+        if (!IsLoggedIn)
         {
-            Grades = new ZdbkGrades
-            {
-                Credit = 0,
-                MajorCredit = 0,
-                GradePoint5 = 0,
-                GradePoint4 = 0,
-                GradePoint100 = 0,
-                MajorGradePoint = 0,
-                CoursesGrade =
-                [
-                    new ZdbkCoursesGrade
-                    {
-                        CourseName = $"{result.Message}",
-                        CourseCode = "Wrong",
-                        Grade100 = 0,
-                        Grade5 = 0,
-                        Credit = 0,
-                        Semester = ""
-                    }
-                ]
-            };
+            return;
         }
 
-        result = await _zdbkGradeService.GetGradesAsync();
-        if (result.IsSuccess)
+        if (string.IsNullOrWhiteSpace(SelectedYear) || string.IsNullOrWhiteSpace(SelectedTerm))
         {
-            if (result.Value != null)
-            {
-                TotalCredits = (float)result.Value.Credit;
-                Gpa5 = (float)result.Value.GradePoint5;
-                Gpa100 = (float)result.Value.GradePoint100;
-                MajorGpa5 = (float)result.Value.MajorGradePoint;
-            }
+            return;
+        }
+
+        var coursesCount = Grades?.CoursesGrade?.Count ?? 0;
+        if (Grades is null || coursesCount == 0)
+        {
+            _ = LoadDataAsync();
         }
     }
 }
+

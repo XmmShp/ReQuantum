@@ -2,7 +2,6 @@
 #pragma warning disable IL3050 // JSON serialization may need runtime code generation for AOT
 
 using System;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,6 +9,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using ReQuantum.Infrastructure.Abstractions;
 using ReQuantum.Infrastructure.Models;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.Modules.Common.Attributes;
@@ -39,7 +39,7 @@ public interface IZdbkGradeService
 }
 
 [AutoInject(Lifetime.Singleton)]
-public class ZdbkGradeService : IZdbkGradeService
+public class ZdbkGradeService : IZdbkGradeService, IDaemonService
 {
     private readonly IStorage _storage;
     private readonly IZdbkSessionService _sessionService;
@@ -59,27 +59,15 @@ public class ZdbkGradeService : IZdbkGradeService
         _sessionService = sessionService;
         _logger = logger;
 
-        // 启动时加载缓存
         LoadCachedGrades();
     }
 
-    private void LoadCachedGrades()
-    {
-        if (_storage.TryGet<ZdbkGrades>(StorageKey, out var grade) && grade != null)
-        {
-            _cachedGrades = grade;
-            _logger.LogInformation(
-                "Loaded cached grades with {Count} courses",
-                grade.CoursesGrade?.Count ?? 0);
-        }
-        else
-        {
-            _logger.LogInformation("No cached grades found");
-        }
-    }
+
 
     private void SaveGrades(ZdbkGrades grades)
     {
+        _logger.LogInformation("保存成绩缓存");
+        EnsureCoursesCollection(grades);
         _cachedGrades = grades;
         _storage.Set(StorageKey, grades);
         _logger.LogDebug("Saved grades to storage");
@@ -116,21 +104,24 @@ public class ZdbkGradeService : IZdbkGradeService
     {
         if (_cachedGrades != null)
         {
-            _logger.LogDebug("Using cached grades for {Year} {Semester}", academicYear, semester);
+            _logger.LogDebug("使用成绩缓存数据 {Year} {Semester}", academicYear, semester);
             return Result.Success(FilterGrades(_cachedGrades, academicYear, semester));
         }
 
+        _logger.LogDebug("缓存中暂无成绩数据");
         var refreshResult = await RefreshGradesAsync();
         if (!refreshResult.IsSuccess || refreshResult.Value == null)
         {
             return Result.Fail(refreshResult.Message);
         }
 
+        _logger.LogDebug("成功获取成绩数据 {Year} {Semester}", academicYear, semester);
         return Result.Success(FilterGrades(refreshResult.Value, academicYear, semester));
     }
 
     public async Task<Result<ZdbkGrades>> RefreshGradesAsync()
     {
+        _logger.LogDebug("更新成绩数据");
         var fetchResult = await FetchGradesAsync(null, null);
         if (!fetchResult.IsSuccess || fetchResult.Value == null)
         {
@@ -146,8 +137,19 @@ public class ZdbkGradeService : IZdbkGradeService
         return _cachedGrades;
     }
 
+    private void LoadCachedGrades()
+    {
+        if (_storage.TryGet(StorageKey, out ZdbkGrades? cached) && cached is not null)
+        {
+            _cachedGrades = cached;
+            _logger.LogDebug("加载本地成绩缓存");
+        }
+    }
+
     private async Task<Result<ZdbkGrades>> FetchGradesAsync(string? academicYear, string? semester)
     {
+
+        _logger.LogDebug("拉取成绩数据");
         // 获取认证客户端
         var clientResult = await _sessionService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
@@ -263,7 +265,7 @@ public class ZdbkGradeService : IZdbkGradeService
                 grades.GradePoint4 = grades.GradePoint5 * 4 / 5;
 
             }
-
+            _logger.LogDebug($"成功拉取{grades.CoursesGrade.Count}门成绩数据");
             return Result.Success(grades);
         }
         catch (Exception ex)
@@ -285,6 +287,7 @@ public class ZdbkGradeService : IZdbkGradeService
 
     private static ZdbkGrades FilterGrades(ZdbkGrades source, string academicYear, string semester)
     {
+        EnsureCoursesCollection(source);
         var termCode = ConvertToTermCode(semester);
         var filteredCourses = source.CoursesGrade
             .Where(c =>
@@ -309,6 +312,11 @@ public class ZdbkGradeService : IZdbkGradeService
         }
 
         return grades;
+    }
+
+    private static void EnsureCoursesCollection(ZdbkGrades grades)
+    {
+        grades.CoursesGrade ??= [];
     }
 }
 

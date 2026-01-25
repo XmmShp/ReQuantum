@@ -108,7 +108,10 @@
           <Border Grid.Row="1" Grid.Column="0">
               <ScrollViewer>
                   <StackPanel>
-                      <TextBlock IsVisible="{Binding !Grades.CoursesGrade.Count }" Text="暂无成绩"></TextBlock>
+
+                      <TextBlock IsVisible="{Binding !Grades.CoursesGrade.Count }"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                 Text="暂无成绩"></TextBlock>
 
 
                       <ItemsControl ItemsSource="{Binding Grades.CoursesGrade}">
