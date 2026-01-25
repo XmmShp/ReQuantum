@@ -27,13 +27,13 @@
                      HorizontalAlignment="Center"/>
 
           <!-- Status Message -->
-          <TextBlock Text="{Binding StatusMessage}"
+          <TextBlock Text="{Binding StatusMessage.Text}"
                      FontSize="13"
                      TextWrapping="Wrap"
                      HorizontalAlignment="Center"
                      TextAlignment="Center"
                      MinHeight="40"
-                     IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                     IsVisible="{Binding StatusMessage.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
           <!-- Login Button -->
           <Button Command="{Binding LoginCommand}"
@@ -81,13 +81,13 @@
             <Run Text="{Binding Localizer[PtaLoggedIn]}"/>
           </TextBlock>
 
-          <TextBlock Text="{Binding StatusMessage}"
+          <TextBlock Text="{Binding StatusMessage.Text}"
                      FontSize="14"
                      Opacity="0.8"
                      HorizontalAlignment="Center"
                      TextAlignment="Center"
                      TextWrapping="Wrap"
-                     IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                     IsVisible="{Binding StatusMessage.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
         </StackPanel>
       </Border>
 

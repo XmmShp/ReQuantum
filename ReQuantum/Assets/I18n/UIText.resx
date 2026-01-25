@@ -480,20 +480,14 @@
   <data name="FollowingSystem" xml:space="preserve">
     <value>Following system</value>
   </data>
-  <data name="Upcomingschedule" xml:space="preserve">
-    <value>Upcoming schedule</value>
-  </data>
   <data name="Dark" xml:space="preserve">
     <value>Dark</value>
   </data>
   <data name="Light" xml:space="preserve">
     <value>Light</value>
     </data>
-  <data name="Deadline" xml:space="preserve">
-    <value>Deadline</value>
-  </data>
   <data name="PtaLogin" xml:space="preserve">
-    <value>PtaLogin</value>
+      <value>PTA Login</value>
   </data>
   <data name="PtaLoggedIn" xml:space="preserve">
     <value>Logged in</value>

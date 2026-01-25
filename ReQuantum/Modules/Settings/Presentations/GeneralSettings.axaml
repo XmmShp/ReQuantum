@@ -28,7 +28,7 @@
                             <Setter Property="Padding" Value="0"/>
                             <Setter Property="Template">
                                 <ControlTemplate x:CompileBindings="False">
-                                    <RadioButton Content="{Binding Name}" 
+                                    <RadioButton Content="{Binding Name.Text}"
                                                  IsChecked="{Binding $parent[ListBoxItem].IsSelected, Mode=TwoWay}"
                                                  VerticalAlignment="Center"/>
                                 </ControlTemplate>
