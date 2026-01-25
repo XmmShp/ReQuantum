@@ -40,7 +40,7 @@
                     Command="{Binding SelectCommand}">
               <Button.Styles>
                 <Style Selector="Button:pointerover /template/ ContentPresenter">
-                  <Setter Property="Background" Value="#F5F5F5"/>
+                  <Setter Property="Background" Value="{DynamicResource RegionHoveredBrush}"/>
                 </Style>
               </Button.Styles>
               <StackPanel Spacing="4">
@@ -147,8 +147,8 @@
                               Width="{Binding Bounds.Width, RelativeSource={RelativeSource AncestorType=Button}}">
                           <!-- 待办事项（红色区块，宽度95%，居左）-->
                           <Border IsVisible="{Binding IsTodo}"
-                                  Background="#FFCDD2"
-                                  BorderBrush="#F44336"
+                                  Background="{DynamicResource LightTodoBrush}"
+                                  BorderBrush="{DynamicResource TodoBrush}"
                                   BorderThickness="0,3,0,0"
                                   CornerRadius="0"
                                   Height="{Binding Height, Converter={x:Static presentations:CalendarConverters.HourToPixelConverter}}"
@@ -159,7 +159,7 @@
                             </Border.RenderTransform>
                             <TextBlock Text="{Binding Content}"
                                      FontSize="10"
-                                     Foreground="#C62828"
+                                     Foreground="{DynamicResource PrimaryTextBrush}"
                                      FontWeight="Medium"
                                      TextTrimming="CharacterEllipsis"
                                      VerticalAlignment="Center"/>
@@ -167,8 +167,8 @@
                           
                           <!-- 日程事项（蓝色区块，宽度95%，居左）-->
                           <Border IsVisible="{Binding IsEvent}"
-                                  Background="#BBDEFB"
-                                  BorderBrush="#2196F3"
+                                  Background="{DynamicResource LightEventBrush}"
+                                  BorderBrush="{DynamicResource EventBrush}"
                                   BorderThickness="0,3,0,0"
                                   CornerRadius="0"
                                   HorizontalAlignment="Left"
@@ -179,7 +179,7 @@
                             </Border.RenderTransform>
                             <TextBlock Text="{Binding Content}"
                                      FontSize="10"
-                                     Foreground="#1565C0"
+                                     Foreground="{DynamicResource PrimaryTextBrush}"
                                      FontWeight="Medium"
                                      TextWrapping="Wrap"
                                      VerticalAlignment="Center"/>
@@ -228,7 +228,7 @@
                             Command="{Binding SelectCommand}">
                       <Button.Styles>
                         <Style Selector="Button:pointerover /template/ ContentPresenter">
-                          <Setter Property="Background" Value="#F5F5F5"/>
+                          <Setter Property="Background" Value="{DynamicResource RegionHoveredBrush}"/>
                         </Style>
                       </Button.Styles>
                       <StackPanel Spacing="4">
@@ -332,8 +332,8 @@
                                     Width="{Binding Bounds.Width, RelativeSource={RelativeSource AncestorType=Button}}">
                                 <!-- 待办事项 -->
                                 <Border IsVisible="{Binding IsTodo}"
-                                        Background="#FFCDD2"
-                                        BorderBrush="#F44336"
+                                        Background="{DynamicResource LightTodoBrush}"
+                                        BorderBrush="{DynamicResource TodoBrush}"
                                         BorderThickness="0,3,0,0"
                                         CornerRadius="0"
                                         Height="{Binding Height, Converter={x:Static presentations:CalendarConverters.HourToPixelDesktopConverter}}"
@@ -346,7 +346,7 @@
                                   </Border.RenderTransform>
                                   <TextBlock Text="{Binding Content}"
                                            FontSize="13"
-                                           Foreground="#C62828"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"
                                            FontWeight="Medium"
                                            TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center"/>
@@ -354,8 +354,8 @@
                                 
                                 <!-- 日程事项 -->
                                 <Border IsVisible="{Binding IsEvent}"
-                                        Background="#BBDEFB"
-                                        BorderBrush="#2196F3"
+                                        Background="{DynamicResource LightEventBrush}"
+                                        BorderBrush="{DynamicResource EventBrush}"
                                         BorderThickness="0,3,0,0"
                                         CornerRadius="0"
                                         HorizontalAlignment="Left"
@@ -366,7 +366,7 @@
                                   </Border.RenderTransform>
                                   <TextBlock Text="{Binding Content}"
                                            FontSize="13"
-                                           Foreground="#1565C0"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"
                                            FontWeight="Medium"
                                            TextWrapping="Wrap"
                                            VerticalAlignment="Center"/>
