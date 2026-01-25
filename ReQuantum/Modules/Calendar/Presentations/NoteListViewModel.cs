@@ -14,6 +14,10 @@ public partial class NoteListViewModel : ViewModelBase<NoteListView>
 {
     private readonly ICalendarService _calendarService;
 
+
+    [ObservableProperty]
+    private int _noteId;
+
     #region 数据集合
 
     [ObservableProperty]
@@ -46,6 +50,11 @@ public partial class NoteListViewModel : ViewModelBase<NoteListView>
     public void LoadNotes()
     {
         var notes = _calendarService.GetAllNotes();
+
+        for (int i = 0; i < notes.Count; i++)
+        {
+            notes[i].NoteId = i;
+        }
         Notes = new ObservableCollection<CalendarNote>(notes);
     }
 
@@ -75,6 +84,7 @@ public partial class NoteListViewModel : ViewModelBase<NoteListView>
 
         _calendarService.AddOrUpdateNote(note);
         Notes.Add(note);
+        UpdateNoteSequence();
         NewNoteContent = string.Empty;
         IsAddDialogOpen = false;
     }
@@ -90,6 +100,7 @@ public partial class NoteListViewModel : ViewModelBase<NoteListView>
     private void DeleteNote(CalendarNote note)
     {
         _calendarService.DeleteNote(note.Id);
+        UpdateNoteSequence();
         Notes.Remove(note);
     }
 
@@ -100,4 +111,12 @@ public partial class NoteListViewModel : ViewModelBase<NoteListView>
     }
 
     #endregion
+
+    private void UpdateNoteSequence()
+    {
+        for (int i = 0; i < Notes.Count; i++)
+        {
+            Notes[i].NoteId = i;
+        }
+    }
 }

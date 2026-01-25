@@ -20,20 +20,15 @@
     <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" IsVisible="{Binding WindowService.IsDesktopMode}">
 
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-          <Button Classes="control"
-                 Command="{Binding GoToPreviousCommand}" Padding="8"
+          <Button Command="{Binding GoToPreviousCommand}" Padding="8"
                   Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="◀" FontSize="14"/>
         </Button>
-        <Button 
-            Classes="control"
-            Command="{Binding GoToNextCommand}" Padding="8"
+        <Button Command="{Binding GoToNextCommand}" Padding="8"
                 Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="▶" FontSize="14"/>
         </Button>
-        <Button 
-            Classes="control"
-            Command="{Binding GoToTodayCommand}" Padding="8,4"
+        <Button Command="{Binding GoToTodayCommand}" Padding="8,4"
                 Background="{DynamicResource ButtonBrush}">
           <TextBlock Text="{Binding Localizer[Today]}" FontSize="14"/>
         </Button>

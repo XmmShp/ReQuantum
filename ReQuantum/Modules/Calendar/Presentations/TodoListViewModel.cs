@@ -28,6 +28,9 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
     public string SyncCoursesZjuText => "🔁" + UIText.SyncCoursesZju;
     public string AddTodoText => "➕" + UIText.AddTodo;
 
+    [ObservableProperty]
+    private int _todoId;
+
     #region 数据集合
 
     [ObservableProperty]
@@ -145,11 +148,15 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
 
         var todos = _calendarService.GetTodosByDate(SelectedDate);
 
+
         if (SelectedDate >= today)
         {
             todos = todos.Union(_calendarService.GetIncompleteTodosByDate(SelectedDate)).ToList();
         }
-
+        for (int i = 0; i < todos.Count; i++)
+        {
+            todos[i].TodoId = i;
+        }
         Todos = new ObservableCollection<CalendarTodo>(todos);
     }
 
@@ -193,6 +200,7 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
         if (DateOnly.FromDateTime(todo.DueTime) <= SelectedDate)
         {
             Todos.Add(todo);
+            UpdateTodoSequence();
         }
 
         NewTodoContent = string.Empty;
@@ -214,6 +222,7 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
     {
         _calendarService.DeleteTodo(todo.Id);
         Todos.Remove(todo);
+        UpdateTodoSequence();
     }
 
     [RelayCommand]
@@ -293,6 +302,14 @@ public partial class TodoListViewModel : ViewModelBase<TodoListView>, IEventHand
     public void Handle(CalendarSelectedDateChanged @event)
     {
         SelectedDate = @event.Date;
+    }
+
+    private void UpdateTodoSequence()
+    {
+        for (int i = 0; i < Todos.Count; i++)
+        {
+            Todos[i].TodoId = i;
+        }
     }
 }
 
