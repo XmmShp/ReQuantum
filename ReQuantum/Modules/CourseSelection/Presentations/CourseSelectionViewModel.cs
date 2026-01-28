@@ -79,6 +79,7 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
     // 分页
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasPreviousPage))]
+    [NotifyPropertyChangedFor(nameof(CurrentPageText))]
     private int _currentPage = 1;
 
     [ObservableProperty]
@@ -88,6 +89,8 @@ public partial class CourseSelectionViewModel : ViewModelBase<CourseSelectionVie
     private bool _hasNextPage;
 
     public bool HasPreviousPage => CurrentPage > 1;
+
+    public string CurrentPageText => Localizer["PageFormat", CurrentPage];
 
     // 已选课程统计
     [ObservableProperty]

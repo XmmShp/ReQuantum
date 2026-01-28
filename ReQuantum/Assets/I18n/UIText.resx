@@ -485,7 +485,7 @@
   </data>
   <data name="Light" xml:space="preserve">
     <value>Light</value>
-    </data>
+  </data>
   <data name="PtaLogin" xml:space="preserve">
     <value>PtaLogin</value>
   </data>
@@ -494,5 +494,98 @@
   </data>
   <data name="Grade" xml:space="preserve">
     <value>Grade</value>
+  </data>
+  <data name="AcademicYear" xml:space="preserve">
+    <value>Academic Year</value>
+  </data>
+  <data name="Semester" xml:space="preserve">
+    <value>Semester</value>
+  </data>
+  <data name="AutumnAndWinter" xml:space="preserve">
+    <value>Autumn and Winter</value>
+  </data>
+  <data name="SpringAndSummer" xml:space="preserve">
+    <value>Spring and Summer</value>
+  </data>
+  <data name="TotalCredits" xml:space="preserve">
+    <value>Total credits</value>
+  </data>
+  <data name="GPA" xml:space="preserve">
+    <value>GPA</value>
+  </data>
+  <data name="MajorCredits" xml:space="preserve">
+    <value>Major redits</value>
+  </data>
+  <data name="SemesterGPA" xml:space="preserve">
+    <value>Semester GPA</value>
+  </data>
+  <data name="SemesterCredits" xml:space="preserve">
+    <value>Semester credits</value>
+  </data>
+  <data name="MajorGPA" xml:space="preserve">
+    <value>Major GPA</value>
+  </data>
+  <data name="NoGrades" xml:space="preserve">
+    <value>No grades</value>
+  </data>
+  <data name="LoginStatus" xml:space="preserve">
+    <value>Login status:</value>
+  </data>
+  <data name="LoggedIn" xml:space="preserve">
+    <value>Logged in</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="SelectedCourses" xml:space="preserve">
+    <value>Selected courses</value>
+  </data>
+  <data name="CoursesCount" xml:space="preserve">
+    <value>Courses count</value>
+  </data>
+  <data name="Credits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+  <data name="GraduationRequirements" xml:space="preserve">
+    <value>Graduation requirements</value>
+  </data>
+  <data name="CompletedCourses" xml:space="preserve">
+    <value>Completed courses</value>
+  </data>
+  <data name="EarnedCredits" xml:space="preserve">
+    <value>Earned credits</value>
+  </data>
+  <data name="CourseCategories" xml:space="preserve">
+    <value>Course Categories</value>
+  </data>
+  <data name="ClassSectionDetails" xml:space="preserve">
+    <value>Class Section Details</value>
+  </data>
+  <data name="NoClassSections" xml:space="preserve">
+    <value>No class sections</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Previous Page</value>
+  </data>
+  <data name="SelectFromLeft" xml:space="preserve">
+    <value>Please select courses from the left side</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="ClassSections" xml:space="preserve">
+    <value>ClassSections</value>
+  </data>
+  <data name="Teacher" xml:space="preserve">
+    <value>Teacher</value>
+  </data>
+  <data name="Capacity" xml:space="preserve">
+    <value>capacity</value>
+  </data>
+  <data name="PageFormat" xml:space="preserve">
+    <value>Page {0}</value>
   </data>
 </root>

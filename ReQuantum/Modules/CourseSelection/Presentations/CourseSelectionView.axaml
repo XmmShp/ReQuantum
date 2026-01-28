@@ -6,6 +6,7 @@
              xmlns:converters="clr-namespace:ReQuantum.Modules.CourseSelection.Presentations"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ReQuantum.Views.CourseSelectionView"
+             x:Name="CourseSelectionViewRoot"
              x:DataType="viewModels:CourseSelectionViewModel">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
@@ -20,15 +21,15 @@
 
         <!-- Header and Login Status -->
         <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,20">
-            <TextBlock Text="选课管理"
+            <TextBlock Text="{Binding Localizer[CoursesSelection]}"
                        FontSize="28"
                        FontWeight="Bold"/>
 
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="登录状态:" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Localizer[LoginStatus]}" FontWeight="SemiBold"/>
                 <TextBlock Text="{Binding IsLoggedIn, Converter={x:Static converters:CourseSelectionConverters.BoolToStatusConverter}}"
                            Foreground="{Binding IsLoggedIn, Converter={x:Static converters:CourseSelectionConverters.BoolToColorConverter}}"/>
-                <Button Content="刷新"
+                <Button Content="{Binding Localizer[Refresh]}"
                         Command="{Binding RefreshLoginStatusCommand}"
                         Padding="8,4"
                         Margin="10,0,0,0"/>
@@ -81,17 +82,17 @@
                     Padding="16"
                     Margin="0,0,10,0">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="已选课程" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="{Binding Localizer[SelectedCourses]}" FontWeight="Bold" FontSize="16"/>
                     <StackPanel Orientation="Horizontal" Spacing="20">
                         <StackPanel>
-                            <TextBlock Text="课程数" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding Localizer[CoursesCount]}" FontSize="12" Foreground="#666"/>
                             <TextBlock Text="{Binding SelectedCoursesCount}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="学分" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding Localizer[Credits]}" FontSize="12" Foreground="#666"/>
                             <TextBlock Text="{Binding SelectedCredits, StringFormat={}{0:F1}}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
-                        <Button Content="刷新"
+                        <Button Content="{Binding Localizer[Refresh]}"
                                 Command="{Binding RefreshSelectedCoursesCommand}"
                                 Padding="8,4"
                                 VerticalAlignment="Bottom"/>
@@ -108,10 +109,10 @@
                     Padding="16"
                     Margin="10,0,0,0">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="毕业要求" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="{Binding Localizer[GraduationRequirements]}" FontWeight="Bold" FontSize="16"/>
                     <StackPanel Orientation="Horizontal" Spacing="20">
                         <StackPanel>
-                            <TextBlock Text="已完成课程" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding Localizer[CompletedCourses]}" FontSize="12" Foreground="#666"/>
                             <TextBlock FontSize="20" FontWeight="Bold">
                                 <Run Text="{Binding CompletedCourses}"/>
                                 <Run Text="/" FontSize="16"/>
@@ -119,10 +120,10 @@
                             </TextBlock>
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="已获学分" FontSize="12" Foreground="#666"/>
+                            <TextBlock Text="{Binding Localizer[EarnedCredits]}" FontSize="12" Foreground="#666"/>
                             <TextBlock Text="{Binding CompletedCredits, StringFormat={}{0:F1}}" FontSize="20" FontWeight="Bold"/>
                         </StackPanel>
-                        <Button Content="刷新"
+                        <Button Content="{Binding Localizer[Refresh]}"
                                 Command="{Binding RefreshGraduationRequirementsCommand}"
                                 Padding="8,4"
                                 VerticalAlignment="Bottom"/>
@@ -155,7 +156,7 @@
 
                     <!-- Category Selection -->
                     <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,16">
-                        <TextBlock Text="课程分类" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding Localizer[CourseCategories]}" FontWeight="SemiBold"/>
                         <ComboBox ItemsSource="{Binding CourseCategories}"
                                   SelectedItem="{Binding SelectedCategory}"
                                   HorizontalAlignment="Stretch">
@@ -189,12 +190,14 @@
                                                FontSize="12"
                                                Foreground="{DynamicResource SmallTextBrush}"/>
                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <TextBlock FontSize="12">
-                                            <Run Text="学分: "/>
+                                        <TextBlock FontSize="12" x:CompileBindings="False">
+                                            <Run x:CompileBindings="False"
+                                                 Text="{Binding DataContext.Localizer[Credits], RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                                             <Run Text="{Binding Credits}" FontWeight="SemiBold"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="12">
-                                            <Run Text="教学班: "/>
+                                        <TextBlock FontSize="12" x:CompileBindings="False">
+                                            <Run x:CompileBindings="False"
+                                                 Text="{Binding DataContext.Localizer[ClassSections], RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                                             <Run Text="{Binding Sections.Count}" FontWeight="SemiBold"/>
                                         </TextBlock>
                                     </StackPanel>
@@ -222,14 +225,14 @@
                                 HorizontalAlignment="Center"
                                 Spacing="10"
                                 Margin="0,16,0,0">
-                        <Button Content="上一页"
+                        <Button Content="{Binding Localizer[PreviousPage]}"
                                 Command="{Binding PreviousPageCommand}"
                                 IsEnabled="{Binding HasPreviousPage}"
                                 Padding="12,6"/>
-                        <TextBlock Text="{Binding CurrentPage, StringFormat=第 {0} 页}"
+                        <TextBlock Text="{Binding CurrentPageText}"
                                    VerticalAlignment="Center"
                                    FontWeight="SemiBold"/>
-                        <Button Content="下一页"
+                        <Button Content="{Binding Localizer[NextPage]}"
                                 Command="{Binding NextPageCommand}"
                                 IsEnabled="{Binding HasNextPage}"
                                 Padding="12,6"/>
@@ -253,13 +256,13 @@
 
                     <!-- Selected Course Info -->
                     <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,16">
-                        <TextBlock Text="教学班详情" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="{Binding Localizer[ClassSectionDetails]}" FontWeight="SemiBold" FontSize="16"/>
                         <TextBlock Text="{Binding SelectedCourse.Name}"
                                    FontSize="14"
                                    FontWeight="SemiBold"
                                    TextWrapping="Wrap"
                                    IsVisible="{Binding SelectedCourse, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                        <TextBlock Text="请从左侧选择课程"
+                        <TextBlock Text="{Binding Localizer[SelectFromLeft]}"
                                    FontSize="14"
                                    Foreground="{DynamicResource SmallTextBrush}"
                                    IsVisible="{Binding SelectedCourse, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -273,7 +276,7 @@
 
                     <!-- Sections List -->
                     <TextBlock Grid.Row="2" IsVisible="{Binding IsNoSections}"
-                               Text="暂无教学班"></TextBlock>
+                               Text="{Binding Localizer[NoClassSections]}"></TextBlock>
                     <ScrollViewer Grid.Row="2">
                         <ItemsControl ItemsSource="{Binding Sections}">
                             <ItemsControl.ItemTemplate>
@@ -308,18 +311,24 @@
 
                                             <!-- Section Details -->
                                             <StackPanel Spacing="6">
-                                                <TextBlock FontSize="12">
-                                                    <Run Text="教师: " Foreground="{DynamicResource SmallTextBrush}"/>
+                                                <TextBlock FontSize="12" x:CompileBindings="False">
+                                                    <Run x:CompileBindings="False"
+                                                         Text="{Binding DataContext.Localizer[Teacher], RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         Foreground="{DynamicResource SmallTextBrush}"/>
                                                     <Run Text="{Binding Instructors, Converter={x:Static converters:CourseSelectionConverters.CollectionToStringConverter}}"/>
                                                 </TextBlock>
 
-                                                <TextBlock FontSize="12">
-                                                    <Run Text="容量: " Foreground="{DynamicResource SmallTextBrush}"/>
+                                                <TextBlock FontSize="12" x:CompileBindings="False">
+                                                    <Run x:CompileBindings="False"
+                                                         Text="{Binding DataContext.Localizer[Capacity], RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         Foreground="{DynamicResource SmallTextBrush}"/>
                                                     <Run Text="{Binding Capacity}"/>
                                                 </TextBlock>
 
-                                                <TextBlock FontSize="12">
-                                                    <Run Text="候补: " Foreground="{DynamicResource SmallTextBrush}"/>
+                                                <TextBlock FontSize="12" x:CompileBindings="False">
+                                                    <Run x:CompileBindings="False"
+                                                         Text="{Binding DataContext.Localizer[Waitlist], RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         Foreground="{DynamicResource SmallTextBrush}"/>
                                                     <Run Text="{Binding TotalWaitingCount}"/>
                                                 </TextBlock>
 

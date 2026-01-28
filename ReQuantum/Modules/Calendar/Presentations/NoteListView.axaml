@@ -52,8 +52,8 @@
                       Margin="0,4,5,4"
                       Background="{Binding NoteId,Converter={x:Static presentations:CalendarConverters.NoteIdToBackgroundConverter}}">
                   <Border.Styles>
-                      <Style>
-                          <Setter Property="Transitions"></Setter>
+                      <Style Selector="Border">
+                          <Setter Property="Transitions" Value="{x:Null}" />
                           <Style.Animations>
                               <Animation Duration="0:0:0.5" FillMode="Forward" Easing="CubicEaseOut">
                                   <KeyFrame KeyTime="0:0:0">

@@ -45,7 +45,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     public ObservableCollection<string> AvailableYears { get; } = [];
 
     // 3. 自动生成 AvailableTerms 属性
-    public ObservableCollection<string> AvailableTerms { get; } = ["秋冬", "春夏", "短"];
+    public ObservableCollection<string> AvailableTerms { get; } = [UIText.AutumnAndWinter, UIText.SpringAndSummer];
 
     [ObservableProperty] private string _selectedYear = string.Empty;
 
@@ -55,6 +55,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
     [ObservableProperty] private float _gpa5 = -1;
     [ObservableProperty] private float _gpa100 = -1;
     [ObservableProperty] private float _majorGpa5 = -1;
+    [ObservableProperty] private bool _isLoading;
     private bool _initialized;
 
     public GradeViewModel(
@@ -94,7 +95,7 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
 
         _initialized = false;
         SelectedYear = $"{year - 1}-{year}";
-        SelectedTerm = "秋冬";
+        SelectedTerm = UIText.AutumnAndWinter;
         _initialized = true;
 
         // 订阅 ZJU SSO 登录状态变化
@@ -148,39 +149,54 @@ public partial class GradeViewModel : ViewModelBase<GradeView>, IMenuItemProvide
 
         if (!IsLoggedIn) return;
         if (string.IsNullOrWhiteSpace(SelectedYear) || string.IsNullOrWhiteSpace(SelectedTerm)) return;
-        var semResult = await _zdbkGradeService.GetSemesterGradesAsync(SelectedYear, SelectedTerm);
 
-        Grades = semResult.IsSuccess ? semResult.Value : new ZdbkGrades
+        if (IsLoading)
         {
-            Credit = 0,
-            MajorCredit = 0,
-            GradePoint5 = 0,
-            GradePoint4 = 0,
-            GradePoint100 = 0,
-            MajorGradePoint = 0,
-            CoursesGrade =
-            [
-                new ZdbkCoursesGrade
-                {
-                    CourseName = $"{semResult.Message}",
-                    CourseCode = "Wrong",
-                    Grade100 = 0,
-                    Grade5 = 0,
-                    Credit = 0,
-                    Semester = ""
-                }
-            ]
-        };
+            return;
+        }
 
+        IsLoading = true;
 
-        var allResult = await _zdbkGradeService.GetGradesAsync();
-
-        if (allResult.IsSuccess && allResult.Value != null)
+        try
         {
-            TotalCredits = (float)allResult.Value.Credit;
-            Gpa5 = (float)allResult.Value.GradePoint5;
-            Gpa100 = (float)allResult.Value.GradePoint100;
-            MajorGpa5 = (float)allResult.Value.MajorGradePoint;
+            var semResult = await _zdbkGradeService.GetSemesterGradesAsync(SelectedYear, SelectedTerm);
+
+            Grades = semResult.IsSuccess ? semResult.Value : new ZdbkGrades
+            {
+                Credit = 0,
+                MajorCredit = 0,
+                GradePoint5 = 0,
+                GradePoint4 = 0,
+                GradePoint100 = 0,
+                MajorGradePoint = 0,
+                CoursesGrade =
+                [
+                    new ZdbkCoursesGrade
+                    {
+                        CourseName = $"{semResult.Message}",
+                        CourseCode = "Wrong",
+                        Grade100 = 0,
+                        Grade5 = 0,
+                        Credit = 0,
+                        Semester = ""
+                    }
+                ]
+            };
+
+
+            var allResult = await _zdbkGradeService.GetGradesAsync();
+
+            if (allResult.IsSuccess && allResult.Value != null)
+            {
+                TotalCredits = (float)allResult.Value.Credit;
+                Gpa5 = (float)allResult.Value.GradePoint5;
+                Gpa100 = (float)allResult.Value.GradePoint100;
+                MajorGpa5 = (float)allResult.Value.MajorGradePoint;
+            }
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

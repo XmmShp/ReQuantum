@@ -485,7 +485,7 @@
   </data>
   <data name="Light" xml:space="preserve">
     <value>浅色</value>
-    </data>
+  </data>
   <data name="PtaLogin" xml:space="preserve">
     <value>PTA 登录</value>
   </data>
@@ -494,5 +494,98 @@
   </data>
   <data name="Grade" xml:space="preserve">
     <value>成绩</value>
+  </data>
+  <data name="AcademicYear" xml:space="preserve">
+    <value>学年</value>
+  </data>
+  <data name="Semester" xml:space="preserve">
+    <value>学期</value>
+  </data>
+  <data name="AutumnAndWinter" xml:space="preserve">
+    <value>秋冬</value>
+  </data>
+  <data name="SpringAndSummer" xml:space="preserve">
+    <value>春夏</value>
+  </data>
+  <data name="TotalCredits" xml:space="preserve">
+    <value>总学分</value>
+  </data>
+  <data name="GPA" xml:space="preserve">
+    <value>平均绩点</value>
+  </data>
+  <data name="MajorCredits" xml:space="preserve">
+    <value>主修学分</value>
+  </data>
+  <data name="SemesterGPA" xml:space="preserve">
+    <value>本学期绩点</value>
+  </data>
+  <data name="SemesterCredits" xml:space="preserve">
+    <value>本学期学分</value>
+  </data>
+  <data name="MajorGPA" xml:space="preserve">
+    <value>本学期主修绩点</value>
+  </data>
+  <data name="NoGrades" xml:space="preserve">
+    <value>暂无成绩</value>
+  </data>
+  <data name="LoginStatus" xml:space="preserve">
+    <value>登录状态：</value>
+  </data>
+  <data name="LoggedIn" xml:space="preserve">
+    <value>已登录</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="SelectedCourses" xml:space="preserve">
+    <value>已选课程</value>
+  </data>
+  <data name="CoursesCount" xml:space="preserve">
+    <value>课程数</value>
+  </data>
+  <data name="Credits" xml:space="preserve">
+    <value>学分</value>
+  </data>
+  <data name="GraduationRequirements" xml:space="preserve">
+    <value>毕业要求</value>
+  </data>
+  <data name="CompletedCourses" xml:space="preserve">
+    <value>已完成课程</value>
+  </data>
+  <data name="EarnedCredits" xml:space="preserve">
+    <value>已获学分</value>
+  </data>
+  <data name="CourseCategories" xml:space="preserve">
+    <value>课程分类</value>
+  </data>
+  <data name="ClassSectionDetails" xml:space="preserve">
+    <value>教学班详情</value>
+  </data>
+  <data name="NoClassSections" xml:space="preserve">
+    <value>暂无教学班</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>上一页</value>
+  </data>
+  <data name="SelectFromLeft" xml:space="preserve">
+    <value>请从左侧选择课程</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>下一页</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="ClassSections" xml:space="preserve">
+    <value>教学班</value>
+  </data>
+  <data name="Teacher" xml:space="preserve">
+    <value>教师</value>
+  </data>
+  <data name="Capacity" xml:space="preserve">
+    <value>容量</value>
+  </data>
+  <data name="PageFormat" xml:space="preserve">
+    <value>第 {0} 页</value>
   </data>
 </root>

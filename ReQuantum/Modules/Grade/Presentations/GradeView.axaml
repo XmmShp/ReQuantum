@@ -15,6 +15,10 @@
     </Design.DataContext>
  
   <StackPanel Spacing="12">
+      <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center" IsVisible="{Binding IsLoading}">
+          <ProgressBar Width="120" IsIndeterminate="True" Height="4" Margin="0,12,0,0"/>
+          <TextBlock Text="正在加载成绩..." Foreground="Gray" VerticalAlignment="Center"/>
+      </StackPanel>
 
       <!-- 桌面端 -->
       <Grid IsVisible="{Binding WindowService.IsDesktopMode}" 
@@ -26,14 +30,14 @@
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
 
                   <StackPanel Spacing="5">
-                      <TextBlock Text="学年" FontSize="12" Foreground="Gray"/>
+                      <TextBlock Text="{Binding Localizer[AcademicYear]}" FontSize="12" Foreground="Gray"/>
                       <ComboBox ItemsSource="{Binding AvailableYears}"
                                 SelectedItem="{Binding SelectedYear}"
                                 Width="140"/>
                   </StackPanel>
 
                   <StackPanel Spacing="5">
-                      <TextBlock Text="学期" FontSize="12" Foreground="Gray"/>
+                      <TextBlock Text="{Binding Localizer[Semester]}" FontSize="12" Foreground="Gray"/>
                       <ComboBox ItemsSource="{Binding AvailableTerms}"
                                 SelectedItem="{Binding SelectedTerm}"
                                 Width="80"/>
@@ -55,13 +59,13 @@
                       <StackPanel Spacing="10">
                       <Border Background="#F0F4FF" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
-                              <TextBlock Text="总学分 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[TotalCredits]}" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding TotalCredits}" FontSize="20" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#E3F2FD" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#BBDEFB" BorderThickness="1">
                           <StackPanel>
-                              <TextBlock Text="本学期学分" FontSize="11" Foreground="#1976D2" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[SemesterCredits]}" FontSize="11" Foreground="#1976D2" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding Grades.Credit}" FontSize="20" FontWeight="Bold" Foreground="#1976D2" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
@@ -70,13 +74,13 @@
                   <StackPanel Spacing="10">
                       <Border Background="#FFF0F0" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
-                              <TextBlock Text="平均绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[GPA]}" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding Gpa5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#D32F2F" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#FFEBEE" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#FFCDD2" BorderThickness="1">
                           <StackPanel>
-                              <TextBlock Text="本学期绩点" FontSize="11" Foreground="#C62828" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[SemesterGPA]}" FontSize="11" Foreground="#C62828" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding Grades.GradePoint5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#C62828" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
@@ -85,13 +89,13 @@
                   <StackPanel Spacing="10">
                       <Border Background="#F0FFF4" CornerRadius="8" Padding="15,10" Width="140">
                           <StackPanel>
-                              <TextBlock Text="主修绩点 (累计)" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[MajorCredits]}" FontSize="11" Foreground="#666" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding MajorGpa5, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#2E7D32" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>
                       <Border Background="#E8F5E9" CornerRadius="8" Padding="15,10" Width="140" BorderBrush="#C8E6C9" BorderThickness="1">
                           <StackPanel>
-                              <TextBlock Text="本学期主修绩点" FontSize="11" Foreground="#2E7D32" HorizontalAlignment="Center"/>
+                              <TextBlock Text="{Binding Localizer[MajorGPA]}" FontSize="11" Foreground="#2E7D32" HorizontalAlignment="Center"/>
                               <TextBlock Text="{Binding Grades.MajorGradePoint, StringFormat='{}{0:F2}'}" FontSize="20" FontWeight="Bold" Foreground="#1B5E20" HorizontalAlignment="Center"/>
                           </StackPanel>
                       </Border>

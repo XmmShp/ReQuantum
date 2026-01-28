@@ -61,6 +61,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Academic Year.
+        /// </summary>
+        public static string AcademicYear {
+            get {
+                return ResourceManager.GetString("AcademicYear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The account may be locked..
         /// </summary>
         public static string AccountMayBeLocked {
@@ -133,6 +142,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Autumn and Winter.
+        /// </summary>
+        public static string AutumnAndWinter {
+            get {
+                return ResourceManager.GetString("AutumnAndWinter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Browser login exception: {0}.
         /// </summary>
         public static string BrowserLoginException {
@@ -178,6 +196,33 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to capacity.
+        /// </summary>
+        public static string Capacity {
+            get {
+                return ResourceManager.GetString("Capacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Class Section Details.
+        /// </summary>
+        public static string ClassSectionDetails {
+            get {
+                return ResourceManager.GetString("ClassSectionDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ClassSections.
+        /// </summary>
+        public static string ClassSections {
+            get {
+                return ResourceManager.GetString("ClassSections", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CollapseMenu.
         /// </summary>
         public static string CollapseMenu {
@@ -187,11 +232,38 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Completed courses.
+        /// </summary>
+        public static string CompletedCourses {
+            get {
+                return ResourceManager.GetString("CompletedCourses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Content.
         /// </summary>
         public static string Content {
             get {
                 return ResourceManager.GetString("Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Course Categories.
+        /// </summary>
+        public static string CourseCategories {
+            get {
+                return ResourceManager.GetString("CourseCategories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Courses count.
+        /// </summary>
+        public static string CoursesCount {
+            get {
+                return ResourceManager.GetString("CoursesCount", resourceCulture);
             }
         }
         
@@ -210,6 +282,15 @@ namespace ReQuantum.Assets.I18n {
         public static string CourseSyncFailed {
             get {
                 return ResourceManager.GetString("CourseSyncFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Credits.
+        /// </summary>
+        public static string Credits {
+            get {
+                return ResourceManager.GetString("Credits", resourceCulture);
             }
         }
         
@@ -273,6 +354,15 @@ namespace ReQuantum.Assets.I18n {
         public static string DueTime {
             get {
                 return ResourceManager.GetString("DueTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Earned credits.
+        /// </summary>
+        public static string EarnedCredits {
+            get {
+                return ResourceManager.GetString("EarnedCredits", resourceCulture);
             }
         }
         
@@ -511,11 +601,29 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GPA.
+        /// </summary>
+        public static string GPA {
+            get {
+                return ResourceManager.GetString("GPA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Grade.
         /// </summary>
         public static string Grade {
             get {
                 return ResourceManager.GetString("Grade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Graduation requirements.
+        /// </summary>
+        public static string GraduationRequirements {
+            get {
+                return ResourceManager.GetString("GraduationRequirements", resourceCulture);
             }
         }
         
@@ -565,6 +673,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Logged in.
+        /// </summary>
+        public static string LoggedIn {
+            get {
+                return ResourceManager.GetString("LoggedIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Logged in as:.
         /// </summary>
         public static string LoggedInAs {
@@ -601,6 +718,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Login status:.
+        /// </summary>
+        public static string LoginStatus {
+            get {
+                return ResourceManager.GetString("LoginStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login successful..
         /// </summary>
         public static string LoginSuccessful {
@@ -624,6 +750,24 @@ namespace ReQuantum.Assets.I18n {
         public static string LogoutSuccessful {
             get {
                 return ResourceManager.GetString("LogoutSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Major redits.
+        /// </summary>
+        public static string MajorCredits {
+            get {
+                return ResourceManager.GetString("MajorCredits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Major GPA.
+        /// </summary>
+        public static string MajorGPA {
+            get {
+                return ResourceManager.GetString("MajorGPA", resourceCulture);
             }
         }
         
@@ -664,6 +808,24 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Next page.
+        /// </summary>
+        public static string NextPage {
+            get {
+                return ResourceManager.GetString("NextPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No class sections.
+        /// </summary>
+        public static string NoClassSections {
+            get {
+                return ResourceManager.GetString("NoClassSections", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No events.
         /// </summary>
         public static string NoEvents {
@@ -678,6 +840,15 @@ namespace ReQuantum.Assets.I18n {
         public static string NoExams {
             get {
                 return ResourceManager.GetString("NoExams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No grades.
+        /// </summary>
+        public static string NoGrades {
+            get {
+                return ResourceManager.GetString("NoGrades", resourceCulture);
             }
         }
         
@@ -732,6 +903,24 @@ namespace ReQuantum.Assets.I18n {
         public static string NoTodos {
             get {
                 return ResourceManager.GetString("NoTodos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page.
+        /// </summary>
+        public static string Page {
+            get {
+                return ResourceManager.GetString("Page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page {0}.
+        /// </summary>
+        public static string PageFormat {
+            get {
+                return ResourceManager.GetString("PageFormat", resourceCulture);
             }
         }
         
@@ -795,6 +984,15 @@ namespace ReQuantum.Assets.I18n {
         public static string PleaseEnterUsername {
             get {
                 return ResourceManager.GetString("PleaseEnterUsername", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Previous Page.
+        /// </summary>
+        public static string PreviousPage {
+            get {
+                return ResourceManager.GetString("PreviousPage", resourceCulture);
             }
         }
         
@@ -907,6 +1105,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        public static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  Repeat Times：.
         /// </summary>
         public static string RepeatTimes {
@@ -934,6 +1141,24 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Selected courses.
+        /// </summary>
+        public static string SelectedCourses {
+            get {
+                return ResourceManager.GetString("SelectedCourses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select courses from the left side.
+        /// </summary>
+        public static string SelectFromLeft {
+            get {
+                return ResourceManager.GetString("SelectFromLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select Language.
         /// </summary>
         public static string SelectLanguage {
@@ -943,11 +1168,47 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Semester.
+        /// </summary>
+        public static string Semester {
+            get {
+                return ResourceManager.GetString("Semester", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Semester credits.
+        /// </summary>
+        public static string SemesterCredits {
+            get {
+                return ResourceManager.GetString("SemesterCredits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Semester GPA.
+        /// </summary>
+        public static string SemesterGPA {
+            get {
+                return ResourceManager.GetString("SemesterGPA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string Settings {
             get {
                 return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spring and Summer.
+        /// </summary>
+        public static string SpringAndSummer {
+            get {
+                return ResourceManager.GetString("SpringAndSummer", resourceCulture);
             }
         }
         
@@ -1042,6 +1303,15 @@ namespace ReQuantum.Assets.I18n {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Teacher.
+        /// </summary>
+        public static string Teacher {
+            get {
+                return ResourceManager.GetString("Teacher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Theme.
         /// </summary>
         public static string Theme {
@@ -1092,6 +1362,15 @@ namespace ReQuantum.Assets.I18n {
         public static string Todos {
             get {
                 return ResourceManager.GetString("Todos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total credits.
+        /// </summary>
+        public static string TotalCredits {
+            get {
+                return ResourceManager.GetString("TotalCredits", resourceCulture);
             }
         }
         
