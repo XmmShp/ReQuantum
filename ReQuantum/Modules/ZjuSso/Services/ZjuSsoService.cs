@@ -260,8 +260,6 @@ public class ZjuSsoService : IZjuSsoService, IDaemonService
         var username = _state.Id;
         var password = _state.Password;
 
-        Logout();
-
         using var client = RequestClient.Create();
 
         var loginResult = await LoginAsync(username, password);

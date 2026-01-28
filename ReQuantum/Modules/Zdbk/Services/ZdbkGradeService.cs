@@ -146,7 +146,7 @@ public class ZdbkGradeService : IZdbkGradeService, IDaemonService
         }
     }
 
-    private async Task<Result<ZdbkGrades>> FetchGradesAsync(string? academicYear, string? semester)
+    private async Task<Result<ZdbkGrades>> FetchGradesAsync(string? academicYear, string? semester, bool retryOnAuthFailure = true, int remainingRetries = 1)
     {
 
         _logger.LogDebug("拉取成绩数据");
@@ -193,10 +193,28 @@ public class ZdbkGradeService : IZdbkGradeService, IDaemonService
             // 发送请求
             var response = await client.PostAsync(requestUrl, content);
 
-            // 检查 Session 是否失效
+            // 检查 Session 是否失效或服务不可用
             if (IsSessionExpired(response))
             {
+                if (retryOnAuthFailure)
+                {
+                    _logger.LogInformation("检测到 ZDBK Session 失效，尝试重新获取会话后重试一次");
+                    return await FetchGradesAsync(academicYear, semester, false, remainingRetries);
+                }
+
                 return Result.Fail("登录状态已失效，请重新登录后重试");
+            }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                if (remainingRetries > 0)
+                {
+                    _logger.LogWarning("ZDBK 成绩接口返回 503，等待后重试（剩余 {Retry} 次）", remainingRetries);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    return await FetchGradesAsync(academicYear, semester, retryOnAuthFailure, remainingRetries - 1);
+                }
+
+                return Result.Fail("获取成绩失败：教务系统繁忙，请稍后再试");
             }
 
             response.EnsureSuccessStatusCode();
