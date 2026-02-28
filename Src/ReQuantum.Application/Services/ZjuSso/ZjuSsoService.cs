@@ -1,13 +1,13 @@
+using Microsoft.Extensions.Logging;
+using NOF.Contract;
+using ReQuantum.Application.Models.ZjuSso;
+using ReQuantum.Shared.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using NOF.Contract;
-using ReQuantum.Application.Models.ZjuSso;
-using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 
@@ -48,8 +48,15 @@ public class ZjuSsoService : IZjuSsoService
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
         var result = await ValidOrRefreshTokenAsync();
-        if (!result.IsSuccess) return Result.Fail(400, result.Message);
-        if (!IsAuthenticated) return Result.Fail(400, "未登录");
+        if (!result.IsSuccess)
+        {
+            return Result.Fail(400, result.Message);
+        }
+
+        if (!IsAuthenticated)
+        {
+            return Result.Fail(400, "未登录");
+        }
 
         var requestOptions = options ?? new RequestOptions();
         requestOptions.Cookies = requestOptions.Cookies is null
@@ -65,12 +72,20 @@ public class ZjuSsoService : IZjuSsoService
 
         // Get Execution
         var executionResult = await GetExecutionAsync(client);
-        if (!executionResult.IsSuccess) return Result.Fail(400, executionResult.Message);
+        if (!executionResult.IsSuccess)
+        {
+            return Result.Fail(400, executionResult.Message);
+        }
+
         var execution = executionResult.Value!;
 
         // Get PubKey
         var pubkeyResult = await GetPubkeyAsync(client);
-        if (!pubkeyResult.IsSuccess) return Result.Fail(400, pubkeyResult.Message);
+        if (!pubkeyResult.IsSuccess)
+        {
+            return Result.Fail(400, pubkeyResult.Message);
+        }
+
         var (modulus, exponent) = pubkeyResult.Value!;
 
         // 使用RSA公钥加密密码
@@ -88,13 +103,17 @@ public class ZjuSsoService : IZjuSsoService
 
         var response = await client.PostAsync(LoginUrl, formContent);
         if (!response.IsSuccessStatusCode)
+        {
             return Result.Fail(400, "账号可能被锁定");
+        }
 
         var cookieNew = client.CookieContainer.GetCookies(new Uri(LoginUrl))
             .FirstOrDefault(c => c.Name == "iPlanetDirectoryPro");
 
         if (cookieNew is null)
+        {
             return Result.Fail(400, "用户名或密码错误");
+        }
 
         _state = new ZjuSsoState(username, password, cookieNew);
         SaveState();
@@ -107,13 +126,17 @@ public class ZjuSsoService : IZjuSsoService
         try
         {
             if (_browserLoginProvider is null)
+            {
                 return Result.Fail(400, "浏览器登录不可用");
+            }
 
             var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
                 LoginUrl, "iPlanetDirectoryPro", progressCallback, timeoutSeconds);
 
             if (!loginResult.IsSuccess)
+            {
                 return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
+            }
 
             var result = loginResult.Value!;
             var userId = result.Username ?? "ZJU用户";
@@ -145,7 +168,11 @@ public class ZjuSsoService : IZjuSsoService
 
     private async Task<bool> IsTokenValidAsync()
     {
-        if (!IsAuthenticated) return false;
+        if (!IsAuthenticated)
+        {
+            return false;
+        }
+
         using var client = RequestClient.Create(new RequestOptions { Cookies = [_state.IPlanetDirectoryPro] });
         var response = await client.GetAsync(LoginUrl);
         return response.StatusCode == HttpStatusCode.Redirect;
@@ -153,8 +180,15 @@ public class ZjuSsoService : IZjuSsoService
 
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
-        if (await IsTokenValidAsync()) return Result.Success();
-        if (!IsAuthenticated) return Result.Fail(400, "未登录");
+        if (await IsTokenValidAsync())
+        {
+            return Result.Success();
+        }
+
+        if (!IsAuthenticated)
+        {
+            return Result.Fail(400, "未登录");
+        }
 
         var username = _state.Id;
         var password = _state.Password;
@@ -170,7 +204,8 @@ public class ZjuSsoService : IZjuSsoService
 
     private void SaveState()
     {
-        if (_state is null) { _storage.Remove(StateKey); return; }
+        if (_state is null)
+        { _storage.Remove(StateKey); return; }
         _storage.Set(StateKey, _state);
     }
 
@@ -187,9 +222,13 @@ public class ZjuSsoService : IZjuSsoService
         var result = Enumerable.Reverse(c.ToByteArray()).ToArray();
 
         if (result.Length > keyLength)
+        {
             result = result.Skip(result.Length - keyLength).ToArray();
+        }
         else if (result.Length < keyLength)
+        {
             result = new byte[keyLength - result.Length].Concat(result).ToArray();
+        }
 
         return result;
     }
@@ -210,7 +249,9 @@ public class ZjuSsoService : IZjuSsoService
                 var start = idx + marker.Length;
                 var end = body.IndexOf('"', start);
                 if (end > start)
+                {
                     return body[start..end];
+                }
             }
         }
 
@@ -223,8 +264,15 @@ public class ZjuSsoService : IZjuSsoService
         var mod = json.RootElement.GetProperty("modulus").GetString();
         var exp = json.RootElement.GetProperty("exponent").GetString();
 
-        if (mod is null) return Result.Fail(400, "无法获取modulus");
-        if (exp is null) return Result.Fail(400, "无法获取exponent");
+        if (mod is null)
+        {
+            return Result.Fail(400, "无法获取modulus");
+        }
+
+        if (exp is null)
+        {
+            return Result.Fail(400, "无法获取exponent");
+        }
 
         return (mod, exp);
     }

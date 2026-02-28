@@ -1,9 +1,9 @@
-using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
@@ -41,14 +41,18 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         {
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             if (!calendarResult.IsSuccess)
+            {
                 return Result.Fail(500, $"无法获取校历: {calendarResult.Message}");
+            }
 
             var calendar = calendarResult.Value!;
             var currentDate = DateOnly.FromDateTime(DateTime.Now);
             var weekNumber = calendar.GetWeekNumber(currentDate);
 
             if (weekNumber == null)
+            {
                 return Result.Fail(400, "当前日期不在学期内");
+            }
 
             var currentSemester = calendar.GetSemesterNameForWeek(weekNumber.Value);
             var currentYear = calendar.AcademicYear;
@@ -62,10 +66,20 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
             var result2 = await task2;
             var combinedSections = new List<ZdbkSectionDto>();
 
-            if (result1.IsSuccess) combinedSections.AddRange(result1.Value!.SectionList);
-            if (result2.IsSuccess) combinedSections.AddRange(result2.Value!.SectionList);
+            if (result1.IsSuccess)
+            {
+                combinedSections.AddRange(result1.Value!.SectionList);
+            }
+
+            if (result2.IsSuccess)
+            {
+                combinedSections.AddRange(result2.Value!.SectionList);
+            }
+
             if (combinedSections.Count == 0)
+            {
                 return Result.Fail(500, "所有学期获取失败");
+            }
 
             return new ZdbkSectionScheduleResponse
             {
@@ -97,11 +111,16 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCourseScheduleAsync(string academicYear, string semester)
     {
         var clientResult = await GetAuthenticatedClient();
-        if (!clientResult.IsSuccess) return Result.Fail(400, clientResult.Message);
+        if (!clientResult.IsSuccess)
+        {
+            return Result.Fail(400, clientResult.Message);
+        }
 
         var client = clientResult.Value!;
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
+        {
             return Result.Fail(400, "未找到学号");
+        }
 
         try
         {
@@ -123,7 +142,9 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
             var scheduleResponse = await response.Content.ReadFromJsonAsync<ZdbkSectionScheduleResponse>();
             if (scheduleResponse is null)
+            {
                 return Result.Fail(400, "解析课程数据失败");
+            }
 
             return scheduleResponse;
         }
@@ -137,7 +158,10 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
     private async Task<Result<RequestClient>> GetAuthenticatedClient()
     {
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess) return Result.Fail(500, clientResult.Message);
+        if (!clientResult.IsSuccess)
+        {
+            return Result.Fail(500, clientResult.Message);
+        }
 
         try
         {
@@ -170,7 +194,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     private void SaveState()
     {
-        if (_state is null) _storage.Remove(StateKey);
-        else _storage.Set(StateKey, _state);
+        if (_state is null)
+        {
+            _storage.Remove(StateKey);
+        }
+        else
+        {
+            _storage.Set(StateKey, _state);
+        }
     }
 }

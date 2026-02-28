@@ -1,9 +1,9 @@
-using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Models.CoursesZju;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.CoursesZju;
 
@@ -29,7 +29,9 @@ public class CoursesZjuService : ICoursesZjuService
     {
         var clientResult = await GetAuthenticatedClient();
         if (!clientResult.IsSuccess)
+        {
             return Result.Fail(400, clientResult.Message);
+        }
 
         var client = clientResult.Value!;
         var result = await client.GetAsync(TodoApi);
@@ -44,7 +46,9 @@ public class CoursesZjuService : ICoursesZjuService
         {
             var response = await result.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>();
             if (response is null)
+            {
                 return Result.Fail(400, "解析待办事项失败");
+            }
 
             return response.TodoList.ToHashSet();
         }
@@ -58,17 +62,23 @@ public class CoursesZjuService : ICoursesZjuService
     private async Task<Result<RequestClient>> GetAuthenticatedClient()
     {
         if (_state is not null)
+        {
             return RequestClient.Create(new RequestOptions { Cookies = [_state.Session] });
+        }
 
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
         if (!clientResult.IsSuccess)
+        {
             return Result.Fail(400, clientResult.Message);
+        }
 
         var client = clientResult.Value!;
         await client.GetAsync(TodoApi);
         var session = client.CookieContainer.GetAllCookies().FirstOrDefault(cookie => cookie.Name == "session");
         if (session is null)
+        {
             return Result.Fail(400, "无法获取Cookie");
+        }
 
         _state = new CoursesZjuState(session);
         SaveState();
@@ -79,7 +89,8 @@ public class CoursesZjuService : ICoursesZjuService
 
     private void SaveState()
     {
-        if (_state is null) { _storage.Remove(StateKey); return; }
+        if (_state is null)
+        { _storage.Remove(StateKey); return; }
         _storage.Set(StateKey, _state);
     }
 }

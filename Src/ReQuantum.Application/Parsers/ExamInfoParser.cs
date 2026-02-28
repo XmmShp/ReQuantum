@@ -1,6 +1,6 @@
+using ReQuantum.Application.Models.Zdbk;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using ReQuantum.Application.Models.Zdbk;
 
 namespace ReQuantum.Application.Parsers;
 
@@ -14,13 +14,22 @@ public static partial class ExamTimeParser
 
     public static (DateTime? Start, DateTime? End) Parse(string? timeString, AcademicCalendar? calendar = null)
     {
-        if (string.IsNullOrWhiteSpace(timeString)) return (null, null);
+        if (string.IsNullOrWhiteSpace(timeString))
+        {
+            return (null, null);
+        }
 
         var oldMatch = OldFormatRegex().Match(timeString);
-        if (oldMatch.Success) return ParseOldFormat(oldMatch);
+        if (oldMatch.Success)
+        {
+            return ParseOldFormat(oldMatch);
+        }
 
         var newMatch = NewFormatRegex().Match(timeString);
-        if (newMatch.Success) return ParseNewFormat(newMatch, calendar);
+        if (newMatch.Success)
+        {
+            return ParseNewFormat(newMatch, calendar);
+        }
 
         return (null, null);
     }
@@ -42,7 +51,11 @@ public static partial class ExamTimeParser
 
     private static (DateTime?, DateTime?) ParseNewFormat(Match match, AcademicCalendar? calendar)
     {
-        if (calendar == null) return (null, null);
+        if (calendar == null)
+        {
+            return (null, null);
+        }
+
         try
         {
             // TODO: calculate exam date from calendar

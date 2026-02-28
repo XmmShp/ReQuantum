@@ -39,11 +39,19 @@ public static class BrowserHelper
             foreach (var rel in relativePaths)
             {
                 if (!string.IsNullOrEmpty(programFiles))
+                {
                     yield return Path.Combine(programFiles, rel);
+                }
+
                 if (!string.IsNullOrEmpty(programFilesX86))
+                {
                     yield return Path.Combine(programFilesX86, rel);
+                }
+
                 if (!string.IsNullOrEmpty(localAppData))
+                {
                     yield return Path.Combine(localAppData, rel);
+                }
             }
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))

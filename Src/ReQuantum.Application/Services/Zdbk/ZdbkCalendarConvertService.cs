@@ -23,18 +23,25 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
         var sectionList = sections.ToList();
 
         if (string.IsNullOrEmpty(academicYear) || string.IsNullOrEmpty(semester))
+        {
             return events;
+        }
 
         sectionList = sectionList
             .Where(s => !string.IsNullOrWhiteSpace(s.Term) && s.Term.Contains(semester, StringComparison.Ordinal))
             .ToList();
 
         var calendarResult = await _calendarService.GetCurrentCalendarAsync();
-        if (!calendarResult.IsSuccess) return events;
+        if (!calendarResult.IsSuccess)
+        {
+            return events;
+        }
 
         var calendar = calendarResult.Value!;
         if (calendar.AcademicYear != academicYear || GetSemesterCode(semester) != calendar.SemesterCode)
+        {
             return events;
+        }
 
         var semesterStartDate = CalculateSemesterStartDate(calendar, semester);
 
@@ -56,14 +63,24 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
 
     private static DateOnly CalculateSemesterStartDate(AcademicCalendar calendar, string semester)
     {
-        if (semester is "秋" or "春") return calendar.StartDate;
+        if (semester is "秋" or "春")
+        {
+            return calendar.StartDate;
+        }
 
         if (semester is "冬" or "夏")
         {
             var subSemesterStart = calendar.StartDate.AddDays(56);
             var dayOfWeek = (int)subSemesterStart.DayOfWeek;
-            if (dayOfWeek == 0) subSemesterStart = subSemesterStart.AddDays(1);
-            else if (dayOfWeek != 1) subSemesterStart = subSemesterStart.AddDays(1 - dayOfWeek);
+            if (dayOfWeek == 0)
+            {
+                subSemesterStart = subSemesterStart.AddDays(1);
+            }
+            else if (dayOfWeek != 1)
+            {
+                subSemesterStart = subSemesterStart.AddDays(1 - dayOfWeek);
+            }
+
             return subSemesterStart;
         }
 
@@ -86,11 +103,16 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
         for (var weekNumber = courseInfo.WeekStart; weekNumber <= courseInfo.WeekEnd; weekNumber++)
         {
             if (!ShouldHaveCourseInWeek(weekNumber, int.Parse(section.WeekType)))
+            {
                 continue;
+            }
 
             var originalDate = CalculateCourseDate(semesterStartDate, weekNumber, int.Parse(section.DayOfWeek));
             var actualDate = ApplyCalendarAdjustments(originalDate, calendar, out var shouldSkip);
-            if (shouldSkip) continue;
+            if (shouldSkip)
+            {
+                continue;
+            }
 
             var eventId = $"{section.CourseId}_{semester}_{weekNumber}_{section.DayOfWeek}_{section.StartSection}".ToGuid();
 
@@ -118,14 +140,19 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
     private static DateOnly ApplyCalendarAdjustments(DateOnly originalDate, AcademicCalendar? calendar, out bool shouldSkip)
     {
         shouldSkip = false;
-        if (calendar == null) return originalDate;
+        if (calendar == null)
+        {
+            return originalDate;
+        }
 
-        if (calendar.IsSuspended(originalDate)) { shouldSkip = true; return originalDate; }
+        if (calendar.IsSuspended(originalDate))
+        { shouldSkip = true; return originalDate; }
 
         var adjustmentFrom = calendar.CourseAdjustments.FirstOrDefault(a => a.OriginalDate == originalDate);
         if (adjustmentFrom != null)
         {
-            if (calendar.IsSuspended(adjustmentFrom.TargetDate)) { shouldSkip = true; return originalDate; }
+            if (calendar.IsSuspended(adjustmentFrom.TargetDate))
+            { shouldSkip = true; return originalDate; }
             return adjustmentFrom.TargetDate;
         }
 
@@ -140,11 +167,17 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
         var events = new List<CalendarEvent>();
         foreach (var exam in exams)
         {
-            if (exam.ExamType == ExamType.NoExam || exam.StartTime == null || exam.EndTime == null) continue;
+            if (exam.ExamType == ExamType.NoExam || exam.StartTime == null || exam.EndTime == null)
+            {
+                continue;
+            }
 
             var examTypeText = exam.ExamType == ExamType.MidTerm ? "期中考试" : "期末考试";
             var locationText = !string.IsNullOrEmpty(exam.Location) ? exam.Location : "地点待定";
-            if (!string.IsNullOrEmpty(exam.Seat)) locationText += $" (座位号: {exam.Seat})";
+            if (!string.IsNullOrEmpty(exam.Seat))
+            {
+                locationText += $" (座位号: {exam.Seat})";
+            }
 
             var eventId = $"{exam.ClassId}_{exam.ExamType}_{exam.StartTime:yyyyMMddHHmm}".ToGuid();
             events.Add(new CalendarEvent

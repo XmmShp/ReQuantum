@@ -1,4 +1,4 @@
-﻿namespace ReQuantum.Contract;
+namespace ReQuantum.Contract;
 
 public class Class1
 {

@@ -50,15 +50,27 @@ public class AcademicCalendar
 
     public int? GetWeekNumber(DateOnly date)
     {
-        if (date < StartDate || date > EndDate) return null;
+        if (date < StartDate || date > EndDate)
+        {
+            return null;
+        }
+
         var daysDiff = date.DayNumber - StartDate.DayNumber;
         return (daysDiff / 7) + 1;
     }
 
     public string GetSemesterNameForWeek(int weekNumber)
     {
-        if (IsShortSemester) return "夏";
-        if (SemesterCode == "1") return weekNumber <= 8 ? "秋" : "冬";
+        if (IsShortSemester)
+        {
+            return "夏";
+        }
+
+        if (SemesterCode == "1")
+        {
+            return weekNumber <= 8 ? "秋" : "冬";
+        }
+
         return weekNumber <= 8 ? "春" : "夏";
     }
 
@@ -71,10 +83,16 @@ public class AcademicCalendar
     public DateOnly GetActualCourseDate(DateOnly date)
     {
         var adjustmentToThisDate = CourseAdjustments.FirstOrDefault(a => a.TargetDate == date);
-        if (adjustmentToThisDate != null) return adjustmentToThisDate.OriginalDate;
+        if (adjustmentToThisDate != null)
+        {
+            return adjustmentToThisDate.OriginalDate;
+        }
 
         var adjustmentFromThisDate = CourseAdjustments.FirstOrDefault(a => a.OriginalDate == date);
-        if (adjustmentFromThisDate != null) return adjustmentFromThisDate.TargetDate;
+        if (adjustmentFromThisDate != null)
+        {
+            return adjustmentFromThisDate.TargetDate;
+        }
 
         return date;
     }

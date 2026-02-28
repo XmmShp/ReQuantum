@@ -1,10 +1,10 @@
-using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Parsers;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
@@ -32,11 +32,15 @@ public class ZdbkExamService : IZdbkExamService
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
+        {
             return Result.Fail(400, "未登录或无学号");
+        }
 
         var clientResult = await GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
+        {
             return Result.Fail(400, clientResult.Message);
+        }
 
         try
         {
@@ -58,11 +62,15 @@ public class ZdbkExamService : IZdbkExamService
             var response = await client.PostAsync(apiUrl, content);
 
             if (!response.IsSuccessStatusCode)
+            {
                 return Result.Fail(500, $"获取考试信息失败: {response.StatusCode}");
+            }
 
             var examResponse = await response.Content.ReadFromJsonAsync<ZdbkExamResponse>();
             if (examResponse == null)
+            {
                 return Result.Fail(500, "解析考试数据失败");
+            }
 
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             var calendar = calendarResult.IsSuccess ? calendarResult.Value : null;
@@ -134,7 +142,10 @@ public class ZdbkExamService : IZdbkExamService
     private async Task<Result<RequestClient>> GetAuthenticatedClientAsync()
     {
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess) return Result.Fail(500, clientResult.Message);
+        if (!clientResult.IsSuccess)
+        {
+            return Result.Fail(500, clientResult.Message);
+        }
 
         try
         {

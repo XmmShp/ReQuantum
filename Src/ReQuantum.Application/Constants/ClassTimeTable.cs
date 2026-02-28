@@ -22,11 +22,15 @@ public static class ClassTimeTable
     public static (TimeOnly Start, TimeOnly End) GetClassTime(int startSection, int duration)
     {
         if (!SectionTimeMap.TryGetValue(startSection, out var startTime))
+        {
             throw new ArgumentException($"Invalid start section: {startSection}");
+        }
 
         var endSection = startSection + duration - 1;
         if (!SectionTimeMap.TryGetValue(endSection, out var endTime))
+        {
             throw new ArgumentException($"Invalid end section: {endSection}");
+        }
 
         return (startTime.Start, endTime.End);
     }

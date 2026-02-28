@@ -1,15 +1,14 @@
-﻿namespace ReQuantum
-{
-    public partial class App : Microsoft.Maui.Controls.Application
-    {
-        public App()
-        {
-            InitializeComponent();
-        }
+namespace ReQuantum;
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new MainPage()) { Title = "ReQuantum" };
-        }
+public partial class App : Microsoft.Maui.Controls.Application
+{
+    public App()
+    {
+        InitializeComponent();
+    }
+
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        return new Window(new MainPage()) { Title = "ReQuantum" };
     }
 }

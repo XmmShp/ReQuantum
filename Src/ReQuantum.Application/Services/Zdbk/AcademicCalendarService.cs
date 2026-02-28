@@ -1,9 +1,9 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Shared.Services;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
@@ -30,7 +30,10 @@ public class AcademicCalendarService : IAcademicCalendarService
     public async Task<Result<AcademicCalendar>> GetCurrentCalendarAsync()
     {
         if (_cachedCalendar != null)
+        {
             return _cachedCalendar;
+        }
+
         return await RefreshCalendarAsync();
     }
 
@@ -40,11 +43,15 @@ public class AcademicCalendarService : IAcademicCalendarService
         {
             var response = await _httpClient.GetAsync(CalendarApiUrl);
             if (!response.IsSuccessStatusCode)
+            {
                 return await LoadFromFallbackFileAsync();
+            }
 
             var calendarResponse = await response.Content.ReadFromJsonAsync<AcademicCalendarResponse>();
             if (calendarResponse is not { Success: true } || calendarResponse.Data == null)
+            {
                 return await LoadFromFallbackFileAsync();
+            }
 
             _cachedCalendar = calendarResponse.Data;
             SaveCalendar(_cachedCalendar);
@@ -71,13 +78,17 @@ public class AcademicCalendarService : IAcademicCalendarService
             var fallbackFilePath = Path.Combine(appDirectory, FallbackCalendarFilePath);
 
             if (!File.Exists(fallbackFilePath))
+            {
                 return Result.Fail(500, $"Fallback文件不存在: {fallbackFilePath}");
+            }
 
             var jsonContent = await File.ReadAllTextAsync(fallbackFilePath);
             var calendar = JsonSerializer.Deserialize<AcademicCalendar>(jsonContent);
 
             if (calendar == null)
+            {
                 return Result.Fail(500, "Fallback文件解析失败");
+            }
 
             _cachedCalendar = calendar;
             SaveCalendar(_cachedCalendar);
@@ -92,7 +103,9 @@ public class AcademicCalendarService : IAcademicCalendarService
     private void LoadCachedCalendar()
     {
         if (_storage.TryGet<AcademicCalendar>(StorageKey, out var calendar) && calendar != null)
+        {
             _cachedCalendar = calendar;
+        }
     }
 
     private void SaveCalendar(AcademicCalendar calendar) => _storage.Set(StorageKey, calendar);

@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using NOF.Contract;
 using ReQuantum.Shared.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 

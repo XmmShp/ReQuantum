@@ -60,7 +60,10 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             {
                 await Task.Delay(1000);
 
-                if (_page.Context is null) continue;
+                if (_page.Context is null)
+                {
+                    continue;
+                }
 
                 var cookies = await _page.Context.CookiesAsync();
                 var target = cookies?.FirstOrDefault(c =>
@@ -155,14 +158,18 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
         try
         {
             if (_page is not null && !_page.IsClosed)
+            {
                 await _page.CloseAsync();
+            }
         }
         catch { }
 
         try
         {
             if (_browser is not null && _browser.IsConnected)
+            {
                 await _browser.CloseAsync();
+            }
         }
         catch { }
 

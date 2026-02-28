@@ -1,7 +1,7 @@
-using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using ReQuantum.Application.Models.Calendar;
 using ReQuantum.Shared.Services;
+using System.Collections.Concurrent;
 
 namespace ReQuantum.Application.Services.Calendar;
 
@@ -33,8 +33,15 @@ public class CalendarService : ICalendarService
     public void AddOrUpdateNote(CalendarNote note)
     {
         var index = _notes.FindIndex(n => n.Id == note.Id);
-        if (index >= 0) _notes[index] = note;
-        else _notes.Add(note);
+        if (index >= 0)
+        {
+            _notes[index] = note;
+        }
+        else
+        {
+            _notes.Add(note);
+        }
+
         SaveNotes();
     }
 
@@ -67,8 +74,15 @@ public class CalendarService : ICalendarService
     public void AddOrUpdateTodo(CalendarTodo todo)
     {
         var index = _todos.FindIndex(t => t.Id == todo.Id);
-        if (index >= 0) _todos[index] = todo;
-        else _todos.Add(todo);
+        if (index >= 0)
+        {
+            _todos[index] = todo;
+        }
+        else
+        {
+            _todos.Add(todo);
+        }
+
         SaveTodos();
     }
 
@@ -81,7 +95,11 @@ public class CalendarService : ICalendarService
     public void ToggleTodoComplete(Guid id)
     {
         var todo = _todos.FirstOrDefault(t => t.Id == id);
-        if (todo is not null) todo.IsCompleted = !todo.IsCompleted;
+        if (todo is not null)
+        {
+            todo.IsCompleted = !todo.IsCompleted;
+        }
+
         SaveTodos();
     }
 
@@ -102,8 +120,15 @@ public class CalendarService : ICalendarService
     public void AddOrUpdateEvent(CalendarEvent calendarEvent)
     {
         var index = _events.FindIndex(e => e.Id == calendarEvent.Id);
-        if (index >= 0) _events[index] = calendarEvent;
-        else _events.Add(calendarEvent);
+        if (index >= 0)
+        {
+            _events[index] = calendarEvent;
+        }
+        else
+        {
+            _events.Add(calendarEvent);
+        }
+
         SaveEvents();
     }
 
@@ -120,7 +145,9 @@ public class CalendarService : ICalendarService
     public CalendarDayData GetCalendarDayData(DateOnly date)
     {
         if (_calendarDataDict.TryGetValue(date, out var existingData))
+        {
             return existingData;
+        }
 
         var dayData = new CalendarDayData
         {

@@ -1,9 +1,9 @@
-using ReQuantum.Shared.Services;
 using ReQuantum.Application.Services.Calendar;
 using ReQuantum.Application.Services.CoursesZju;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.Zdbk;
 using ReQuantum.Application.Services.ZjuSso;
+using ReQuantum.Shared.Services;
 using ReQuantum.Web.Components;
 using ReQuantum.Web.Services;
 
@@ -14,8 +14,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-// Add device-specific services used by the ReQuantum.Shared project
-builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<IStorage, WebStorage>();
 builder.Services.AddSingleton<ICalendarService, CalendarService>();
 builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();

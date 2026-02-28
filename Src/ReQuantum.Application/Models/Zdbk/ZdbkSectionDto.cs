@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
 using ReQuantum.Application.Constants;
 using ReQuantum.Application.Parsers;
+using System.Text.Json.Serialization;
 
 namespace ReQuantum.Application.Models.Zdbk;
 

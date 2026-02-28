@@ -1,10 +1,10 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Net.Http.Json;
 using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Pta;
 
@@ -33,8 +33,15 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
         var result = await ValidOrRefreshTokenAsync();
-        if (!result.IsSuccess) return Result.Fail(400, result.Message);
-        if (!IsAuthenticated) return Result.Fail(400, "未登录");
+        if (!result.IsSuccess)
+        {
+            return Result.Fail(400, result.Message);
+        }
+
+        if (!IsAuthenticated)
+        {
+            return Result.Fail(400, "未登录");
+        }
 
         var requestOptions = options ?? new RequestOptions();
         requestOptions.Cookies = requestOptions.Cookies is null
@@ -43,7 +50,9 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
         requestOptions.Headers ??= new Dictionary<string, string>();
         if (!requestOptions.Headers.ContainsKey("Accept"))
+        {
             requestOptions.Headers["Accept"] = "application/json, text/plain, */*";
+        }
 
         return RequestClient.Create(requestOptions);
     }
@@ -57,7 +66,9 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
             var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
                 "https://pintia.cn/auth/login", "PTASession", progressCallback, timeoutSeconds);
             if (!loginResult.IsSuccess)
+            {
                 return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
+            }
 
             var result = loginResult.Value!;
 
@@ -100,7 +111,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
     private async Task<bool> IsTokenValidAsync()
     {
-        if (!IsAuthenticated) return false;
+        if (!IsAuthenticated)
+        {
+            return false;
+        }
+
         try
         {
             using var client = RequestClient.Create(new RequestOptions { Cookies = [_state.PTASessionCookie] });
@@ -112,8 +127,16 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
-        if (await IsTokenValidAsync()) return Result.Success();
-        if (!IsAuthenticated) return Result.Fail(400, "未登录");
+        if (await IsTokenValidAsync())
+        {
+            return Result.Success();
+        }
+
+        if (!IsAuthenticated)
+        {
+            return Result.Fail(400, "未登录");
+        }
+
         Logout();
         return Result.Fail(400, "Session 已过期，请重新登录");
     }
@@ -129,11 +152,21 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
             var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
+            {
                 return Result.Fail(400, $"获取用户信息失败: HTTP {response.StatusCode}");
+            }
 
             var userInfo = await response.Content.ReadFromJsonAsync<PtaUserInfoResponse>();
-            if (userInfo?.User?.Nickname is { Length: > 0 }) return userInfo.User.Nickname;
-            if (userInfo?.User?.Email is { Length: > 0 }) return userInfo.User.Email;
+            if (userInfo?.User?.Nickname is { Length: > 0 })
+            {
+                return userInfo.User.Nickname;
+            }
+
+            if (userInfo?.User?.Email is { Length: > 0 })
+            {
+                return userInfo.User.Email;
+            }
+
             return Result.Fail(400, "未能获取用户信息");
         }
         catch (Exception ex)
@@ -146,7 +179,8 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
     private void SaveState()
     {
-        if (_state is null) { _storage.Remove(StateKey); return; }
+        if (_state is null)
+        { _storage.Remove(StateKey); return; }
         _storage.Set(StateKey, _state);
     }
 }

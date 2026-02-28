@@ -1,6 +1,6 @@
+using ReQuantum.Application.Models.Zdbk;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using ReQuantum.Application.Models.Zdbk;
 
 namespace ReQuantum.Application.Parsers;
 
@@ -12,14 +12,32 @@ public static class CourseInfoParser
     public static ParsedCourseInfo Parse(string kcb)
     {
         var result = new ParsedCourseInfo { RawInfo = kcb };
-        if (string.IsNullOrWhiteSpace(kcb)) return result;
+        if (string.IsNullOrWhiteSpace(kcb))
+        {
+            return result;
+        }
 
         var lines = kcb.Split(new[] { "<br>", "<br/>", "<BR>" }, StringSplitOptions.RemoveEmptyEntries);
 
-        if (lines.Length >= 1) result.CourseName = lines[0].Trim();
-        if (lines.Length >= 2) ParseWeekInfo(lines[1], result);
-        if (lines.Length >= 3) result.Teacher = lines[2].Trim();
-        if (lines.Length >= 4) ParseLocationAndExam(lines[3], result);
+        if (lines.Length >= 1)
+        {
+            result.CourseName = lines[0].Trim();
+        }
+
+        if (lines.Length >= 2)
+        {
+            ParseWeekInfo(lines[1], result);
+        }
+
+        if (lines.Length >= 3)
+        {
+            result.Teacher = lines[2].Trim();
+        }
+
+        if (lines.Length >= 4)
+        {
+            ParseLocationAndExam(lines[3], result);
+        }
 
         return result;
     }
@@ -39,7 +57,10 @@ public static class CourseInfoParser
     private static void ParseLocationAndExam(string locationLine, ParsedCourseInfo result)
     {
         var parts = locationLine.Split(new[] { "zwf" }, StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length >= 1) result.Location = parts[0].Trim();
+        if (parts.Length >= 1)
+        {
+            result.Location = parts[0].Trim();
+        }
 
         if (parts.Length >= 2)
         {
