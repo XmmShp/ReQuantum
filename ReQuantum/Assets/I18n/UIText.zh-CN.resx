@@ -480,18 +480,12 @@
   <data name="FollowingSystem" xml:space="preserve">
     <value>跟随系统</value>
   </data>
-  <data name="Upcomingschedule" xml:space="preserve">
-    <value>近期日程</value>
-  </data>
   <data name="Dark" xml:space="preserve">
     <value>深色</value>
   </data>
   <data name="Light" xml:space="preserve">
     <value>浅色</value>
     </data>
-  <data name="Deadline" xml:space="preserve">
-    <value>截止</value>
-  </data>
   <data name="PtaLogin" xml:space="preserve">
     <value>PTA 登录</value>
   </data>
@@ -501,5 +495,4 @@
   <data name="Grade" xml:space="preserve">
     <value>成绩</value>
   </data>
-</root>
 </root>

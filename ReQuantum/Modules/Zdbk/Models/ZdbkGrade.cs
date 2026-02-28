@@ -9,7 +9,7 @@ public class ZdbkGrades
     /// <summary>
     /// 课程成绩列表
     /// </summary>
-    public List<ZdbkCoursesGrade> CoursesGrade { get; set; }
+    public List<ZdbkCoursesGrade> CoursesGrade { get; set; } = new();
 
     /// <summary>
     /// 总学分

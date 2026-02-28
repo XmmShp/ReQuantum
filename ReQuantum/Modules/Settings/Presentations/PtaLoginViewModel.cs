@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReQuantum.Assets.I18n;
 using ReQuantum.Infrastructure.Abstractions;
+using ReQuantum.Infrastructure.Entities;
 using ReQuantum.Modules.Common.Attributes;
 using ReQuantum.Modules.Pta.Services;
 using ReQuantum.Views;
@@ -11,7 +12,7 @@ using ReQuantum.Views;
 namespace ReQuantum.ViewModels;
 
 [AutoInject(Lifetime.Singleton)]
-public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
+public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>, IDisposable
 {
     private readonly IPtaBrowserAuthService _authService;
 
@@ -21,8 +22,7 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     [ObservableProperty]
     private bool _isLoggedIn;
 
-    [ObservableProperty]
-    private string _statusMessage = string.Empty;
+    public LocalizedText StatusMessage { get; } = new();
 
     public PtaLoginViewModel(IPtaBrowserAuthService authService)
     {
@@ -35,7 +35,7 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
 
         if (_isLoggedIn)
         {
-            StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoggedInAs)], _authService.Email);
+            StatusMessage.Set(nameof(UIText.PtaLoggedInAs), _authService.Email);
         }
     }
 
@@ -45,31 +45,27 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
         if (IsLoading) return;
 
         IsLoading = true;
-        StatusMessage = Localizer[nameof(UIText.PtaLoggingIn)];
+        StatusMessage.Set(nameof(UIText.PtaLoggingIn));
 
         try
         {
             var result = await _authService.OpenBrowserAndWaitForLoginAsync(
-                progressMessage => StatusMessage = progressMessage,
+                progressMessage => StatusMessage.Set(string.Empty), // 进度消息暂时清空，因为是原始字符串
                 timeoutSeconds: 300
             );
 
             IsLoading = false;
 
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                // 登录成功，状态已在Service中更新
-                StatusMessage = Localizer[nameof(UIText.PtaLoginSuccess)];
+                StatusMessage.Set(nameof(UIText.BrowserLoginFailed), result.Message);
             }
-            else
-            {
-                StatusMessage = string.Format(Localizer[nameof(UIText.BrowserLoginFailed)], result.Message);
-            }
+            // 登录成功时，HandleLogin() 已经通过事件设置了正确的消息（"你好：XXX"），所以这里不需要再设置
         }
         catch (Exception ex)
         {
             IsLoading = false;
-            StatusMessage = string.Format(Localizer[nameof(UIText.BrowserLoginException)], ex.Message);
+            StatusMessage.Set(nameof(UIText.BrowserLoginException), ex.Message);
         }
     }
 
@@ -82,18 +78,19 @@ public partial class PtaLoginViewModel : ViewModelBase<PtaLoginView>
     private void HandleLogin()
     {
         IsLoggedIn = true;
-        StatusMessage = string.Format(Localizer[nameof(UIText.PtaLoggedInAs)], _authService.Email);
+        StatusMessage.Set(nameof(UIText.PtaLoggedInAs), _authService.Email);
     }
 
     private void HandleLogout()
     {
         IsLoggedIn = false;
-        StatusMessage = Localizer[nameof(UIText.PtaLoggedOut)];
+        StatusMessage.Set(nameof(UIText.PtaLoggedOut));
     }
 
-    ~PtaLoginViewModel()
+    public void Dispose()
     {
         _authService.OnLogin -= HandleLogin;
         _authService.OnLogout -= HandleLogout;
+        StatusMessage.Dispose();
     }
 }
