@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
+using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
-using ReQuantum.Shared.Models;
 
 namespace ReQuantum.Application.Services.Pta;
 
@@ -22,7 +22,7 @@ public class PtaProblemSetService : IPtaProblemSetService
     {
         var clientResult = await _ptaAuthService.GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
-            return Result<List<PtaProblemSet>>.Failure(clientResult.Message);
+            return Result.Fail(400, clientResult.Message);
 
         var client = clientResult.Value!;
 
@@ -30,11 +30,11 @@ public class PtaProblemSetService : IPtaProblemSetService
         {
             var response = await client.GetAsync(ProblemSetsApiUrl);
             if (!response.IsSuccessStatusCode)
-                return Result<List<PtaProblemSet>>.Failure($"获取习题集失败: {response.StatusCode}");
+                return Result.Fail(400, $"获取习题集失败: {response.StatusCode}");
 
             var problemSetsResponse = await response.Content.ReadFromJsonAsync<PtaProblemSetsResponse>();
             if (problemSetsResponse is null)
-                return Result<List<PtaProblemSet>>.Failure("解析习题集失败");
+                return Result.Fail(400, "解析习题集失败");
 
             var thirtyDaysAgo = DateTime.Now.AddDays(-30);
             var activeProblemSets = problemSetsResponse.ProblemSets
@@ -46,7 +46,7 @@ public class PtaProblemSetService : IPtaProblemSetService
         catch (Exception ex)
         {
             _logger.LogError(ex, "获取 PTA 习题集时发生异常");
-            return Result<List<PtaProblemSet>>.Failure($"获取习题集异常: {ex.Message}");
+            return Result.Fail(400, $"获取习题集异常: {ex.Message}");
         }
     }
 }

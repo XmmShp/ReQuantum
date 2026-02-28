@@ -1,4 +1,4 @@
-using ReQuantum.Shared.Models;
+using NOF.Contract;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 

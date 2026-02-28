@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
-using ReQuantum.Shared.Models;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.Zdbk;
@@ -30,7 +30,7 @@ public class AcademicCalendarService : IAcademicCalendarService
     public async Task<Result<AcademicCalendar>> GetCurrentCalendarAsync()
     {
         if (_cachedCalendar != null)
-            return Result<AcademicCalendar>.Success(_cachedCalendar);
+            return _cachedCalendar;
         return await RefreshCalendarAsync();
     }
 
@@ -48,7 +48,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
             _cachedCalendar = calendarResponse.Data;
             SaveCalendar(_cachedCalendar);
-            return Result<AcademicCalendar>.Success(_cachedCalendar);
+            return _cachedCalendar;
         }
         catch (HttpRequestException)
         {
@@ -57,7 +57,7 @@ public class AcademicCalendarService : IAcademicCalendarService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred when fetching calendar");
-            return Result<AcademicCalendar>.Failure($"获取校历失败：{ex.Message}");
+            return Result.Fail(500, $"获取校历失败：{ex.Message}");
         }
     }
 
@@ -71,21 +71,21 @@ public class AcademicCalendarService : IAcademicCalendarService
             var fallbackFilePath = Path.Combine(appDirectory, FallbackCalendarFilePath);
 
             if (!File.Exists(fallbackFilePath))
-                return Result<AcademicCalendar>.Failure($"Fallback文件不存在: {fallbackFilePath}");
+                return Result.Fail(500, $"Fallback文件不存在: {fallbackFilePath}");
 
             var jsonContent = await File.ReadAllTextAsync(fallbackFilePath);
             var calendar = JsonSerializer.Deserialize<AcademicCalendar>(jsonContent);
 
             if (calendar == null)
-                return Result<AcademicCalendar>.Failure("Fallback文件解析失败");
+                return Result.Fail(500, "Fallback文件解析失败");
 
             _cachedCalendar = calendar;
             SaveCalendar(_cachedCalendar);
-            return Result<AcademicCalendar>.Success(_cachedCalendar);
+            return _cachedCalendar;
         }
         catch (Exception ex)
         {
-            return Result<AcademicCalendar>.Failure($"读取Fallback文件失败：{ex.Message}");
+            return Result.Fail(500, $"读取Fallback文件失败：{ex.Message}");
         }
     }
 

@@ -1,5 +1,5 @@
+using NOF.Contract;
 using ReQuantum.Application.Models.CoursesZju;
-using ReQuantum.Shared.Models;
 
 namespace ReQuantum.Application.Services.CoursesZju;
 

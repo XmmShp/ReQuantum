@@ -118,7 +118,7 @@
         var result = SsoService.LoginWithSession(userId, manualCookieValue);
 
         progressMessages.Clear();
-        progressMessages.Add(result.IsSuccess ? $" {result.Message}" : $" {result.Message}");
+        progressMessages.Add($" {result.Message}");
 
         manualCookieValue = string.Empty;
         manualUserId = string.Empty;

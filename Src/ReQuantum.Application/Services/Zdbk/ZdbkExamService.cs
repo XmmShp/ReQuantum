@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
+using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Parsers;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Shared.Models;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.Zdbk;
@@ -32,11 +32,11 @@ public class ZdbkExamService : IZdbkExamService
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
-            return Result<List<ParsedExamInfo>>.Failure("未登录或无学号");
+            return Result.Fail(400, "未登录或无学号");
 
         var clientResult = await GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
-            return Result<List<ParsedExamInfo>>.Failure(clientResult.Message);
+            return Result.Fail(400, clientResult.Message);
 
         try
         {
@@ -58,11 +58,11 @@ public class ZdbkExamService : IZdbkExamService
             var response = await client.PostAsync(apiUrl, content);
 
             if (!response.IsSuccessStatusCode)
-                return Result<List<ParsedExamInfo>>.Failure($"获取考试信息失败: {response.StatusCode}");
+                return Result.Fail(500, $"获取考试信息失败: {response.StatusCode}");
 
             var examResponse = await response.Content.ReadFromJsonAsync<ZdbkExamResponse>();
             if (examResponse == null)
-                return Result<List<ParsedExamInfo>>.Failure("解析考试数据失败");
+                return Result.Fail(500, "解析考试数据失败");
 
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             var calendar = calendarResult.IsSuccess ? calendarResult.Value : null;
@@ -74,7 +74,7 @@ public class ZdbkExamService : IZdbkExamService
         catch (Exception ex)
         {
             _logger.LogError(ex, "获取考试信息时发生错误");
-            return Result<List<ParsedExamInfo>>.Failure($"获取考试信息失败: {ex.Message}");
+            return Result.Fail(500, $"获取考试信息失败: {ex.Message}");
         }
     }
 
@@ -92,8 +92,10 @@ public class ZdbkExamService : IZdbkExamService
                     CourseName = raw.CourseName.Replace("(", "（").Replace(")", "）"),
                     Credit = float.TryParse(raw.Credit, out var credit) ? credit : 0f,
                     ExamType = ExamType.MidTerm,
-                    StartTime = start, EndTime = end,
-                    Location = raw.MidTermExamLocation, Seat = raw.MidTermExamSeat,
+                    StartTime = start,
+                    EndTime = end,
+                    Location = raw.MidTermExamLocation,
+                    Seat = raw.MidTermExamSeat,
                     RawTimeString = raw.MidTermExamTime
                 });
             }
@@ -107,8 +109,10 @@ public class ZdbkExamService : IZdbkExamService
                     CourseName = raw.CourseName.Replace("(", "（").Replace(")", "）"),
                     Credit = float.TryParse(raw.Credit, out var credit) ? credit : 0f,
                     ExamType = ExamType.FinalTerm,
-                    StartTime = start, EndTime = end,
-                    Location = raw.FinalExamLocation, Seat = raw.FinalExamSeat,
+                    StartTime = start,
+                    EndTime = end,
+                    Location = raw.FinalExamLocation,
+                    Seat = raw.FinalExamSeat,
                     RawTimeString = raw.FinalExamTime
                 });
             }
@@ -130,7 +134,7 @@ public class ZdbkExamService : IZdbkExamService
     private async Task<Result<RequestClient>> GetAuthenticatedClientAsync()
     {
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess) return Result<RequestClient>.Failure(clientResult.Message);
+        if (!clientResult.IsSuccess) return Result.Fail(500, clientResult.Message);
 
         try
         {
@@ -146,7 +150,7 @@ public class ZdbkExamService : IZdbkExamService
         }
         catch (Exception ex)
         {
-            return Result<RequestClient>.Failure($"SSO认证失败: {ex.Message}");
+            return Result.Fail(500, $"SSO认证失败: {ex.Message}");
         }
     }
 }

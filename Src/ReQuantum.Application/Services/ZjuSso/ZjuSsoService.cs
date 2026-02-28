@@ -5,8 +5,8 @@ using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using NOF.Contract;
 using ReQuantum.Application.Models.ZjuSso;
-using ReQuantum.Shared.Models;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.ZjuSso;
@@ -48,8 +48,8 @@ public class ZjuSsoService : IZjuSsoService
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
         var result = await ValidOrRefreshTokenAsync();
-        if (!result.IsSuccess) return Result<RequestClient>.Failure(result.Message);
-        if (!IsAuthenticated) return Result<RequestClient>.Failure("未登录");
+        if (!result.IsSuccess) return Result.Fail(400, result.Message);
+        if (!IsAuthenticated) return Result.Fail(400, "未登录");
 
         var requestOptions = options ?? new RequestOptions();
         requestOptions.Cookies = requestOptions.Cookies is null
@@ -65,12 +65,12 @@ public class ZjuSsoService : IZjuSsoService
 
         // Get Execution
         var executionResult = await GetExecutionAsync(client);
-        if (!executionResult.IsSuccess) return Result.Failure(executionResult.Message);
+        if (!executionResult.IsSuccess) return Result.Fail(400, executionResult.Message);
         var execution = executionResult.Value!;
 
         // Get PubKey
         var pubkeyResult = await GetPubkeyAsync(client);
-        if (!pubkeyResult.IsSuccess) return Result.Failure(pubkeyResult.Message);
+        if (!pubkeyResult.IsSuccess) return Result.Fail(400, pubkeyResult.Message);
         var (modulus, exponent) = pubkeyResult.Value!;
 
         // 使用RSA公钥加密密码
@@ -88,18 +88,18 @@ public class ZjuSsoService : IZjuSsoService
 
         var response = await client.PostAsync(LoginUrl, formContent);
         if (!response.IsSuccessStatusCode)
-            return Result.Failure("账号可能被锁定");
+            return Result.Fail(400, "账号可能被锁定");
 
         var cookieNew = client.CookieContainer.GetCookies(new Uri(LoginUrl))
             .FirstOrDefault(c => c.Name == "iPlanetDirectoryPro");
 
         if (cookieNew is null)
-            return Result.Failure("用户名或密码错误");
+            return Result.Fail(400, "用户名或密码错误");
 
         _state = new ZjuSsoState(username, password, cookieNew);
         SaveState();
         OnLogin?.Invoke();
-        return Result.Success("登录成功");
+        return Result.Success();
     }
 
     public async Task<Result> OpenBrowserAndWaitForLoginAsync(Action<string>? progressCallback = null, int timeoutSeconds = 300)
@@ -107,13 +107,13 @@ public class ZjuSsoService : IZjuSsoService
         try
         {
             if (_browserLoginProvider is null)
-                return Result.Failure("浏览器登录不可用");
+                return Result.Fail(400, "浏览器登录不可用");
 
             var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
                 LoginUrl, "iPlanetDirectoryPro", progressCallback, timeoutSeconds);
 
             if (!loginResult.IsSuccess)
-                return Result.Failure($"浏览器登录失败: {loginResult.Message}");
+                return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
 
             var result = loginResult.Value!;
             var userId = result.Username ?? "ZJU用户";
@@ -123,7 +123,7 @@ public class ZjuSsoService : IZjuSsoService
         }
         catch (Exception ex)
         {
-            return Result.Failure($"浏览器登录失败: {ex.Message}");
+            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -135,11 +135,11 @@ public class ZjuSsoService : IZjuSsoService
             _state = new ZjuSsoState(userId, "", cookie);
             SaveState();
             OnLogin?.Invoke();
-            return Result.Success("登录成功");
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return Result.Failure($"登录异常: {ex.Message}");
+            return Result.Fail(400, $"登录异常: {ex.Message}");
         }
     }
 
@@ -153,8 +153,8 @@ public class ZjuSsoService : IZjuSsoService
 
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
-        if (await IsTokenValidAsync()) return Result.Success("登录有效");
-        if (!IsAuthenticated) return Result.Failure("未登录");
+        if (await IsTokenValidAsync()) return Result.Success();
+        if (!IsAuthenticated) return Result.Fail(400, "未登录");
 
         var username = _state.Id;
         var password = _state.Password;
@@ -214,7 +214,7 @@ public class ZjuSsoService : IZjuSsoService
             }
         }
 
-        return Result<string>.Failure("无法获取execution值");
+        return Result.Fail(400, "无法获取execution值");
     }
 
     private static async Task<Result<(string Modulus, string Exponent)>> GetPubkeyAsync(RequestClient client)
@@ -223,8 +223,8 @@ public class ZjuSsoService : IZjuSsoService
         var mod = json.RootElement.GetProperty("modulus").GetString();
         var exp = json.RootElement.GetProperty("exponent").GetString();
 
-        if (mod is null) return Result<(string, string)>.Failure("无法获取modulus");
-        if (exp is null) return Result<(string, string)>.Failure("无法获取exponent");
+        if (mod is null) return Result.Fail(400, "无法获取modulus");
+        if (exp is null) return Result.Fail(400, "无法获取exponent");
 
         return (mod, exp);
     }

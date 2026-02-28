@@ -1,11 +1,11 @@
+using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
-using ReQuantum.Shared.Models;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
 public class ZdbkGradeService : IZdbkGradeService
 {
-    public Task<Result<ZdbkGrades>> GetSemesterGradesAsync(string academicYear, string semester)
+    public async Task<Result<ZdbkGrades>> GetSemesterGradesAsync(string academicYear, string semester)
     {
         // TODO: implement real grade fetching
         var result = new ZdbkGrades
@@ -26,6 +26,6 @@ public class ZdbkGradeService : IZdbkGradeService
             ]
         };
 
-        return Task.FromResult<Result<ZdbkGrades>>(result);
+        return result;
     }
 }

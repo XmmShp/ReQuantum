@@ -1,5 +1,5 @@
+using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
-using ReQuantum.Shared.Models;
 
 namespace ReQuantum.Application.Services.Pta;
 

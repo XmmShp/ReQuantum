@@ -1,10 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
+using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Shared.Models;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.Pta;
@@ -34,8 +33,8 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
         var result = await ValidOrRefreshTokenAsync();
-        if (!result.IsSuccess) return Result<RequestClient>.Failure(result.Message);
-        if (!IsAuthenticated) return Result<RequestClient>.Failure("未登录");
+        if (!result.IsSuccess) return Result.Fail(400, result.Message);
+        if (!IsAuthenticated) return Result.Fail(400, "未登录");
 
         var requestOptions = options ?? new RequestOptions();
         requestOptions.Cookies = requestOptions.Cookies is null
@@ -58,7 +57,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
             var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
                 "https://pintia.cn/auth/login", "PTASession", progressCallback, timeoutSeconds);
             if (!loginResult.IsSuccess)
-                return Result.Failure($"浏览器登录失败: {loginResult.Message}");
+                return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
 
             var result = loginResult.Value!;
 
@@ -68,11 +67,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
             progressCallback?.Invoke($"登录成功！欢迎 {username}");
             LoginWithSession(username, result.CookieValue);
-            return Result.Success("登录成功");
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return Result.Failure($"浏览器登录失败: {ex.Message}");
+            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -84,11 +83,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
             _state = new PtaState(email, ptaSessionCookie);
             SaveState();
             OnLogin?.Invoke();
-            return Result.Success("登录成功");
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return Result.Failure($"登录异常: {ex.Message}");
+            return Result.Fail(400, $"登录异常: {ex.Message}");
         }
     }
 
@@ -114,9 +113,9 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
         if (await IsTokenValidAsync()) return Result.Success();
-        if (!IsAuthenticated) return Result.Failure("未登录");
+        if (!IsAuthenticated) return Result.Fail(400, "未登录");
         Logout();
-        return Result.Failure("Session 已过期，请重新登录");
+        return Result.Fail(400, "Session 已过期，请重新登录");
     }
 
     private static async Task<Result<string>> GetUserInfoAsync(string ptaSessionValue)
@@ -130,16 +129,16 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
             var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
-                return Result<string>.Failure($"获取用户信息失败: HTTP {response.StatusCode}");
+                return Result.Fail(400, $"获取用户信息失败: HTTP {response.StatusCode}");
 
             var userInfo = await response.Content.ReadFromJsonAsync<PtaUserInfoResponse>();
             if (userInfo?.User?.Nickname is { Length: > 0 }) return userInfo.User.Nickname;
             if (userInfo?.User?.Email is { Length: > 0 }) return userInfo.User.Email;
-            return Result<string>.Failure("未能获取用户信息");
+            return Result.Fail(400, "未能获取用户信息");
         }
         catch (Exception ex)
         {
-            return Result<string>.Failure($"获取用户信息异常: {ex.Message}");
+            return Result.Fail(400, $"获取用户信息异常: {ex.Message}");
         }
     }
 

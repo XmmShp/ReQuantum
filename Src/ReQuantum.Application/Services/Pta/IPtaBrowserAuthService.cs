@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using ReQuantum.Shared.Models;
+using NOF.Contract;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Application.Services.Pta;
