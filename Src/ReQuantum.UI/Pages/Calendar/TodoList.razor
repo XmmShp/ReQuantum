@@ -1,0 +1,78 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<div class="todo-list">
+    <div class="list-header">
+        <h4>@L["TodoList"]</h4>
+        <button class="btn btn-sm btn-primary" @onclick="ShowAddTodoDialog">@L["AddTodo"]</button>
+    </div>
+
+    <div class="list-content">
+        @if (todos.Any())
+        {
+            @foreach (var todo in todos)
+            {
+                <div class="todo-item @(todo.IsCompleted ? "completed" : "")">
+                    <input type="checkbox" 
+                           checked="@todo.IsCompleted" 
+                           @onchange="() => ToggleTodo(todo.Id)" />
+                    <div class="todo-info">
+                        <div class="todo-content">@todo.Content</div>
+                        <div class="todo-due-time">
+                            @string.Format(L["DueTime"], todo.DueTime.ToString("yyyy-MM-dd HH:mm"))
+                        </div>
+                    </div>
+                    <div class="todo-actions">
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditTodo(todo)">@L["Edit"]</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTodo(todo.Id)">@L["Delete"]</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-message">@L["NoTodos"]</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateOnly SelectedDate { get; set; }
+
+    private List<CalendarTodo> todos = new();
+
+    protected override void OnParametersSet()
+    {
+        LoadTodos();
+    }
+
+    private void LoadTodos()
+    {
+        todos = CalendarService.GetTodosByDate(SelectedDate);
+    }
+
+    private void ShowAddTodoDialog()
+    {
+    }
+
+    private void EditTodo(CalendarTodo todo)
+    {
+    }
+
+    private void ToggleTodo(Guid id)
+    {
+        CalendarService.ToggleTodoComplete(id);
+        LoadTodos();
+    }
+
+    private void DeleteTodo(Guid id)
+    {
+        CalendarService.DeleteTodo(id);
+        LoadTodos();
+    }
+}

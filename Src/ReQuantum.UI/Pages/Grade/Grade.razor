@@ -1,0 +1,130 @@
+@page "/grade"
+@using ReQuantum.Application.Models.Zdbk
+@using ReQuantum.Application.Services.Zdbk
+@inject IZdbkGradeService GradeService
+
+<h3>成绩查询</h3>
+
+<div class="mb-3 d-flex gap-2 align-items-end">
+    <div>
+        <label class="form-label">学年</label>
+        <input type="text" class="form-control" @bind="_academicYear" placeholder="如 2024-2025" />
+    </div>
+    <div>
+        <label class="form-label">学期</label>
+        <select class="form-select" @bind="_semester">
+            <option value="1">第一学期</option>
+            <option value="2">第二学期</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" @onclick="LoadGradesAsync" disabled="@_isLoading">
+        @(_isLoading ? "加载中..." : "查询成绩")
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+@if (_grades is not null)
+{
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted">总学分</h6>
+                    <h4>@_grades.Credit</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted">绩点(5分制)</h6>
+                    <h4>@_grades.GradePoint5.ToString("F2")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted">绩点(4分制)</h6>
+                    <h4>@_grades.GradePoint4.ToString("F2")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted">百分制均分</h6>
+                    <h4>@_grades.GradePoint100.ToString("F1")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted">主修绩点</h6>
+                    <h4>@_grades.MajorGradePoint.ToString("F2")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_grades.CoursesGrade.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>课程名称</th>
+                        <th>课程代码</th>
+                        <th>学分</th>
+                        <th>百分成绩</th>
+                        <th>绩点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in _grades.CoursesGrade)
+                    {
+                        <tr>
+                            <td>@course.CourseName</td>
+                            <td>@course.CourseCode</td>
+                            <td>@course.Credit</td>
+                            <td>@course.Grade100</td>
+                            <td>@course.Grade5.ToString("F1")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    private string _academicYear = $"{DateTime.Now.Year - 1}-{DateTime.Now.Year}";
+    private string _semester = "1";
+    private ZdbkGrades? _grades;
+    private bool _isLoading;
+    private string? _errorMessage;
+
+    private async Task LoadGradesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        StateHasChanged();
+
+        var result = await GradeService.GetSemesterGradesAsync(_academicYear, _semester);
+        if (result.IsSuccess)
+        {
+            _grades = result.Value;
+        }
+        else
+        {
+            _errorMessage = result.Message?.ToString();
+        }
+
+        _isLoading = false;
+    }
+}

@@ -1,0 +1,15 @@
+<Solution>
+  <!-- Infrastructure -->
+  <Project Path="Src/ReQuantum.Shared/ReQuantum.Shared.csproj" />
+
+  <!-- Application -->
+  <Project Path="Src/ReQuantum.Application/ReQuantum.Application.csproj" />
+
+  <!-- UI -->
+  <Project Path="Src/ReQuantum.UI/ReQuantum.UI.csproj" />
+
+  <!-- Hosts -->
+  <Project Path="Src/ReQuantum.MAUI/ReQuantum.MAUI.csproj" />
+  <Project Path="Src/ReQuantum.Web/ReQuantum.Web.csproj" />
+  <Project Path="Src/ReQuantum.Web.Wasm/ReQuantum.Web.Wasm.csproj" />
+</Solution>

@@ -1,0 +1,25 @@
+.course-selection-container {
+    padding: 1rem;
+}
+
+.course-selection-header {
+    margin-bottom: 1.5rem;
+}
+
+.course-selection-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.course-selection-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.placeholder-message {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.1rem;
+}

@@ -1,0 +1,21 @@
+@page "/course-selection"
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@inject IStringLocalizer<CourseSelectionStrings> L
+
+<PageTitle>@L["CourseSelection"]</PageTitle>
+
+<div class="course-selection-container">
+    <div class="course-selection-header">
+        <h1>@L["CourseSelection"]</h1>
+    </div>
+
+    <div class="course-selection-content">
+        <div class="placeholder-message">
+            <p>@L["ComingSoon"]</p>
+        </div>
+    </div>
+</div>
+
+@code {
+}

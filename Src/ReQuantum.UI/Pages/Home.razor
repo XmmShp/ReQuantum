@@ -1,0 +1,133 @@
+@page "/"
+@using ReQuantum.Application.Models.Calendar
+@using ReQuantum.Application.Services.Calendar
+@inject ICalendarService CalendarService
+
+<PageTitle>ReQuantum</PageTitle>
+
+<h3>仪表盘</h3>
+
+<div class="row">
+    @* 近期日程 *@
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>近期日程</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                @if (_recentEvents.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var evt in _recentEvents)
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="fw-bold">@evt.Content.Split('\n')[0]</div>
+                                <small class="text-muted">@evt.StartTime.ToString("MM-dd HH:mm") - @evt.EndTime.ToString("HH:mm")</small>
+                                @if (!string.IsNullOrEmpty(evt.From))
+                                {
+                                    <span class="badge bg-info ms-1">@evt.From</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">暂无近期日程</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* 待办事项 *@
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>待办事项</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                @if (_recentTodos.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var todo in _recentTodos)
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="@(todo.IsCompleted ? "text-decoration-line-through text-muted" : "")">
+                                    @todo.Content
+                                </div>
+                                <small class="text-muted">截止: @todo.DueTime.ToString("MM-dd HH:mm")</small>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">暂无待办事项</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* 便签 *@
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>便签</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                @if (_recentNotes.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var note in _recentNotes)
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="fw-bold">@note.Content</div>
+                                <small class="text-muted">@note.CreatedAt.ToString("MM-dd HH:mm")</small>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">暂无便签</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<CalendarEvent> _recentEvents = [];
+    private List<CalendarTodo> _recentTodos = [];
+    private List<CalendarNote> _recentNotes = [];
+
+    protected override void OnInitialized()
+    {
+        LoadRecentItems();
+    }
+
+    private void LoadRecentItems()
+    {
+        var now = DateTime.Now;
+
+        _recentEvents = CalendarService.GetAllEvents()
+            .Where(e => e.StartTime.Date >= now.Date)
+            .OrderBy(e => e.StartTime)
+            .Take(5)
+            .ToList();
+
+        _recentTodos = CalendarService.GetAllTodos()
+            .Where(t => !t.IsCompleted && t.DueTime >= now)
+            .OrderBy(t => t.DueTime)
+            .Take(5)
+            .ToList();
+
+        _recentNotes = CalendarService.GetAllNotes()
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(5)
+            .ToList();
+    }
+}

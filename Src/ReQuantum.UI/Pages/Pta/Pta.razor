@@ -1,0 +1,171 @@
+@page "/pta"
+@using ReQuantum.Application.Models.Pta
+@using ReQuantum.Application.Services.Pta
+@inject IPtaBrowserAuthService PtaAuthService
+@inject IPtaProblemSetService PtaProblemSetService
+
+<h3>PTA 习题集</h3>
+
+@* 登录区域 *@
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">PTA 账号</h5>
+        @if (PtaAuthService.IsAuthenticated)
+        {
+            <p class="text-success">已登录: @PtaAuthService.Email</p>
+            <button class="btn btn-outline-danger btn-sm" @onclick="Logout">退出登录</button>
+        }
+        else
+        {
+            <div class="mb-2">
+                <button class="btn btn-primary" @onclick="LoginAsync" disabled="@_isLoginLoading">
+                    @(_isLoginLoading ? "登录中..." : "浏览器登录")
+                </button>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">或手动输入 Cookie</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="邮箱" @bind="_manualEmail" />
+                    <input type="text" class="form-control" placeholder="PTASession Cookie 值" @bind="_manualCookie" />
+                    <button class="btn btn-outline-primary" @onclick="ManualLogin">登录</button>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(_loginMessage))
+            {
+                <div class="alert alert-info mt-2">@_loginMessage</div>
+            }
+        }
+    </div>
+</div>
+
+@* 习题集列表 *@
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="LoadProblemSetsAsync" disabled="@_isLoading">
+        @(_isLoading ? "加载中..." : "刷新习题集")
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+@if (_problemSets is not null && _problemSets.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>组织</th>
+                    <th>类型</th>
+                    <th>截止时间</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ps in _problemSets.OrderBy(p => p.EndAt))
+                {
+                    <tr class="@(ps.EndAt < DateTime.Now ? "table-secondary" : "")">
+                        <td>@ps.Name</td>
+                        <td>@ps.OrganizationName</td>
+                        <td>@ps.Type</td>
+                        <td>@ps.EndAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            @if (ps.EndAt < DateTime.Now)
+                            {
+                                <span class="badge bg-secondary">已截止</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">进行中</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (!_isLoading && _problemSets is not null)
+{
+    <p class="text-muted">暂无习题集</p>
+}
+
+@code {
+    private List<PtaProblemSet>? _problemSets;
+    private bool _isLoading;
+    private bool _isLoginLoading;
+    private string? _errorMessage;
+    private string? _loginMessage;
+    private string _manualEmail = "";
+    private string _manualCookie = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PtaAuthService.IsAuthenticated)
+        {
+            await LoadProblemSetsAsync();
+        }
+    }
+
+    private async Task LoginAsync()
+    {
+        _isLoginLoading = true;
+        _loginMessage = "正在打开浏览器...";
+        StateHasChanged();
+
+        var result = await PtaAuthService.OpenBrowserAndWaitForLoginAsync(
+            msg => { _loginMessage = msg; InvokeAsync(StateHasChanged); });
+
+        _isLoginLoading = false;
+        _loginMessage = result.IsSuccess ? null : result.Message?.ToString();
+
+        if (result.IsSuccess)
+        {
+            await LoadProblemSetsAsync();
+        }
+    }
+
+    private void ManualLogin()
+    {
+        if (string.IsNullOrWhiteSpace(_manualEmail) || string.IsNullOrWhiteSpace(_manualCookie))
+        {
+            _loginMessage = "请输入邮箱和 Cookie";
+            return;
+        }
+
+        var result = PtaAuthService.LoginWithSession(_manualEmail, _manualCookie);
+        _loginMessage = result.IsSuccess ? null : result.Message?.ToString();
+        if (result.IsSuccess)
+        {
+            _ = LoadProblemSetsAsync();
+        }
+    }
+
+    private void Logout()
+    {
+        PtaAuthService.Logout();
+        _problemSets = null;
+    }
+
+    private async Task LoadProblemSetsAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        StateHasChanged();
+
+        var result = await PtaProblemSetService.GetProblemSetsAsync();
+        if (result.IsSuccess)
+        {
+            _problemSets = result.Value;
+        }
+        else
+        {
+            _errorMessage = result.Message?.ToString();
+            _problemSets ??= [];
+        }
+
+        _isLoading = false;
+    }
+}

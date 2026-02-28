@@ -1,0 +1,65 @@
+@page "/calendar"
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<PageTitle>@L["Calendar"]</PageTitle>
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <h1>@L["Calendar"]</h1>
+        <div class="view-switcher">
+            <button class="btn @(currentView == CalendarView.Month ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => SwitchView(CalendarView.Month)">
+                @L["MonthView"]
+            </button>
+            <button class="btn @(currentView == CalendarView.Week ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => SwitchView(CalendarView.Week)">
+                @L["WeekView"]
+            </button>
+            <button class="btn @(currentView == CalendarView.List ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => SwitchView(CalendarView.List)">
+                @L["ListView"]
+            </button>
+        </div>
+    </div>
+
+    <div class="calendar-content">
+        @if (currentView == CalendarView.Month)
+        {
+            <MonthCalendar @bind-SelectedDate="selectedDate" />
+        }
+        else if (currentView == CalendarView.Week)
+        {
+            <WeekCalendar @bind-SelectedDate="selectedDate" />
+        }
+        else if (currentView == CalendarView.List)
+        {
+            <div class="list-view-container">
+                <EventList SelectedDate="selectedDate" />
+                <TodoList SelectedDate="selectedDate" />
+                <NoteList />
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private enum CalendarView
+    {
+        Month,
+        Week,
+        List
+    }
+
+    private CalendarView currentView = CalendarView.Month;
+    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+
+    private void SwitchView(CalendarView view)
+    {
+        currentView = view;
+    }
+}

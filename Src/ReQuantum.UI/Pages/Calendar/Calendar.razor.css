@@ -1,0 +1,36 @@
+.calendar-container {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.view-switcher {
+    display: flex;
+    gap: 10px;
+}
+
+.calendar-content {
+    flex: 1;
+    overflow: auto;
+}
+
+.list-view-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    height: 100%;
+}
+
+@media (max-width: 1200px) {
+    .list-view-container {
+        grid-template-columns: 1fr;
+    }
+}

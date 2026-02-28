@@ -1,0 +1,134 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<div class="month-calendar">
+    <div class="month-header">
+        <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousMonth">&lt;</button>
+        <h3>@string.Format(L["DateFormatYearMonth"], currentMonth)</h3>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="NextMonth">&gt;</button>
+        <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
+    </div>
+
+    <div class="calendar-grid">
+        <div class="weekday-header">
+            <div class="weekday">@L["Sun"]</div>
+            <div class="weekday">@L["Mon"]</div>
+            <div class="weekday">@L["Tue"]</div>
+            <div class="weekday">@L["Wed"]</div>
+            <div class="weekday">@L["Thu"]</div>
+            <div class="weekday">@L["Fri"]</div>
+            <div class="weekday">@L["Sat"]</div>
+        </div>
+
+        <div class="days-grid">
+            @foreach (var day in calendarDays)
+            {
+                <div class="day-cell @GetDayClass(day)" @onclick="() => SelectDay(day)">
+                    <div class="day-number">@day.Day</div>
+                    @if (day >= firstDayOfMonth && day <= lastDayOfMonth)
+                    {
+                        var dayData = CalendarService.GetCalendarDayData(day);
+                        <div class="day-indicators">
+                            @if (dayData.Events.Any())
+                            {
+                                <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)"></span>
+                            }
+                            @if (dayData.Todos.Any())
+                            {
+                                <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)"></span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateOnly SelectedDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
+    [Parameter]
+    public EventCallback<DateOnly> SelectedDateChanged { get; set; }
+
+    private DateTime currentMonth = DateTime.Today;
+    private DateOnly firstDayOfMonth;
+    private DateOnly lastDayOfMonth;
+    private List<DateOnly> calendarDays = new();
+
+    protected override void OnInitialized()
+    {
+        GenerateCalendarDays();
+    }
+
+    private void GenerateCalendarDays()
+    {
+        calendarDays.Clear();
+
+        var year = currentMonth.Year;
+        var month = currentMonth.Month;
+
+        firstDayOfMonth = new DateOnly(year, month, 1);
+        lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+        var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+        var startDate = firstDayOfMonth.AddDays(-firstDayOfWeek);
+
+        for (int i = 0; i < 42; i++)
+        {
+            calendarDays.Add(startDate.AddDays(i));
+        }
+    }
+
+    private string GetDayClass(DateOnly day)
+    {
+        var classes = new List<string>();
+
+        if (day < firstDayOfMonth || day > lastDayOfMonth)
+        {
+            classes.Add("other-month");
+        }
+
+        if (day == DateOnly.FromDateTime(DateTime.Today))
+        {
+            classes.Add("today");
+        }
+
+        if (day == SelectedDate)
+        {
+            classes.Add("selected");
+        }
+
+        return string.Join(" ", classes);
+    }
+
+    private async Task SelectDay(DateOnly day)
+    {
+        SelectedDate = day;
+        await SelectedDateChanged.InvokeAsync(day);
+    }
+
+    private void PreviousMonth()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+        GenerateCalendarDays();
+    }
+
+    private void NextMonth()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+        GenerateCalendarDays();
+    }
+
+    private void GoToToday()
+    {
+        currentMonth = DateTime.Today;
+        GenerateCalendarDays();
+        SelectDay(DateOnly.FromDateTime(DateTime.Today));
+    }
+}

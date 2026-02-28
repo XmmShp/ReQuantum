@@ -1,0 +1,77 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<div class="event-list">
+    <div class="list-header">
+        <h4>@L["EventList"]</h4>
+        <button class="btn btn-sm btn-primary" @onclick="ShowAddEventDialog">@L["AddEvent"]</button>
+    </div>
+
+    <div class="list-content">
+        @if (events.Any())
+        {
+            @foreach (var evt in events)
+            {
+                <div class="event-item">
+                    <div class="event-info">
+                        <div class="event-title">@evt.Content</div>
+                        <div class="event-time">
+                            @evt.StartTime.ToString("yyyy-MM-dd HH:mm") - @evt.EndTime.ToString("HH:mm")
+                        </div>
+                        @if (!string.IsNullOrEmpty(evt.Note))
+                        {
+                            <div class="event-note">@evt.Note</div>
+                        }
+                        @if (!string.IsNullOrEmpty(evt.From))
+                        {
+                            <div class="event-from">@string.Format(L["Source"], evt.From)</div>
+                        }
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditEvent(evt)">@L["Edit"]</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteEvent(evt.Id)">@L["Delete"]</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-message">@L["NoEvents"]</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateOnly SelectedDate { get; set; }
+
+    private List<CalendarEvent> events = new();
+
+    protected override void OnParametersSet()
+    {
+        LoadEvents();
+    }
+
+    private void LoadEvents()
+    {
+        events = CalendarService.GetEventsByDate(SelectedDate);
+    }
+
+    private void ShowAddEventDialog()
+    {
+    }
+
+    private void EditEvent(CalendarEvent evt)
+    {
+    }
+
+    private void DeleteEvent(Guid id)
+    {
+        CalendarService.DeleteEvent(id);
+        LoadEvents();
+    }
+}

@@ -1,0 +1,66 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<div class="note-list">
+    <div class="list-header">
+        <h4>@L["NoteList"]</h4>
+        <button class="btn btn-sm btn-primary" @onclick="ShowAddNoteDialog">@L["AddNote"]</button>
+    </div>
+
+    <div class="list-content">
+        @if (notes.Any())
+        {
+            @foreach (var note in notes)
+            {
+                <div class="note-item">
+                    <div class="note-info">
+                        <div class="note-content">@note.Content</div>
+                        <div class="note-created">
+                            @string.Format(L["CreatedAt"], note.CreatedAt.ToString("yyyy-MM-dd HH:mm"))
+                        </div>
+                    </div>
+                    <div class="note-actions">
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditNote(note)">@L["Edit"]</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteNote(note.Id)">@L["Delete"]</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-message">@L["NoNotes"]</div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<CalendarNote> notes = new();
+
+    protected override void OnInitialized()
+    {
+        LoadNotes();
+    }
+
+    private void LoadNotes()
+    {
+        notes = CalendarService.GetAllNotes();
+    }
+
+    private void ShowAddNoteDialog()
+    {
+    }
+
+    private void EditNote(CalendarNote note)
+    {
+    }
+
+    private void DeleteNote(Guid id)
+    {
+        CalendarService.DeleteNote(id);
+        LoadNotes();
+    }
+}

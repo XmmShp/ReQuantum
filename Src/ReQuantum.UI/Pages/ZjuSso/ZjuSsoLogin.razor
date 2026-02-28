@@ -1,0 +1,132 @@
+@page "/zju-sso"
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.ZjuSso
+@inject IZjuSsoService SsoService
+@inject IStringLocalizer<ZjuSsoStrings> L
+
+<PageTitle>@L["ZjuSso"]</PageTitle>
+
+<div class="zju-sso-container">
+    <div class="zju-sso-header">
+        <h1>@L["ZjuSso"]</h1>
+    </div>
+
+    <div class="zju-sso-content">
+        @if (SsoService.IsAuthenticated)
+        {
+            <div class="auth-status authenticated">
+                <div class="status-icon"></div>
+                <div class="status-info">
+                    <p class="status-text">@L["LoggedInAs"]</p>
+                    <p class="user-id">@SsoService.Id</p>
+                </div>
+                <button class="btn btn-outline-danger" @onclick="HandleLogout">@L["Logout"]</button>
+            </div>
+        }
+        else
+        {
+            <div class="auth-status not-authenticated">
+                <div class="status-icon"></div>
+                <p class="status-text">@L["NotLoggedIn"]</p>
+            </div>
+
+            <div class="login-actions">
+                <button class="btn btn-primary" @onclick="HandleBrowserLogin" disabled="@isLoggingIn">
+                    @if (isLoggingIn)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                        @(" ")
+                    }
+                    @L["BrowserLogin"]
+                </button>
+
+                <div class="manual-login">
+                    <h4>@L["ManualLogin"]</h4>
+                    <div class="form-group">
+                        <label>@L["CookieValue"]</label>
+                        <input type="text" class="form-control" @bind="manualCookieValue"
+                               placeholder="@L["CookieValuePlaceholder"]" />
+                    </div>
+                    <div class="form-group">
+                        <label>@L["UserId"]</label>
+                        <input type="text" class="form-control" @bind="manualUserId"
+                               placeholder="@L["UserIdPlaceholder"]" />
+                    </div>
+                    <button class="btn btn-secondary" @onclick="HandleManualLogin"
+                            disabled="@(string.IsNullOrWhiteSpace(manualCookieValue))">
+                        @L["Login"]
+                    </button>
+                </div>
+            </div>
+        }
+
+        @if (progressMessages.Count > 0)
+        {
+            <div class="progress-log">
+                <h4>@L["Progress"]</h4>
+                @foreach (var msg in progressMessages)
+                {
+                    <div class="progress-message">@msg</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private bool isLoggingIn;
+    private string manualCookieValue = string.Empty;
+    private string manualUserId = string.Empty;
+    private List<string> progressMessages = new();
+
+    protected override void OnInitialized()
+    {
+        SsoService.OnLogin += OnAuthStateChanged;
+        SsoService.OnLogout += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleBrowserLogin()
+    {
+        isLoggingIn = true;
+        progressMessages.Clear();
+        StateHasChanged();
+
+        var result = await SsoService.OpenBrowserAndWaitForLoginAsync(msg =>
+        {
+            progressMessages.Add(msg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        if (!result.IsSuccess)
+        {
+            progressMessages.Add($" {result.Message}");
+        }
+
+        isLoggingIn = false;
+        StateHasChanged();
+    }
+
+    private void HandleManualLogin()
+    {
+        var userId = string.IsNullOrWhiteSpace(manualUserId) ? "ZJU用户" : manualUserId;
+        var result = SsoService.LoginWithSession(userId, manualCookieValue);
+
+        progressMessages.Clear();
+        progressMessages.Add(result.IsSuccess ? $" {result.Message}" : $" {result.Message}");
+
+        manualCookieValue = string.Empty;
+        manualUserId = string.Empty;
+    }
+
+    private void HandleLogout()
+    {
+        SsoService.Logout();
+        progressMessages.Clear();
+    }
+}

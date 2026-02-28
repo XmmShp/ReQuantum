@@ -1,0 +1,130 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Application.Models.Calendar
+@inject ICalendarService CalendarService
+@inject IStringLocalizer<CalendarStrings> L
+
+<div class="week-calendar">
+    <div class="week-header">
+        <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">&lt;</button>
+        <h3>@GetWeekRange()</h3>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="NextWeek">&gt;</button>
+        <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
+    </div>
+
+    <div class="week-grid">
+        <div class="time-column">
+            <div class="time-header"></div>
+            @for (int hour = 0; hour < 24; hour++)
+            {
+                <div class="time-slot">@hour.ToString("00"):00</div>
+            }
+        </div>
+
+        @foreach (var day in weekDays)
+        {
+            <div class="day-column @(day == SelectedDate ? "selected" : "")" @onclick="() => SelectDay(day)">
+                <div class="day-header">
+                    <div class="day-name">@GetDayName(day)</div>
+                    <div class="day-date @(day == DateOnly.FromDateTime(DateTime.Today) ? "today" : "")">
+                        @day.Day
+                    </div>
+                </div>
+                
+                <div class="events-container">
+                    @{
+                        var dayEvents = CalendarService.GetEventsByDate(day);
+                        foreach (var evt in dayEvents)
+                        {
+                            var startHour = evt.StartTime.Hour + evt.StartTime.Minute / 60.0;
+                            var duration = (evt.EndTime - evt.StartTime).TotalHours;
+                            var top = startHour * 60;
+                            var height = duration * 60;
+                            
+                            <div class="event-block" style="top: @(top)px; height: @(height)px;" title="@evt.Content">
+                                <div class="event-time">@evt.StartTime.ToString("HH:mm")</div>
+                                <div class="event-content">@evt.Content</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DateOnly SelectedDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
+    [Parameter]
+    public EventCallback<DateOnly> SelectedDateChanged { get; set; }
+
+    private DateOnly currentWeekStart;
+    private List<DateOnly> weekDays = new();
+
+    protected override void OnInitialized()
+    {
+        GenerateWeekDays();
+    }
+
+    private void GenerateWeekDays()
+    {
+        weekDays.Clear();
+        
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var dayOfWeek = (int)today.DayOfWeek;
+        currentWeekStart = today.AddDays(-dayOfWeek);
+        
+        for (int i = 0; i < 7; i++)
+        {
+            weekDays.Add(currentWeekStart.AddDays(i));
+        }
+    }
+
+    private string GetWeekRange()
+    {
+        var weekEnd = currentWeekStart.AddDays(6);
+        return string.Format(L["DateFormatRange"], currentWeekStart.ToDateTime(TimeOnly.MinValue), weekEnd.ToDateTime(TimeOnly.MinValue));
+    }
+
+    private string GetDayName(DateOnly day)
+    {
+        return day.DayOfWeek switch
+        {
+            DayOfWeek.Sunday => L["Sun"],
+            DayOfWeek.Monday => L["Mon"],
+            DayOfWeek.Tuesday => L["Tue"],
+            DayOfWeek.Wednesday => L["Wed"],
+            DayOfWeek.Thursday => L["Thu"],
+            DayOfWeek.Friday => L["Fri"],
+            DayOfWeek.Saturday => L["Sat"],
+            _ => ""
+        };
+    }
+
+    private async Task SelectDay(DateOnly day)
+    {
+        SelectedDate = day;
+        await SelectedDateChanged.InvokeAsync(day);
+    }
+
+    private void PreviousWeek()
+    {
+        currentWeekStart = currentWeekStart.AddDays(-7);
+        GenerateWeekDays();
+    }
+
+    private void NextWeek()
+    {
+        currentWeekStart = currentWeekStart.AddDays(7);
+        GenerateWeekDays();
+    }
+
+    private void GoToToday()
+    {
+        GenerateWeekDays();
+        SelectDay(DateOnly.FromDateTime(DateTime.Today));
+    }
+}

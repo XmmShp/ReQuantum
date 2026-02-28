@@ -1,0 +1,72 @@
+@page "/settings"
+@using ReQuantum.Application.Services.ZjuSso
+@using ReQuantum.Application.Services.Pta
+@inject IZjuSsoService ZjuSsoService
+@inject IPtaBrowserAuthService PtaAuthService
+
+<h3>设置</h3>
+
+@* ZJU SSO 登录状态 *@
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">浙大统一认证 (ZJU SSO)</h5>
+        @if (ZjuSsoService.IsAuthenticated)
+        {
+            <p class="text-success">已登录: @ZjuSsoService.Id</p>
+            <button class="btn btn-outline-danger btn-sm" @onclick="ZjuSsoLogout">退出登录</button>
+        }
+        else
+        {
+            <p class="text-muted">未登录</p>
+            <a href="zju-sso" class="btn btn-primary btn-sm">前往登录</a>
+        }
+    </div>
+</div>
+
+@* PTA 登录状态 *@
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">PTA</h5>
+        @if (PtaAuthService.IsAuthenticated)
+        {
+            <p class="text-success">已登录: @PtaAuthService.Email</p>
+            <button class="btn btn-outline-danger btn-sm" @onclick="PtaLogout">退出登录</button>
+        }
+        else
+        {
+            <p class="text-muted">未登录</p>
+            <a href="pta" class="btn btn-primary btn-sm">前往登录</a>
+        }
+    </div>
+</div>
+
+@* 语言设置 *@
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">语言 / Language</h5>
+        <select class="form-select" style="max-width: 200px;" @bind="_selectedLanguage" @bind:after="OnLanguageChanged">
+            <option value="zh-CN">中文</option>
+            <option value="en-US">English</option>
+        </select>
+    </div>
+</div>
+
+@code {
+    private string _selectedLanguage = System.Globalization.CultureInfo.CurrentUICulture.Name;
+
+    private void ZjuSsoLogout()
+    {
+        ZjuSsoService.Logout();
+    }
+
+    private void PtaLogout()
+    {
+        PtaAuthService.Logout();
+    }
+
+    private void OnLanguageChanged()
+    {
+        // Language change would require culture switching logic
+        // This is a placeholder for now
+    }
+}

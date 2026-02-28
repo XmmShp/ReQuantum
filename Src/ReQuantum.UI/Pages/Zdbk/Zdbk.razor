@@ -1,0 +1,204 @@
+@page "/zdbk"
+@using ReQuantum.Application.Models.Zdbk
+@using ReQuantum.Application.Services.Zdbk
+@inject IZdbkSectionScheduleService ScheduleService
+@inject IZdbkExamService ExamService
+
+<h3>教务网</h3>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(_activeTab == "schedule" ? "active" : "")" href="javascript:void(0)" @onclick='() => _activeTab = "schedule"'>课程表</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(_activeTab == "exam" ? "active" : "")" href="javascript:void(0)" @onclick='() => _activeTab = "exam"'>考试安排</a>
+    </li>
+</ul>
+
+@if (_activeTab == "schedule")
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="LoadScheduleAsync" disabled="@_isScheduleLoading">
+            @(_isScheduleLoading ? "加载中..." : "获取当前学期课表")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_scheduleError))
+    {
+        <div class="alert alert-danger">@_scheduleError</div>
+    }
+
+    @if (_schedule is not null)
+    {
+        <div class="mb-2 text-muted">
+            学年: @_schedule.AcademicYear | 学期: @_schedule.Semester
+            @if (_schedule.StudentName is not null)
+            {
+                <span>| 姓名: @_schedule.StudentName</span>
+            }
+        </div>
+
+        @if (_schedule.SectionList.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>课号</th>
+                            <th>课程信息</th>
+                            <th>星期</th>
+                            <th>节次</th>
+                            <th>学期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in _schedule.SectionList)
+                        {
+                            <tr>
+                                <td><small>@item.CourseId</small></td>
+                                <td>@ExtractCourseName(item.CourseInfo)</td>
+                                <td>@GetDayName(item.DayOfWeek)</td>
+                                <td>第@(item.StartSection)-@(int.Parse(item.StartSection) + int.Parse(item.Duration) - 1)节</td>
+                                <td>@item.Term</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">暂无课程数据</p>
+        }
+    }
+}
+else if (_activeTab == "exam")
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="LoadExamsAsync" disabled="@_isExamLoading">
+            @(_isExamLoading ? "加载中..." : "获取考试信息")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_examError))
+    {
+        <div class="alert alert-danger">@_examError</div>
+    }
+
+    @if (_exams is not null && _exams.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>课程</th>
+                        <th>类型</th>
+                        <th>时间</th>
+                        <th>地点</th>
+                        <th>座位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var exam in _exams.Where(e => e.ExamType != ExamType.NoExam).OrderBy(e => e.StartTime))
+                    {
+                        <tr>
+                            <td>@exam.CourseName (@exam.Credit 学分)</td>
+                            <td>
+                                @(exam.ExamType == ExamType.MidTerm ? "期中" : "期末")
+                            </td>
+                            <td>
+                                @if (exam.StartTime.HasValue)
+                                {
+                                    @exam.StartTime.Value.ToString("MM-dd HH:mm")
+                                    <span>-</span>
+                                    @exam.EndTime?.ToString("HH:mm")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@(exam.RawTimeString ?? "待定")</span>
+                                }
+                            </td>
+                            <td>@(exam.Location ?? "待定")</td>
+                            <td>@(exam.Seat ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (!_isExamLoading && _exams is not null)
+    {
+        <p class="text-muted">暂无考试信息</p>
+    }
+}
+
+@code {
+    private string _activeTab = "schedule";
+
+    // Schedule
+    private ZdbkSectionScheduleResponse? _schedule;
+    private bool _isScheduleLoading;
+    private string? _scheduleError;
+
+    // Exams
+    private List<ParsedExamInfo>? _exams;
+    private bool _isExamLoading;
+    private string? _examError;
+
+    private async Task LoadScheduleAsync()
+    {
+        _isScheduleLoading = true;
+        _scheduleError = null;
+        StateHasChanged();
+
+        var result = await ScheduleService.GetCurrentSemesterScheduleAsync();
+        if (result.IsSuccess)
+        {
+            _schedule = result.Value;
+        }
+        else
+        {
+            _scheduleError = result.Message?.ToString();
+        }
+
+        _isScheduleLoading = false;
+    }
+
+    private async Task LoadExamsAsync()
+    {
+        _isExamLoading = true;
+        _examError = null;
+        StateHasChanged();
+
+        var result = await ExamService.GetExamsAsync();
+        if (result.IsSuccess)
+        {
+            _exams = result.Value;
+        }
+        else
+        {
+            _examError = result.Message?.ToString();
+        }
+
+        _isExamLoading = false;
+    }
+
+    private static string ExtractCourseName(string courseInfo)
+    {
+        if (string.IsNullOrEmpty(courseInfo)) return "";
+        var parts = courseInfo.Split(new[] { "<br>", "<br/>", "<BR>" }, StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length > 0 ? parts[0].Trim() : courseInfo;
+    }
+
+    private static string GetDayName(string dayOfWeek) => dayOfWeek switch
+    {
+        "1" => "周一",
+        "2" => "周二",
+        "3" => "周三",
+        "4" => "周四",
+        "5" => "周五",
+        "6" => "周六",
+        "7" => "周日",
+        _ => dayOfWeek
+    };
+}

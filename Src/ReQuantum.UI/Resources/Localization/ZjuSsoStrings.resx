@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="ZjuSso" xml:space="preserve"><value>ZJU SSO</value></data>
+  <data name="LoggedInAs" xml:space="preserve"><value>Logged in as</value></data>
+  <data name="NotLoggedIn" xml:space="preserve"><value>Not logged in</value></data>
+  <data name="Logout" xml:space="preserve"><value>Logout</value></data>
+  <data name="BrowserLogin" xml:space="preserve"><value>Login via Browser</value></data>
+  <data name="ManualLogin" xml:space="preserve"><value>Manual Login (Cookie)</value></data>
+  <data name="CookieValue" xml:space="preserve"><value>iPlanetDirectoryPro Value</value></data>
+  <data name="CookieValuePlaceholder" xml:space="preserve"><value>Paste iPlanetDirectoryPro cookie value here</value></data>
+  <data name="UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="UserIdPlaceholder" xml:space="preserve"><value>Student ID or username (optional)</value></data>
+  <data name="Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Progress" xml:space="preserve"><value>Progress</value></data>
+</root>
