@@ -35,12 +35,12 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             var initResult = await InitializeAsync(headless: false);
             if (!initResult.IsSuccess)
             {
-                return Result.Fail(400, $"浏览器初始化失败: {initResult.Message}");
+                return Result.Fail("400", $"浏览器初始化失败: {initResult.Message}");
             }
 
             if (_page is null || _browser is null)
             {
-                return Result.Fail(400, "浏览器或页面对象为空");
+                return Result.Fail("400", "浏览器或页面对象为空");
             }
 
             progressCallback?.Invoke("正在打开登录页面...");
@@ -78,7 +78,7 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             if (cookieValue is null)
             {
                 progressCallback?.Invoke("登录超时或未获取到认证 Cookie");
-                return Result.Fail(400, $"登录超时（{timeoutSeconds} 秒内未完成登录）");
+                return Result.Fail("400", $"登录超时（{timeoutSeconds} 秒内未完成登录）");
             }
 
             progressCallback?.Invoke($"成功获取 {targetCookieName}（长度: {cookieValue.Length}）");
@@ -110,13 +110,13 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
         {
             var currentUrl = _page?.Url ?? "unknown";
             progressCallback?.Invoke($"登录超时（{timeoutSeconds} 秒内未完成）");
-            return Result.Fail(400, $"登录超时（{timeoutSeconds}秒内未完成登录）。当前页面: {currentUrl}");
+            return Result.Fail("400", $"登录超时（{timeoutSeconds}秒内未完成登录）。当前页面: {currentUrl}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "浏览器登录失败");
             progressCallback?.Invoke($"发生错误: {ex.Message}");
-            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -146,7 +146,7 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Playwright 初始化失败");
-            return Result.Fail(400, $"Playwright 初始化失败: {ex.Message}");
+            return Result.Fail("400", $"Playwright 初始化失败: {ex.Message}");
         }
     }
 

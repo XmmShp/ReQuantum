@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Services.ZjuSso;
@@ -7,6 +8,7 @@ using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
+[AutoInject(Lifetime.Singleton)]
 public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
     private readonly IZjuSsoService _zjuSsoService;
@@ -42,7 +44,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
             if (!calendarResult.IsSuccess)
             {
-                return Result.Fail(500, $"无法获取校历: {calendarResult.Message}");
+                return Result.Fail("500", $"无法获取校历: {calendarResult.Message}");
             }
 
             var calendar = calendarResult.Value!;
@@ -51,7 +53,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
             if (weekNumber == null)
             {
-                return Result.Fail(400, "当前日期不在学期内");
+                return Result.Fail("400", "当前日期不在学期内");
             }
 
             var currentSemester = calendar.GetSemesterNameForWeek(weekNumber.Value);
@@ -78,7 +80,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
             if (combinedSections.Count == 0)
             {
-                return Result.Fail(500, "所有学期获取失败");
+                return Result.Fail("500", "所有学期获取失败");
             }
 
             return new ZdbkSectionScheduleResponse
@@ -97,7 +99,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching schedules");
-            return Result.Fail(500, $"获取课程失败: {ex.Message}");
+            return Result.Fail("500", $"获取课程失败: {ex.Message}");
         }
     }
 
@@ -113,13 +115,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         var clientResult = await GetAuthenticatedClient();
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(400, clientResult.Message);
+            return Result.Fail("400", clientResult.Message);
         }
 
         var client = clientResult.Value!;
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
         {
-            return Result.Fail(400, "未找到学号");
+            return Result.Fail("400", "未找到学号");
         }
 
         try
@@ -137,13 +139,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
             if (!response.IsSuccessStatusCode)
             {
                 _state = null;
-                return Result.Fail(400, $"获取课程失败: {response.StatusCode}");
+                return Result.Fail("400", $"获取课程失败: {response.StatusCode}");
             }
 
             var scheduleResponse = await response.Content.ReadFromJsonAsync<ZdbkSectionScheduleResponse>();
             if (scheduleResponse is null)
             {
-                return Result.Fail(400, "解析课程数据失败");
+                return Result.Fail("400", "解析课程数据失败");
             }
 
             return scheduleResponse;
@@ -151,7 +153,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting schedule");
-            return Result.Fail(400, $"获取课程失败: {ex.Message}");
+            return Result.Fail("400", $"获取课程失败: {ex.Message}");
         }
     }
 
@@ -160,7 +162,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(500, clientResult.Message);
+            return Result.Fail("500", clientResult.Message);
         }
 
         try
@@ -179,7 +181,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
         catch (Exception ex)
         {
-            return Result.Fail(500, $"SSO认证失败: {ex.Message}");
+            return Result.Fail("500", $"SSO认证失败: {ex.Message}");
         }
     }
 

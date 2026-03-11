@@ -1,7 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Application.Services.Calendar
-@using ReQuantum.Application.Models.Calendar
+@using ReQuantum.Contract.Calendar
 @inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
 
@@ -34,7 +34,7 @@
                 
                 <div class="events-container">
                     @{
-                        var dayEvents = CalendarService.GetEventsByDate(day);
+                        var dayEvents = CalendarService.FindEventsByDate(day);
                         foreach (var evt in dayEvents)
                         {
                             var startHour = evt.StartTime.Hour + evt.StartTime.Minute / 60.0;

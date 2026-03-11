@@ -1,19 +1,19 @@
 @page "/"
-@using ReQuantum.Application.Models.Calendar
 @using ReQuantum.Application.Services.Calendar
+@using ReQuantum.Contract.Calendar
 @inject ICalendarService CalendarService
 
 <PageTitle>ReQuantum</PageTitle>
 
-<h3>ÒÇ±íÅÌ</h3>
+<h3>ä»ªè¡¨ç›˜</h3>
 
 <div class="row">
-    @* ½üÆÚÈÕ³Ì *@
+    @* è¿‘æœŸæ—¥ç¨‹ *@
     <div class="col-md-4 mb-3">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>½üÆÚÈÕ³Ì</strong>
-                <a href="calendar" class="btn btn-sm btn-outline-primary">²é¿´È«²¿</a>
+                <strong>è¿‘æœŸæ—¥ç¨‹</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">æŸ¥çœ‹å…¨éƒ¨</a>
             </div>
             <div class="card-body">
                 @if (_recentEvents.Count > 0)
@@ -34,18 +34,18 @@
                 }
                 else
                 {
-                    <p class="text-muted mb-0">ÔÝÎÞ½üÆÚÈÕ³Ì</p>
+                    <p class="text-muted mb-0">æš‚æ— è¿‘æœŸæ—¥ç¨‹</p>
                 }
             </div>
         </div>
     </div>
 
-    @* ´ý°ìÊÂÏî *@
+    @* å¾…åŠžäº‹é¡¹ *@
     <div class="col-md-4 mb-3">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>´ý°ìÊÂÏî</strong>
-                <a href="calendar" class="btn btn-sm btn-outline-primary">²é¿´È«²¿</a>
+                <strong>å¾…åŠžäº‹é¡¹</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">æŸ¥çœ‹å…¨éƒ¨</a>
             </div>
             <div class="card-body">
                 @if (_recentTodos.Count > 0)
@@ -57,25 +57,25 @@
                                 <div class="@(todo.IsCompleted ? "text-decoration-line-through text-muted" : "")">
                                     @todo.Content
                                 </div>
-                                <small class="text-muted">½ØÖ¹: @todo.DueTime.ToString("MM-dd HH:mm")</small>
+                                <small class="text-muted">æˆªæ­¢: @todo.DueTime.ToString("MM-dd HH:mm")</small>
                             </li>
                         }
                     </ul>
                 }
                 else
                 {
-                    <p class="text-muted mb-0">ÔÝÎÞ´ý°ìÊÂÏî</p>
+                    <p class="text-muted mb-0">æš‚æ— å¾…åŠžäº‹é¡¹</p>
                 }
             </div>
         </div>
     </div>
 
-    @* ±ãÇ© *@
+    @* ä¾¿ç­¾ *@
     <div class="col-md-4 mb-3">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>±ãÇ©</strong>
-                <a href="calendar" class="btn btn-sm btn-outline-primary">²é¿´È«²¿</a>
+                <strong>ä¾¿ç­¾</strong>
+                <a href="calendar" class="btn btn-sm btn-outline-primary">æŸ¥çœ‹å…¨éƒ¨</a>
             </div>
             <div class="card-body">
                 @if (_recentNotes.Count > 0)
@@ -92,7 +92,7 @@
                 }
                 else
                 {
-                    <p class="text-muted mb-0">ÔÝÎÞ±ãÇ©</p>
+                    <p class="text-muted mb-0">æš‚æ— ä¾¿ç­¾</p>
                 }
             </div>
         </div>
@@ -113,19 +113,19 @@
     {
         var now = DateTime.Now;
 
-        _recentEvents = CalendarService.GetAllEvents()
+        _recentEvents = CalendarService.FindAllEvents()
             .Where(e => e.StartTime.Date >= now.Date)
             .OrderBy(e => e.StartTime)
             .Take(5)
             .ToList();
 
-        _recentTodos = CalendarService.GetAllTodos()
+        _recentTodos = CalendarService.FindAllTodos()
             .Where(t => !t.IsCompleted && t.DueTime >= now)
             .OrderBy(t => t.DueTime)
             .Take(5)
             .ToList();
 
-        _recentNotes = CalendarService.GetAllNotes()
+        _recentNotes = CalendarService.FindAllNotes()
             .OrderByDescending(n => n.CreatedAt)
             .Take(5)
             .ToList();

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Parsers;
@@ -8,6 +9,7 @@ using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
+[AutoInject(Lifetime.Singleton)]
 public class ZdbkExamService : IZdbkExamService
 {
     private readonly IZjuSsoService _zjuSsoService;
@@ -33,13 +35,13 @@ public class ZdbkExamService : IZdbkExamService
     {
         if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
         {
-            return Result.Fail(400, "未登录或无学号");
+            return Result.Fail("400", "未登录或无学号");
         }
 
         var clientResult = await GetAuthenticatedClientAsync();
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(400, clientResult.Message);
+            return Result.Fail("400", clientResult.Message);
         }
 
         try
@@ -63,13 +65,13 @@ public class ZdbkExamService : IZdbkExamService
 
             if (!response.IsSuccessStatusCode)
             {
-                return Result.Fail(500, $"获取考试信息失败: {response.StatusCode}");
+                return Result.Fail("500", $"获取考试信息失败: {response.StatusCode}");
             }
 
             var examResponse = await response.Content.ReadFromJsonAsync<ZdbkExamResponse>();
             if (examResponse == null)
             {
-                return Result.Fail(500, "解析考试数据失败");
+                return Result.Fail("500", "解析考试数据失败");
             }
 
             var calendarResult = await _calendarService.GetCurrentCalendarAsync();
@@ -82,7 +84,7 @@ public class ZdbkExamService : IZdbkExamService
         catch (Exception ex)
         {
             _logger.LogError(ex, "获取考试信息时发生错误");
-            return Result.Fail(500, $"获取考试信息失败: {ex.Message}");
+            return Result.Fail("500", $"获取考试信息失败: {ex.Message}");
         }
     }
 
@@ -144,7 +146,7 @@ public class ZdbkExamService : IZdbkExamService
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(500, clientResult.Message);
+            return Result.Fail("500", clientResult.Message);
         }
 
         try
@@ -161,7 +163,7 @@ public class ZdbkExamService : IZdbkExamService
         }
         catch (Exception ex)
         {
-            return Result.Fail(500, $"SSO认证失败: {ex.Message}");
+            return Result.Fail("500", $"SSO认证失败: {ex.Message}");
         }
     }
 }

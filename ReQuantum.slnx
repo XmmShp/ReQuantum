@@ -1,17 +1,15 @@
 <Solution>
-  <Project Path="Src/ReQuantum.MAUI/ReQuantum.MAUI.csproj">
-    <Deploy Solution="Debug|*" />
-  </Project>
-  <!-- Infrastructure -->
-  <Project Path="Src/ReQuantum.Shared/ReQuantum.Shared.csproj" />
   <Folder Name="/Solution Items/">
     <File Path="Directory.Packages.props" />
   </Folder>
-
-  <!-- Application -->
   <Project Path="Src/ReQuantum.Application/ReQuantum.Application.csproj" />
   <Project Path="Src/ReQuantum.Contract/ReQuantum.Contract.csproj" Id="44154e8e-6e30-4ab4-a1a6-3ab2e6530f10" />
   <Project Path="Src/ReQuantum.Domain/ReQuantum.Domain.csproj" Id="36ecf6ee-cfa9-4606-9f73-39c3bfa9723b" />
+  <Project Path="Src/ReQuantum.MAUI.Persistence/ReQuantum.MAUI.Persistence.csproj" Id="be643dcf-41f3-42be-b25f-2e32c118822d" />
+  <Project Path="Src/ReQuantum.MAUI/ReQuantum.MAUI.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="Src/ReQuantum.Shared/ReQuantum.Shared.csproj" />
   <Project Path="Src/ReQuantum.UI/ReQuantum.UI.csproj" />
   <Project Path="Src/ReQuantum.Web.Wasm/ReQuantum.Web.Wasm.csproj" />
   <Project Path="Src/ReQuantum.Web/ReQuantum.Web.csproj" />

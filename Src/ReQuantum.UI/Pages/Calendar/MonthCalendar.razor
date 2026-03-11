@@ -1,7 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Application.Services.Calendar
-@using ReQuantum.Application.Models.Calendar
+@using ReQuantum.Contract.Calendar
 @inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
 
@@ -31,7 +31,7 @@
                     <div class="day-number">@day.Day</div>
                     @if (day >= firstDayOfMonth && day <= lastDayOfMonth)
                     {
-                        var dayData = CalendarService.GetCalendarDayData(day);
+                        var dayData = CalendarService.FindCalendarDayData(day);
                         <div class="day-indicators">
                             @if (dayData.Events.Any())
                             {

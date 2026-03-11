@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.ZjuSso;
 using ReQuantum.Shared.Services;
@@ -11,6 +12,7 @@ using System.Text.Json;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 
+[AutoInject(Lifetime.Singleton)]
 public class ZjuSsoService : IZjuSsoService
 {
     private readonly IStorage _storage;
@@ -50,12 +52,12 @@ public class ZjuSsoService : IZjuSsoService
         var result = await ValidOrRefreshTokenAsync();
         if (!result.IsSuccess)
         {
-            return Result.Fail(400, result.Message);
+            return Result.Fail("400", result.Message);
         }
 
         if (!IsAuthenticated)
         {
-            return Result.Fail(400, "未登录");
+            return Result.Fail("400", "未登录");
         }
 
         var requestOptions = options ?? new RequestOptions();
@@ -74,7 +76,7 @@ public class ZjuSsoService : IZjuSsoService
         var executionResult = await GetExecutionAsync(client);
         if (!executionResult.IsSuccess)
         {
-            return Result.Fail(400, executionResult.Message);
+            return Result.Fail("400", executionResult.Message);
         }
 
         var execution = executionResult.Value!;
@@ -83,7 +85,7 @@ public class ZjuSsoService : IZjuSsoService
         var pubkeyResult = await GetPubkeyAsync(client);
         if (!pubkeyResult.IsSuccess)
         {
-            return Result.Fail(400, pubkeyResult.Message);
+            return Result.Fail("400", pubkeyResult.Message);
         }
 
         var (modulus, exponent) = pubkeyResult.Value!;
@@ -104,7 +106,7 @@ public class ZjuSsoService : IZjuSsoService
         var response = await client.PostAsync(LoginUrl, formContent);
         if (!response.IsSuccessStatusCode)
         {
-            return Result.Fail(400, "账号可能被锁定");
+            return Result.Fail("400", "账号可能被锁定");
         }
 
         var cookieNew = client.CookieContainer.GetCookies(new Uri(LoginUrl))
@@ -112,7 +114,7 @@ public class ZjuSsoService : IZjuSsoService
 
         if (cookieNew is null)
         {
-            return Result.Fail(400, "用户名或密码错误");
+            return Result.Fail("400", "用户名或密码错误");
         }
 
         _state = new ZjuSsoState(username, password, cookieNew);
@@ -127,7 +129,7 @@ public class ZjuSsoService : IZjuSsoService
         {
             if (_browserLoginProvider is null)
             {
-                return Result.Fail(400, "浏览器登录不可用");
+                return Result.Fail("400", "浏览器登录不可用");
             }
 
             var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
@@ -135,7 +137,7 @@ public class ZjuSsoService : IZjuSsoService
 
             if (!loginResult.IsSuccess)
             {
-                return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
+                return Result.Fail("400", $"浏览器登录失败: {loginResult.Message}");
             }
 
             var result = loginResult.Value!;
@@ -146,7 +148,7 @@ public class ZjuSsoService : IZjuSsoService
         }
         catch (Exception ex)
         {
-            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -162,7 +164,7 @@ public class ZjuSsoService : IZjuSsoService
         }
         catch (Exception ex)
         {
-            return Result.Fail(400, $"登录异常: {ex.Message}");
+            return Result.Fail("400", $"登录异常: {ex.Message}");
         }
     }
 
@@ -187,7 +189,7 @@ public class ZjuSsoService : IZjuSsoService
 
         if (!IsAuthenticated)
         {
-            return Result.Fail(400, "未登录");
+            return Result.Fail("400", "未登录");
         }
 
         var username = _state.Id;
@@ -255,7 +257,7 @@ public class ZjuSsoService : IZjuSsoService
             }
         }
 
-        return Result.Fail(400, "无法获取execution值");
+        return Result.Fail("400", "无法获取execution值");
     }
 
     private static async Task<Result<(string Modulus, string Exponent)>> GetPubkeyAsync(RequestClient client)
@@ -266,12 +268,12 @@ public class ZjuSsoService : IZjuSsoService
 
         if (mod is null)
         {
-            return Result.Fail(400, "无法获取modulus");
+            return Result.Fail("400", "无法获取modulus");
         }
 
         if (exp is null)
         {
-            return Result.Fail(400, "无法获取exponent");
+            return Result.Fail("400", "无法获取exponent");
         }
 
         return (mod, exp);

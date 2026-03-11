@@ -1,3 +1,4 @@
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
 using ReQuantum.Application.Services.ZjuSso;
@@ -8,6 +9,7 @@ using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Pta;
 
+[AutoInject(Lifetime.Singleton)]
 public class PtaBrowserAuthService : IPtaBrowserAuthService
 {
     private readonly IStorage _storage;
@@ -35,12 +37,12 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         var result = await ValidOrRefreshTokenAsync();
         if (!result.IsSuccess)
         {
-            return Result.Fail(400, result.Message);
+            return Result.Fail("400", result.Message);
         }
 
         if (!IsAuthenticated)
         {
-            return Result.Fail(400, "未登录");
+            return Result.Fail("400", "未登录");
         }
 
         var requestOptions = options ?? new RequestOptions();
@@ -67,7 +69,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
                 "https://pintia.cn/auth/login", "PTASession", progressCallback, timeoutSeconds);
             if (!loginResult.IsSuccess)
             {
-                return Result.Fail(400, $"浏览器登录失败: {loginResult.Message}");
+                return Result.Fail("400", $"浏览器登录失败: {loginResult.Message}");
             }
 
             var result = loginResult.Value!;
@@ -82,7 +84,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         }
         catch (Exception ex)
         {
-            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -98,7 +100,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         }
         catch (Exception ex)
         {
-            return Result.Fail(400, $"登录异常: {ex.Message}");
+            return Result.Fail("400", $"登录异常: {ex.Message}");
         }
     }
 
@@ -134,11 +136,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
         if (!IsAuthenticated)
         {
-            return Result.Fail(400, "未登录");
+            return Result.Fail("400", "未登录");
         }
 
         Logout();
-        return Result.Fail(400, "Session 已过期，请重新登录");
+        return Result.Fail("400", "Session 已过期，请重新登录");
     }
 
     private static async Task<Result<string>> GetUserInfoAsync(string ptaSessionValue)
@@ -153,7 +155,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
             var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                return Result.Fail(400, $"获取用户信息失败: HTTP {response.StatusCode}");
+                return Result.Fail("400", $"获取用户信息失败: HTTP {response.StatusCode}");
             }
 
             var userInfo = await response.Content.ReadFromJsonAsync<PtaUserInfoResponse>();
@@ -167,11 +169,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
                 return userInfo.User.Email;
             }
 
-            return Result.Fail(400, "未能获取用户信息");
+            return Result.Fail("400", "未能获取用户信息");
         }
         catch (Exception ex)
         {
-            return Result.Fail(400, $"获取用户信息异常: {ex.Message}");
+            return Result.Fail("400", $"获取用户信息异常: {ex.Message}");
         }
     }
 

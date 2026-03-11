@@ -1,7 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Application.Services.Calendar
-@using ReQuantum.Application.Models.Calendar
+@using ReQuantum.Contract.Calendar
 @inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
 
@@ -53,7 +53,7 @@
 
     private void LoadTodos()
     {
-        todos = CalendarService.GetTodosByDate(SelectedDate);
+        todos = CalendarService.FindTodosByDate(SelectedDate);
     }
 
     private void ShowAddTodoDialog()
@@ -64,13 +64,13 @@
     {
     }
 
-    private void ToggleTodo(Guid id)
+    private void ToggleTodo(long id)
     {
         CalendarService.ToggleTodoComplete(id);
         LoadTodos();
     }
 
-    private void DeleteTodo(Guid id)
+    private void DeleteTodo(long id)
     {
         CalendarService.DeleteTodo(id);
         LoadTodos();

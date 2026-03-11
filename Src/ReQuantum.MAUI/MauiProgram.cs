@@ -1,39 +1,49 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ReQuantum.Application.Services.Calendar;
-using ReQuantum.Application.Services.CoursesZju;
-using ReQuantum.Application.Services.Pta;
-using ReQuantum.Application.Services.Zdbk;
+using NOF.Hosting.Maui;
+using NOF.Infrastructure.EntityFrameworkCore;
+using NOF.Infrastructure.EntityFrameworkCore.SQLite;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Services;
+using ReQuantum.Domain.Calendar;
+using ReQuantum.Infrastructure.Persistence.Repositories;
+using ReQuantum.Infrastructure.Services;
+using ReQuantum.MAUI.Persistence;
 using ReQuantum.Shared.Services;
+using System.Collections.Generic;
+using System.IO;
 
 namespace ReQuantum;
 
 public static class MauiProgram
 {
-    public static MauiApp CreateMauiApp()
+    public static NOFMauiApp CreateNOFMauiApp()
     {
-        var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiApp<App>()
+        var builder = NOFMauiAppBuilder.Create();
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "requantum.db");
+
+        builder.MauiAppBuilder.UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-        builder.Services.AddSingleton<IStorage, LocalStorage>();
-        builder.Services.AddSingleton<ICalendarService, CalendarService>();
+        builder.Services.AddSingleton<MainPage>();
+        builder.Services.AddReQuantumAutoInjectServices();
+        builder.Services.AddAllHandlers();
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:sqlite"] = $"Data Source={dbPath}"
+        });
+
+        builder.AddEFCore<ReQuantumMauiDbContext>()
+            .AutoMigrate()
+            .UseSqlite();
+
+        builder.Services.AddSingleton<IStorage, SqliteStorage>();
+        builder.Services.AddSingleton<ICalendarEventRepository, SqliteCalendarEventRepository>();
+        builder.Services.AddSingleton<ICalendarTodoRepository, SqliteCalendarTodoRepository>();
+        builder.Services.AddSingleton<ICalendarNoteRepository, SqliteCalendarNoteRepository>();
         builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();
-        builder.Services.AddSingleton<IZjuSsoService, ZjuSsoService>();
-        builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
-        builder.Services.AddSingleton<IPtaBrowserAuthService, PtaBrowserAuthService>();
-        builder.Services.AddSingleton<IPtaProblemSetService, PtaProblemSetService>();
-        builder.Services.AddSingleton<IPtaCalendarConvertService, PtaCalendarConvertService>();
-        builder.Services.AddSingleton<IAcademicCalendarService, AcademicCalendarService>();
-        builder.Services.AddSingleton<IZdbkCalendarConverter, ZdbkCalendarConvertService>();
-        builder.Services.AddSingleton<IZdbkExamService, ZdbkExamService>();
-        builder.Services.AddSingleton<IZdbkGradeService, ZdbkGradeService>();
-        builder.Services.AddSingleton<IZdbkSectionScheduleService, ZdbkSectionScheduleService>();
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddLocalization();
 
@@ -44,6 +54,10 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        return builder.BuildAsync().GetAwaiter().GetResult();
+    }
+    public static MauiApp CreateMauiApp()
+    {
+        return CreateNOFMauiApp().MauiApp;
     }
 }

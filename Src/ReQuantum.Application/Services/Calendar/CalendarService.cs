@@ -1,179 +1,167 @@
-using Microsoft.Extensions.Logging;
-using ReQuantum.Application.Models.Calendar;
-using ReQuantum.Shared.Services;
-using System.Collections.Concurrent;
+using NOF.Annotation;
+using ReQuantum.Application.Handlers.Calendar;
+using ContractCalendarEvent = ReQuantum.Contract.Calendar.CalendarEvent;
+using ContractCalendarTodo = ReQuantum.Contract.Calendar.CalendarTodo;
+using ContractCalendarNote = ReQuantum.Contract.Calendar.CalendarNote;
+using ContractCalendarDayData = ReQuantum.Contract.Calendar.CalendarDayData;
+using ReQuantum.Domain.Calendar;
 
 namespace ReQuantum.Application.Services.Calendar;
 
+/// <summary>
+/// 日历服务 - 委托给领域层仓储实现，并通过 Contract 类型暴露给 UI 层
+/// </summary>
+[AutoInject(Lifetime.Singleton)]
 public class CalendarService : ICalendarService
 {
-    private readonly IStorage _storage;
-    private readonly ILogger<CalendarService> _logger;
-    private const string NotesKey = "Calendar:Notes";
-    private const string TodosKey = "Calendar:Todos";
-    private const string EventsKey = "Calendar:Events";
+    private readonly ICalendarEventRepository _eventRepository;
+    private readonly ICalendarTodoRepository _todoRepository;
+    private readonly ICalendarNoteRepository _noteRepository;
 
-    private List<CalendarNote> _notes = [];
-    private List<CalendarTodo> _todos = [];
-    private List<CalendarEvent> _events = [];
-
-    private readonly ConcurrentDictionary<DateOnly, CalendarDayData> _calendarDataDict = [];
-
-    public CalendarService(IStorage storage, ILogger<CalendarService> logger)
+    public CalendarService(
+        ICalendarEventRepository eventRepository,
+        ICalendarTodoRepository todoRepository,
+        ICalendarNoteRepository noteRepository)
     {
-        _storage = storage;
-        _logger = logger;
-        LoadData();
+        _eventRepository = eventRepository;
+        _todoRepository = todoRepository;
+        _noteRepository = noteRepository;
     }
 
     #region 便签管理
 
-    public List<CalendarNote> GetAllNotes() => _notes.ToList();
+    public List<ContractCalendarNote> FindAllNotes() =>
+        _noteRepository.FindAll().Select(CalendarMapper.ToContract).ToList();
 
-    public void AddOrUpdateNote(CalendarNote note)
+    public void AddOrUpdateNote(ContractCalendarNote note)
     {
-        var index = _notes.FindIndex(n => n.Id == note.Id);
-        if (index >= 0)
+        if (note.Id != 0)
         {
-            _notes[index] = note;
-        }
-        else
-        {
-            _notes.Add(note);
+            var existing = _noteRepository.FindById(CalendarNoteId.Of(note.Id));
+            if (existing is not null)
+            {
+                existing.Update(note.Content);
+                _noteRepository.AddOrUpdate(existing);
+                return;
+            }
         }
 
-        SaveNotes();
+        var entity = CalendarNote.Create(note.Content);
+        _noteRepository.AddOrUpdate(entity);
     }
 
-    public void DeleteNote(Guid id)
-    {
-        _notes.RemoveAll(n => n.Id == id);
-        SaveNotes();
-    }
+    public void DeleteNote(long id) =>
+        _noteRepository.Delete(CalendarNoteId.Of(id));
 
     #endregion
 
     #region 待办管理
 
-    public List<CalendarTodo> GetAllTodos() => _todos.ToList();
+    public List<ContractCalendarTodo> FindAllTodos() =>
+        _todoRepository.FindAll().Select(CalendarMapper.ToContract).ToList();
 
-    public List<CalendarTodo> GetTodosByDate(DateOnly date) =>
-        _todos.Where(t => DateOnly.FromDateTime(t.DueTime) == date).OrderBy(t => t.DueTime).ToList();
+    public List<ContractCalendarTodo> FindTodosByDate(DateOnly date) =>
+        _todoRepository.FindByDate(date).Select(CalendarMapper.ToContract).ToList();
 
-    public List<CalendarTodo> GetTodosByDateRange(DateOnly startDate, DateOnly endDate) =>
-        _todos.Where(t => DateOnly.FromDateTime(t.DueTime) >= startDate && DateOnly.FromDateTime(t.DueTime) <= endDate)
-            .OrderBy(t => t.DueTime).ToList();
+    public List<ContractCalendarTodo> FindTodosByDateRange(DateOnly startDate, DateOnly endDate) =>
+        _todoRepository.FindByDateRange(startDate, endDate).Select(CalendarMapper.ToContract).ToList();
 
-    public List<CalendarTodo> GetIncompleteTodosByDate(DateOnly date)
+    public List<ContractCalendarTodo> FindIncompleteTodosByDate(DateOnly date) =>
+        _todoRepository.FindIncompleteByDate(date).Select(CalendarMapper.ToContract).ToList();
+
+    public void AddOrUpdateTodo(ContractCalendarTodo todo)
     {
-        var today = DateOnly.FromDateTime(DateTime.Now);
-        return _todos.Where(t => !t.IsCompleted && DateOnly.FromDateTime(t.DueTime) >= today && DateOnly.FromDateTime(t.DueTime) >= date)
-            .OrderBy(t => t.DueTime).ToList();
-    }
-
-    public void AddOrUpdateTodo(CalendarTodo todo)
-    {
-        var index = _todos.FindIndex(t => t.Id == todo.Id);
-        if (index >= 0)
+        if (todo.Id != 0)
         {
-            _todos[index] = todo;
-        }
-        else
-        {
-            _todos.Add(todo);
+            var existing = _todoRepository.FindById(CalendarTodoId.Of(todo.Id));
+            if (existing is not null)
+            {
+                existing.Update(todo.Content, todo.DueTime);
+                if (todo.IsCompleted != existing.IsCompleted)
+                {
+                    existing.ToggleComplete();
+                }
+
+                _todoRepository.AddOrUpdate(existing);
+                return;
+            }
         }
 
-        SaveTodos();
+        var entity = CalendarTodo.Create(todo.Content, todo.DueTime);
+        _todoRepository.AddOrUpdate(entity);
     }
 
-    public void DeleteTodo(Guid id)
-    {
-        _todos.RemoveAll(t => t.Id == id);
-        SaveTodos();
-    }
+    public void DeleteTodo(long id) =>
+        _todoRepository.Delete(CalendarTodoId.Of(id));
 
-    public void ToggleTodoComplete(Guid id)
+    public void ToggleTodoComplete(long id)
     {
-        var todo = _todos.FirstOrDefault(t => t.Id == id);
+        var todo = _todoRepository.FindById(CalendarTodoId.Of(id));
         if (todo is not null)
         {
-            todo.IsCompleted = !todo.IsCompleted;
+            todo.ToggleComplete();
+            _todoRepository.AddOrUpdate(todo);
         }
-
-        SaveTodos();
     }
 
     #endregion
 
     #region 日程管理
 
-    public List<CalendarEvent> GetAllEvents() => _events.ToList();
+    public List<ContractCalendarEvent> FindAllEvents() =>
+        _eventRepository.FindAll().Select(CalendarMapper.ToContract).ToList();
 
-    public List<CalendarEvent> GetEventsByDate(DateOnly date) =>
-        _events.Where(e => DateOnly.FromDateTime(e.StartTime) <= date && DateOnly.FromDateTime(e.EndTime) >= date)
-            .OrderBy(e => e.StartTime).ToList();
+    public List<ContractCalendarEvent> FindEventsByDate(DateOnly date) =>
+        _eventRepository.FindByDate(date).Select(CalendarMapper.ToContract).ToList();
 
-    public List<CalendarEvent> GetEventsByDateRange(DateOnly startDate, DateOnly endDate) =>
-        _events.Where(e => DateOnly.FromDateTime(e.StartTime) >= startDate && DateOnly.FromDateTime(e.StartTime) <= endDate)
-            .OrderBy(e => e.StartTime).ToList();
+    public List<ContractCalendarEvent> FindEventsByDateRange(DateOnly startDate, DateOnly endDate) =>
+        _eventRepository.FindByDateRange(startDate, endDate).Select(CalendarMapper.ToContract).ToList();
 
-    public void AddOrUpdateEvent(CalendarEvent calendarEvent)
+    public void AddOrUpdateEvent(ContractCalendarEvent calendarEvent)
     {
-        var index = _events.FindIndex(e => e.Id == calendarEvent.Id);
-        if (index >= 0)
+        if (calendarEvent.Id != 0)
         {
-            _events[index] = calendarEvent;
-        }
-        else
-        {
-            _events.Add(calendarEvent);
+            var existing = _eventRepository.FindById(CalendarEventId.Of(calendarEvent.Id));
+            if (existing is not null)
+            {
+                existing.Update(calendarEvent.Content, calendarEvent.StartTime, calendarEvent.EndTime, calendarEvent.Note);
+                _eventRepository.AddOrUpdate(existing);
+                return;
+            }
         }
 
-        SaveEvents();
+        var source = (CalendarEventSource)calendarEvent.Source;
+        var entity = source == CalendarEventSource.Manual
+            ? CalendarEvent.Create(calendarEvent.Content, calendarEvent.StartTime, calendarEvent.EndTime, calendarEvent.Note)
+            : CalendarEvent.CreateFromSource(
+                calendarEvent.Content,
+                calendarEvent.StartTime,
+                calendarEvent.EndTime,
+                source,
+                calendarEvent.From);
+
+        _eventRepository.AddOrUpdate(entity);
     }
 
-    public void DeleteEvent(Guid id)
-    {
-        _events.RemoveAll(e => e.Id == id);
-        SaveEvents();
-    }
+    public void DeleteEvent(long id) =>
+        _eventRepository.Delete(CalendarEventId.Of(id));
 
     #endregion
 
     #region 日历数据生成
 
-    public CalendarDayData GetCalendarDayData(DateOnly date)
+    public ContractCalendarDayData FindCalendarDayData(DateOnly date)
     {
-        if (_calendarDataDict.TryGetValue(date, out var existingData))
-        {
-            return existingData;
-        }
+        var events = _eventRepository.FindByDate(date);
+        var todos = _todoRepository.FindByDate(date);
+        var notes = _noteRepository.FindAll();
 
-        var dayData = new CalendarDayData
-        {
-            Date = date,
-            Todos = _todos.Where(t => DateOnly.FromDateTime(t.DueTime) == date).ToList(),
-            Events = _events.Where(e => DateOnly.FromDateTime(e.StartTime) <= date && DateOnly.FromDateTime(e.EndTime) >= date).ToList()
-        };
-
-        _calendarDataDict[date] = dayData;
-        return dayData;
+        return new ContractCalendarDayData(
+            date,
+            todos.Select(CalendarMapper.ToContract).ToList(),
+            events.Select(CalendarMapper.ToContract).ToList(),
+            notes.Select(CalendarMapper.ToContract).ToList());
     }
-
-    #endregion
-
-    #region 数据持久化
-
-    private void LoadData()
-    {
-        _notes = _storage.TryGet<List<CalendarNote>>(NotesKey, out var notes) && notes is not null ? notes : [];
-        _todos = _storage.TryGet<List<CalendarTodo>>(TodosKey, out var todos) && todos is not null ? todos : [];
-        _events = _storage.TryGet<List<CalendarEvent>>(EventsKey, out var events) && events is not null ? events : [];
-    }
-
-    private void SaveNotes() => _storage.Set(NotesKey, _notes);
-    private void SaveTodos() => _storage.Set(TodosKey, _todos);
-    private void SaveEvents() => _storage.Set(EventsKey, _events);
 
     #endregion
 }

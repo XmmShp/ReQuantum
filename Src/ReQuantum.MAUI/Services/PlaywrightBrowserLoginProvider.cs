@@ -3,11 +3,8 @@ using NOF.Contract;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 
-namespace ReQuantum.Services;
+namespace ReQuantum.Infrastructure.Services;
 
-/// <summary>
-/// 基于 Playwright 的浏览器登录提供者，用于桌面/MAUI 平台
-/// </summary>
 public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
 {
     private readonly ILogger<PlaywrightBrowserLoginProvider> _logger;
@@ -35,12 +32,12 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             var initResult = await InitializeAsync(headless: false);
             if (!initResult.IsSuccess)
             {
-                return Result.Fail(400, $"浏览器初始化失败: {initResult.Message}");
+                return Result.Fail("400", $"浏览器初始化失败: {initResult.Message}");
             }
 
             if (_page is null || _browser is null)
             {
-                return Result.Fail(400, "浏览器或页面对象为空");
+                return Result.Fail("400", "浏览器或页面对象为空");
             }
 
             progressCallback?.Invoke("正在打开登录页面...");
@@ -52,7 +49,6 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             progressCallback?.Invoke("请在浏览器中完成登录");
             progressCallback?.Invoke($"等待登录完成（最多 {timeoutSeconds} 秒）...");
 
-            // 轮询等待目标 Cookie 出现
             var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
             string? cookieValue = null;
 
@@ -66,8 +62,7 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                 }
 
                 var cookies = await _page.Context.CookiesAsync();
-                var target = cookies?.FirstOrDefault(c =>
-                    c.Name.Equals(targetCookieName, StringComparison.OrdinalIgnoreCase));
+                var target = cookies?.FirstOrDefault(c => c.Name.Equals(targetCookieName, StringComparison.OrdinalIgnoreCase));
 
                 if (target is not null && !string.IsNullOrWhiteSpace(target.Value))
                 {
@@ -79,12 +74,11 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
             if (cookieValue is null)
             {
                 progressCallback?.Invoke("登录超时或未获取到认证 Cookie");
-                return Result.Fail(400, $"登录超时（{timeoutSeconds} 秒内未完成登录）");
+                return Result.Fail("400", $"登录超时（{timeoutSeconds} 秒内未完成登录）");
             }
 
             progressCallback?.Invoke($"成功获取 {targetCookieName}（长度: {cookieValue.Length}）");
 
-            // 尝试从页面获取用户名
             string? username = null;
             try
             {
@@ -94,9 +88,10 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                     username = await idElement.TextContentAsync();
                 }
             }
-            catch { /* 忽略用户名获取失败 */ }
+            catch
+            {
+            }
 
-            // 后台异步关闭浏览器
             _ = Task.Run(async () =>
             {
                 try
@@ -104,7 +99,9 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                     await Task.Delay(500);
                     await CleanupAsync();
                 }
-                catch { /* 忽略后台清理错误 */ }
+                catch
+                {
+                }
             });
 
             return new BrowserLoginResult(cookieValue, username);
@@ -113,13 +110,13 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
         {
             var currentUrl = _page?.Url ?? "unknown";
             progressCallback?.Invoke($"登录超时（{timeoutSeconds} 秒内未完成）");
-            return Result.Fail(400, $"登录超时（{timeoutSeconds}秒内未完成登录）。当前页面: {currentUrl}");
+            return Result.Fail("400", $"登录超时（{timeoutSeconds}秒内未完成登录）。当前页面: {currentUrl}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "浏览器登录失败");
             progressCallback?.Invoke($"发生错误: {ex.Message}");
-            return Result.Fail(400, $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
         }
     }
 
@@ -149,7 +146,7 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Playwright 初始化失败");
-            return Result.Fail(400, $"Playwright 初始化失败: {ex.Message}");
+            return Result.Fail("400", $"Playwright 初始化失败: {ex.Message}");
         }
     }
 
@@ -162,7 +159,9 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                 await _page.CloseAsync();
             }
         }
-        catch { }
+        catch
+        {
+        }
 
         try
         {
@@ -171,7 +170,9 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                 await _browser.CloseAsync();
             }
         }
-        catch { }
+        catch
+        {
+        }
 
         _page = null;
         _browser = null;

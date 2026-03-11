@@ -1,5 +1,5 @@
-using ReQuantum.Application.Models.Calendar;
 using ReQuantum.Application.Models.Zdbk;
+using ReQuantum.Domain.Calendar;
 
 namespace ReQuantum.Application.Services.Zdbk;
 

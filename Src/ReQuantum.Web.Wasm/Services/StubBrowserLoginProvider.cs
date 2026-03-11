@@ -15,6 +15,6 @@ public class StubBrowserLoginProvider : IBrowserLoginProvider
         int timeoutSeconds = 300)
     {
         return Task.FromResult<Result<BrowserLoginResult>>(
-            Result.Fail(500, "浏览器登录在 WebAssembly 环境中不可用，请使用手动 Cookie 登录"));
+            Result.Fail("500", "浏览器登录在 WebAssembly 环境中不可用，请使用手动 Cookie 登录"));
     }
 }

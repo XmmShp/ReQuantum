@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Shared.Services;
@@ -7,6 +8,7 @@ using System.Text.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
+[AutoInject(Lifetime.Singleton)]
 public class AcademicCalendarService : IAcademicCalendarService
 {
     private readonly IStorage _storage;
@@ -64,7 +66,7 @@ public class AcademicCalendarService : IAcademicCalendarService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred when fetching calendar");
-            return Result.Fail(500, $"获取校历失败：{ex.Message}");
+            return Result.Fail("500", $"获取校历失败：{ex.Message}");
         }
     }
 
@@ -79,7 +81,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
             if (!File.Exists(fallbackFilePath))
             {
-                return Result.Fail(500, $"Fallback文件不存在: {fallbackFilePath}");
+                return Result.Fail("500", $"Fallback文件不存在: {fallbackFilePath}");
             }
 
             var jsonContent = await File.ReadAllTextAsync(fallbackFilePath);
@@ -87,7 +89,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
             if (calendar == null)
             {
-                return Result.Fail(500, "Fallback文件解析失败");
+                return Result.Fail("500", "Fallback文件解析失败");
             }
 
             _cachedCalendar = calendar;
@@ -96,7 +98,7 @@ public class AcademicCalendarService : IAcademicCalendarService
         }
         catch (Exception ex)
         {
-            return Result.Fail(500, $"读取Fallback文件失败：{ex.Message}");
+            return Result.Fail("500", $"读取Fallback文件失败：{ex.Message}");
         }
     }
 

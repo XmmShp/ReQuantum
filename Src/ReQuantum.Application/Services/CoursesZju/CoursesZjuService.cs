@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.CoursesZju;
 using ReQuantum.Application.Services.ZjuSso;
@@ -7,6 +8,7 @@ using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.CoursesZju;
 
+[AutoInject(Lifetime.Singleton)]
 public class CoursesZjuService : ICoursesZjuService
 {
     private readonly IZjuSsoService _zjuSsoService;
@@ -30,7 +32,7 @@ public class CoursesZjuService : ICoursesZjuService
         var clientResult = await GetAuthenticatedClient();
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(400, clientResult.Message);
+            return Result.Fail("400", clientResult.Message);
         }
 
         var client = clientResult.Value!;
@@ -39,7 +41,7 @@ public class CoursesZjuService : ICoursesZjuService
         if (!result.IsSuccessStatusCode)
         {
             _state = null;
-            return Result.Fail(400, $"获取待办事项失败: {result.StatusCode}");
+            return Result.Fail("400", $"获取待办事项失败: {result.StatusCode}");
         }
 
         try
@@ -47,7 +49,7 @@ public class CoursesZjuService : ICoursesZjuService
             var response = await result.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>();
             if (response is null)
             {
-                return Result.Fail(400, "解析待办事项失败");
+                return Result.Fail("400", "解析待办事项失败");
             }
 
             return response.TodoList.ToHashSet();
@@ -55,7 +57,7 @@ public class CoursesZjuService : ICoursesZjuService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred when getting todo list from courses.zju.edu.cn");
-            return Result.Fail(400, $"获取待办事项失败：{ex.Message}");
+            return Result.Fail("400", $"获取待办事项失败：{ex.Message}");
         }
     }
 
@@ -69,7 +71,7 @@ public class CoursesZjuService : ICoursesZjuService
         var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
         if (!clientResult.IsSuccess)
         {
-            return Result.Fail(400, clientResult.Message);
+            return Result.Fail("400", clientResult.Message);
         }
 
         var client = clientResult.Value!;
@@ -77,7 +79,7 @@ public class CoursesZjuService : ICoursesZjuService
         var session = client.CookieContainer.GetAllCookies().FirstOrDefault(cookie => cookie.Name == "session");
         if (session is null)
         {
-            return Result.Fail(400, "无法获取Cookie");
+            return Result.Fail("400", "无法获取Cookie");
         }
 
         _state = new CoursesZjuState(session);

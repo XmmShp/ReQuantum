@@ -1,26 +1,29 @@
-using ReQuantum.Application.Models.Calendar;
+using ContractCalendarEvent = ReQuantum.Contract.Calendar.CalendarEvent;
+using ContractCalendarTodo = ReQuantum.Contract.Calendar.CalendarTodo;
+using ContractCalendarNote = ReQuantum.Contract.Calendar.CalendarNote;
+using ContractCalendarDayData = ReQuantum.Contract.Calendar.CalendarDayData;
 
 namespace ReQuantum.Application.Services.Calendar;
 
 public interface ICalendarService
 {
-    List<CalendarNote> GetAllNotes();
-    void AddOrUpdateNote(CalendarNote note);
-    void DeleteNote(Guid id);
+    List<ContractCalendarNote> FindAllNotes();
+    void AddOrUpdateNote(ContractCalendarNote note);
+    void DeleteNote(long id);
 
-    List<CalendarTodo> GetAllTodos();
-    List<CalendarTodo> GetTodosByDate(DateOnly date);
-    List<CalendarTodo> GetTodosByDateRange(DateOnly startDate, DateOnly endDate);
-    List<CalendarTodo> GetIncompleteTodosByDate(DateOnly date);
-    void AddOrUpdateTodo(CalendarTodo todo);
-    void DeleteTodo(Guid id);
-    void ToggleTodoComplete(Guid id);
+    List<ContractCalendarTodo> FindAllTodos();
+    List<ContractCalendarTodo> FindTodosByDate(DateOnly date);
+    List<ContractCalendarTodo> FindTodosByDateRange(DateOnly startDate, DateOnly endDate);
+    List<ContractCalendarTodo> FindIncompleteTodosByDate(DateOnly date);
+    void AddOrUpdateTodo(ContractCalendarTodo todo);
+    void DeleteTodo(long id);
+    void ToggleTodoComplete(long id);
 
-    List<CalendarEvent> GetAllEvents();
-    List<CalendarEvent> GetEventsByDate(DateOnly date);
-    List<CalendarEvent> GetEventsByDateRange(DateOnly startDate, DateOnly endDate);
-    void AddOrUpdateEvent(CalendarEvent calendarEvent);
-    void DeleteEvent(Guid id);
+    List<ContractCalendarEvent> FindAllEvents();
+    List<ContractCalendarEvent> FindEventsByDate(DateOnly date);
+    List<ContractCalendarEvent> FindEventsByDateRange(DateOnly startDate, DateOnly endDate);
+    void AddOrUpdateEvent(ContractCalendarEvent calendarEvent);
+    void DeleteEvent(long id);
 
-    CalendarDayData GetCalendarDayData(DateOnly date);
+    ContractCalendarDayData FindCalendarDayData(DateOnly date);
 }

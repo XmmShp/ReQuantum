@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Logging;
-using ReQuantum.Application.Models.Calendar;
+using NOF.Annotation;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Utilities;
+using ReQuantum.Domain.Calendar;
 
 namespace ReQuantum.Application.Services.Zdbk;
 
+[AutoInject(Lifetime.Singleton)]
 public class ZdbkCalendarConvertService : IZdbkCalendarConverter
 {
     private readonly IAcademicCalendarService _calendarService;
@@ -114,16 +116,11 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
                 continue;
             }
 
-            var eventId = $"{section.CourseId}_{semester}_{weekNumber}_{section.DayOfWeek}_{section.StartSection}".ToGuid();
-
-            events.Add(new CalendarEvent
-            {
-                Id = eventId,
-                Content = $"{courseInfo.CourseName}\n{courseInfo.Teacher}\n{courseInfo.Location}",
-                StartTime = actualDate.ToDateTime(startTime),
-                EndTime = actualDate.ToDateTime(endTime),
-                CreatedAt = DateTime.Now
-            });
+            events.Add(CalendarEvent.CreateFromSource(
+                $"{courseInfo.CourseName}\n{courseInfo.Teacher}\n{courseInfo.Location}",
+                actualDate.ToDateTime(startTime),
+                actualDate.ToDateTime(endTime),
+                CalendarEventSource.Zdbk));
         }
 
         return events;
@@ -179,15 +176,11 @@ public class ZdbkCalendarConvertService : IZdbkCalendarConverter
                 locationText += $" (座位号: {exam.Seat})";
             }
 
-            var eventId = $"{exam.ClassId}_{exam.ExamType}_{exam.StartTime:yyyyMMddHHmm}".ToGuid();
-            events.Add(new CalendarEvent
-            {
-                Id = eventId,
-                Content = $"[务必核对!] {exam.CourseName} {examTypeText}\n学分: {exam.Credit:F1}",
-                StartTime = exam.StartTime.Value,
-                EndTime = exam.EndTime.Value,
-                CreatedAt = DateTime.Now
-            });
+            events.Add(CalendarEvent.CreateFromSource(
+                $"[务必核对!] {exam.CourseName} {examTypeText}\n学分: {exam.Credit:F1}",
+                exam.StartTime.Value,
+                exam.EndTime.Value,
+                CalendarEventSource.ZdbkExam));
         }
         return events;
     }

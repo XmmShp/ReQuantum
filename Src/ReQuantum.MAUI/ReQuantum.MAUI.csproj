@@ -62,9 +62,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
     <PackageReference Include="Microsoft.Playwright" />
+    <PackageReference Include="NOF.Hosting.Maui" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ReQuantum.MAUI.Persistence\ReQuantum.MAUI.Persistence.csproj" />
     <ProjectReference Include="..\ReQuantum.UI\ReQuantum.UI.csproj" />
   </ItemGroup>
 

@@ -1,7 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Application.Services.Calendar
-@using ReQuantum.Application.Models.Calendar
+@using ReQuantum.Contract.Calendar
 @inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
 
@@ -58,7 +58,7 @@
 
     private void LoadEvents()
     {
-        events = CalendarService.GetEventsByDate(SelectedDate);
+        events = CalendarService.FindEventsByDate(SelectedDate);
     }
 
     private void ShowAddEventDialog()
@@ -69,7 +69,7 @@
     {
     }
 
-    private void DeleteEvent(Guid id)
+    private void DeleteEvent(long id)
     {
         CalendarService.DeleteEvent(id);
         LoadEvents();
