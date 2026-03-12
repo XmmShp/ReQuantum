@@ -7,12 +7,15 @@
 @inject IReQuantumService ReQuantumService
 
 <div class="week-calendar">
-    <div class="week-header">
-        <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">&lt;</button>
-        <h3>@GetWeekRange()</h3>
-        <button class="btn btn-sm btn-outline-secondary" @onclick="NextWeek">&gt;</button>
-        <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
-    </div>
+    @if (ShowHeader)
+    {
+        <div class="week-header">
+            <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">&lt;</button>
+            <h3>@GetWeekRange()</h3>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="NextWeek">&gt;</button>
+            <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
+        </div>
+    }
 
     <div class="week-grid">
         <div class="time-column">
@@ -60,6 +63,9 @@
     public DateOnly SelectedDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
     [Parameter]
+    public bool ShowHeader { get; set; } = true;
+
+    [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
     private DateOnly currentWeekStart;
@@ -74,6 +80,18 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        var dayOfWeek = (int)SelectedDate.DayOfWeek;
+        var targetWeekStart = SelectedDate.AddDays(-dayOfWeek);
+        if (targetWeekStart != currentWeekStart)
+        {
+            currentWeekStart = targetWeekStart;
+            weekDays.Clear();
+            for (int i = 0; i < 7; i++)
+            {
+                weekDays.Add(currentWeekStart.AddDays(i));
+            }
+        }
+
         await LoadWeekEventsAsync();
     }
 

@@ -12,29 +12,28 @@
         <button class="btn btn-sm btn-primary" @onclick="ShowAddEventDialog">@L["AddEvent"]</button>
     </div>
 
-    @if (isEditing)
-    {
-        <div class="event-editor mb-2">
+    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddEvent"])" OnClose="CancelEdit">
+        <ChildContent>
             <input class="form-control mb-2"
                    @bind="editingContent"
                    placeholder="@L["Title"]" />
-            <input class="form-control mb-2"
-                   type="datetime-local"
-                   @bind-value="editingStartTime"
-                   @bind-value:format="yyyy-MM-ddTHH:mm" />
-            <input class="form-control mb-2"
-                   type="datetime-local"
-                   @bind-value="editingEndTime"
-                   @bind-value:format="yyyy-MM-ddTHH:mm" />
+            <InputDate TValue="DateTime"
+                       class="form-control mb-2"
+                       Type="InputDateType.DateTimeLocal"
+                       @bind-Value="editingStartTime" />
+            <InputDate TValue="DateTime"
+                       class="form-control mb-2"
+                       Type="InputDateType.DateTimeLocal"
+                       @bind-Value="editingEndTime" />
             <input class="form-control mb-2"
                    @bind="editingNote"
                    placeholder="@L["Note"]" />
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-primary" @onclick="SaveEventAsync">@L["Save"]</button>
-                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
-            </div>
-        </div>
-    }
+        </ChildContent>
+        <Footer>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEventAsync">@L["Save"]</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+        </Footer>
+    </Modal>
 
     <div class="list-content">
         @if (events.Any())
@@ -73,6 +72,9 @@
 @code {
     [Parameter]
     public DateOnly SelectedDate { get; set; }
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
 
     private List<CalendarEvent> events = new();
     private bool isEditing;
@@ -148,11 +150,13 @@
 
         CancelEdit();
         await LoadEventsAsync();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task DeleteEvent(long id)
     {
         await ReQuantumService.RemoveEventAsync(new RemoveEventRequest(id));
         await LoadEventsAsync();
+        await OnChanged.InvokeAsync();
     }
 }

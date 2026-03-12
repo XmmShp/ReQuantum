@@ -6,45 +6,198 @@
 @inject IReQuantumService ReQuantumService
 
 <div class="month-calendar">
-    <div class="month-header">
-        <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousMonth">&lt;</button>
-        <h3>@string.Format(L["DateFormatYearMonth"], currentMonth)</h3>
-        <button class="btn btn-sm btn-outline-secondary" @onclick="NextMonth">&gt;</button>
-        <button class="btn btn-sm btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
-    </div>
+    <div class="month-layout">
+        <div class="month-main">
+            <div class="calendar-grid">
+                <div class="weekday-header">
+                    <div class="weekday">@L["Sun"]</div>
+                    <div class="weekday">@L["Mon"]</div>
+                    <div class="weekday">@L["Tue"]</div>
+                    <div class="weekday">@L["Wed"]</div>
+                    <div class="weekday">@L["Thu"]</div>
+                    <div class="weekday">@L["Fri"]</div>
+                    <div class="weekday">@L["Sat"]</div>
+                </div>
 
-    <div class="calendar-grid">
-        <div class="weekday-header">
-            <div class="weekday">@L["Sun"]</div>
-            <div class="weekday">@L["Mon"]</div>
-            <div class="weekday">@L["Tue"]</div>
-            <div class="weekday">@L["Wed"]</div>
-            <div class="weekday">@L["Thu"]</div>
-            <div class="weekday">@L["Fri"]</div>
-            <div class="weekday">@L["Sat"]</div>
-        </div>
-
-        <div class="days-grid">
-            @foreach (var day in calendarDays)
-            {
-                <div class="day-cell @GetDayClass(day)" @onclick="() => SelectDay(day)">
-                    <div class="day-number">@day.Day</div>
-                    @if (day >= firstDayOfMonth && day <= lastDayOfMonth)
+                <div class="days-viewport @(_isLoadingMonthData ? "loading" : string.Empty)">
+                    @if (_isMonthTransitioning && _previousCalendarDays.Count > 0)
                     {
-                        var dayData = GetDayData(day);
-                        <div class="day-indicators">
-                            @if (dayData.Events.Any())
+                        <div class="days-track @_monthTransitionClass" style="@GetDaysTrackStyle()" @key="_monthAnimationKey">
+                            @if (_monthTransitionClass == "slide-up")
                             {
-                                <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)"></span>
+                                <div class="days-grid transition-grid">
+                                    @foreach (var day in _previousCalendarDays)
+                                    {
+                                        var previousDayData = GetDayData(day, _previousDayDataMap);
+                                        <div class="day-cell @GetDayClass(day, _previousFirstDayOfMonth, _previousLastDayOfMonth, includeSelected: false)" @onclick="() => SelectDay(day)">
+                                            <div class="day-number">@day.Day</div>
+                                            <div class="day-indicators">
+                                                @if (previousDayData.Events.Any())
+                                                {
+                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], previousDayData.Events.Count)">@previousDayData.Events.Count</span>
+                                                }
+                                                @if (previousDayData.Todos.Any())
+                                                {
+                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], previousDayData.Todos.Count)">@previousDayData.Todos.Count</span>
+                                                }
+                                            </div>
+                                            <div class="day-preview">
+                                                @if (previousDayData.Events.Any())
+                                                {
+                                                    var firstEvent = previousDayData.Events[0];
+                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                }
+                                                @if (previousDayData.Todos.Any())
+                                                {
+                                                    var firstTodo = previousDayData.Todos[0];
+                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="days-grid transition-grid">
+                                    @foreach (var day in _transitionCalendarDays)
+                                    {
+                                        var dayData = GetDayData(day, _previousDayDataMap);
+                                        <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                            <div class="day-number">@day.Day</div>
+                                            <div class="day-indicators">
+                                                @if (dayData.Events.Any())
+                                                {
+                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
+                                                }
+                                                @if (dayData.Todos.Any())
+                                                {
+                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
+                                                }
+                                            </div>
+                                            <div class="day-preview">
+                                                @if (dayData.Events.Any())
+                                                {
+                                                    var firstEvent = dayData.Events[0];
+                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                }
+                                                @if (dayData.Todos.Any())
+                                                {
+                                                    var firstTodo = dayData.Todos[0];
+                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                             }
-                            @if (dayData.Todos.Any())
+                            else
                             {
-                                <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)"></span>
+                                <div class="days-grid transition-grid">
+                                    @foreach (var day in _transitionCalendarDays)
+                                    {
+                                        var dayData = GetDayData(day, _previousDayDataMap);
+                                        <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                            <div class="day-number">@day.Day</div>
+                                            <div class="day-indicators">
+                                                @if (dayData.Events.Any())
+                                                {
+                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
+                                                }
+                                                @if (dayData.Todos.Any())
+                                                {
+                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
+                                                }
+                                            </div>
+                                            <div class="day-preview">
+                                                @if (dayData.Events.Any())
+                                                {
+                                                    var firstEvent = dayData.Events[0];
+                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                }
+                                                @if (dayData.Todos.Any())
+                                                {
+                                                    var firstTodo = dayData.Todos[0];
+                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="days-grid transition-grid">
+                                    @foreach (var day in _previousCalendarDays)
+                                    {
+                                        var previousDayData = GetDayData(day, _previousDayDataMap);
+                                        <div class="day-cell @GetDayClass(day, _previousFirstDayOfMonth, _previousLastDayOfMonth, includeSelected: false)" @onclick="() => SelectDay(day)">
+                                            <div class="day-number">@day.Day</div>
+                                            <div class="day-indicators">
+                                                @if (previousDayData.Events.Any())
+                                                {
+                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], previousDayData.Events.Count)">@previousDayData.Events.Count</span>
+                                                }
+                                                @if (previousDayData.Todos.Any())
+                                                {
+                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], previousDayData.Todos.Count)">@previousDayData.Todos.Count</span>
+                                                }
+                                            </div>
+                                            <div class="day-preview">
+                                                @if (previousDayData.Events.Any())
+                                                {
+                                                    var firstEvent = previousDayData.Events[0];
+                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                }
+                                                @if (previousDayData.Todos.Any())
+                                                {
+                                                    var firstTodo = previousDayData.Todos[0];
+                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="days-grid @(_isDataFadingIn ? "data-fade-in" : string.Empty)" @key="_dataFadeKey">
+                            @foreach (var day in calendarDays)
+                            {
+                                var dayData = GetDayData(day, _dayDataMap);
+                                <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                    <div class="day-number">@day.Day</div>
+                                    <div class="day-indicators">
+                                        @if (dayData.Events.Any())
+                                        {
+                                            <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
+                                        }
+                                        @if (dayData.Todos.Any())
+                                        {
+                                            <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
+                                        }
+                                    </div>
+                                    <div class="day-preview">
+                                        @if (dayData.Events.Any())
+                                        {
+                                            var firstEvent = dayData.Events[0];
+                                            <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                        }
+                                        @if (dayData.Todos.Any())
+                                        {
+                                            var firstTodo = dayData.Todos[0];
+                                            <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                        }
+                                    </div>
+                                </div>
                             }
                         </div>
                     }
                 </div>
-            }
+            </div>
+        </div>
+
+        <div class="selected-day-panels">
+            <div class="selected-date-badge">@SelectedDate.ToString("yyyy-MM-dd")</div>
+            <EventList SelectedDate="SelectedDate" OnChanged="RefreshCalendarDataAsync" />
+            <TodoList SelectedDate="SelectedDate" OnChanged="RefreshCalendarDataAsync" />
+            <NoteList OnChanged="RefreshCalendarDataAsync" />
         </div>
     </div>
 </div>
@@ -52,6 +205,9 @@
 @code {
     [Parameter]
     public DateOnly SelectedDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
+    [Parameter]
+    public bool ShowHeader { get; set; } = true;
 
     [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
@@ -66,6 +222,21 @@
     {
         GenerateCalendarDays();
         await LoadMonthDataAsync();
+        await EnsureDayDataLoadedAsync(SelectedDate);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var targetMonth = SelectedDate.ToDateTime(TimeOnly.MinValue);
+        if (currentMonth.Year != targetMonth.Year || currentMonth.Month != targetMonth.Month)
+        {
+            await TransitionToMonthAsync(targetMonth);
+        }
+
+        if (!_isLoadingMonthData)
+        {
+            await EnsureDayDataLoadedAsync(SelectedDate);
+        }
     }
 
     private void GenerateCalendarDays()
@@ -87,11 +258,11 @@
         }
     }
 
-    private string GetDayClass(DateOnly day)
+    private string GetDayClass(DateOnly day, DateOnly targetFirstDayOfMonth, DateOnly targetLastDayOfMonth, bool includeSelected = true)
     {
         var classes = new List<string>();
 
-        if (day < firstDayOfMonth || day > lastDayOfMonth)
+        if (day < targetFirstDayOfMonth || day > targetLastDayOfMonth)
         {
             classes.Add("other-month");
         }
@@ -101,7 +272,7 @@
             classes.Add("today");
         }
 
-        if (day == SelectedDate)
+        if (includeSelected && day == SelectedDate)
         {
             classes.Add("selected");
         }
@@ -112,6 +283,12 @@
     private async Task SelectDay(DateOnly day)
     {
         SelectedDate = day;
+
+        if (day.Month == currentMonth.Month && day.Year == currentMonth.Year)
+        {
+            await EnsureDayDataLoadedAsync(day);
+        }
+
         await SelectedDateChanged.InvokeAsync(day);
     }
 
@@ -137,24 +314,59 @@
         await SelectDay(DateOnly.FromDateTime(DateTime.Today));
     }
 
-    private CalendarDayData GetDayData(DateOnly day)
+    private static CalendarDayData GetDayData(DateOnly day, IReadOnlyDictionary<DateOnly, CalendarDayData> dayDataMap)
     {
-        return _dayDataMap.TryGetValue(day, out var dayData)
+        return dayDataMap.TryGetValue(day, out var dayData)
             ? dayData
             : new CalendarDayData(day, [], [], []);
     }
 
     private async Task LoadMonthDataAsync()
     {
-        _dayDataMap.Clear();
-
-        foreach (var day in calendarDays.Where(d => d >= firstDayOfMonth && d <= lastDayOfMonth))
+        if (!calendarDays.Any())
         {
-            var result = await ReQuantumService.GetCalendarDayDataAsync(new GetCalendarDayDataRequest(day));
-            if (result.IsSuccess)
-            {
-                _dayDataMap[day] = result.Value!.Data;
-            }
+            return;
         }
+
+        var startDate = calendarDays.Min().AddDays(-42);
+        var endDate = calendarDays.Max().AddDays(42);
+        var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(startDate, endDate));
+        if (!result.IsSuccess || result.Value is null)
+        {
+            return;
+        }
+
+        var nextDayDataMap = new Dictionary<DateOnly, CalendarDayData>();
+        foreach (var kvp in result.Value.DataByDate)
+        {
+            nextDayDataMap[kvp.Key] = kvp.Value;
+        }
+
+        _dayDataMap.Clear();
+        foreach (var kvp in nextDayDataMap)
+        {
+            _dayDataMap[kvp.Key] = kvp.Value;
+        }
+    }
+
+    private async Task EnsureDayDataLoadedAsync(DateOnly day)
+    {
+        if (_dayDataMap.ContainsKey(day))
+        {
+            return;
+        }
+
+        var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(day, day));
+        if (result.IsSuccess && result.Value is not null && result.Value.DataByDate.TryGetValue(day, out var dayData))
+        {
+            _dayDataMap[day] = dayData;
+        }
+    }
+
+    private async Task RefreshCalendarDataAsync()
+    {
+        await LoadMonthDataAsync();
+        await EnsureDayDataLoadedAsync(SelectedDate);
+        await InvokeAsync(StateHasChanged);
     }
 }

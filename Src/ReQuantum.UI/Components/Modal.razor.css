@@ -1,0 +1,36 @@
+.rq-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.rq-modal {
+    width: min(520px, calc(100vw - 32px));
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+}
+
+.rq-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.rq-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rq-modal-footer {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}

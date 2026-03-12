@@ -31,8 +31,8 @@ public class CalendarEventRepository : EFCoreRepository<CalendarEvent>, ICalenda
         return _dbContext.CalendarEvents
             .OrderBy(e => e.StartTime)
             .Where(e =>
-                DateOnly.FromDateTime(e.StartTime) >= startDate
-                && DateOnly.FromDateTime(e.StartTime) <= endDate)
+                DateOnly.FromDateTime(e.StartTime) <= endDate
+                && DateOnly.FromDateTime(e.EndTime) >= startDate)
             .AsAsyncEnumerable();
     }
 }

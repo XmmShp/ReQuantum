@@ -12,19 +12,18 @@
         <button class="btn btn-sm btn-primary" @onclick="ShowAddNoteDialog">@L["AddNote"]</button>
     </div>
 
-    @if (isEditing)
-    {
-        <div class="note-editor mb-2">
+    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit">
+        <ChildContent>
             <textarea class="form-control"
-                      rows="3"
+                      rows="4"
                       @bind="editingContent"
                       placeholder="@L["NoteContent"]"></textarea>
-            <div class="mt-2 d-flex gap-2">
-                <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">@L["Save"]</button>
-                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
-            </div>
-        </div>
-    }
+        </ChildContent>
+        <Footer>
+            <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">@L["Save"]</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+        </Footer>
+    </Modal>
 
     <div class="list-content">
         @if (notes.Any())
@@ -53,6 +52,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
     private List<CalendarNote> notes = new();
     private bool isEditing;
     private long? editingId;
@@ -109,11 +111,13 @@
 
         CancelEdit();
         await LoadNotesAsync();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task DeleteNote(long id)
     {
         await ReQuantumService.RemoveNoteAsync(new RemoveNoteRequest(id));
         await LoadNotesAsync();
+        await OnChanged.InvokeAsync();
     }
 }

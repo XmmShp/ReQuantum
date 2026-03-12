@@ -1,0 +1,52 @@
+@namespace ReQuantum.UI.Components
+
+@if (Visible)
+{
+    <div class="rq-modal-backdrop" @onclick="OnBackdropClickAsync">
+        <div class="rq-modal" @onclick:stopPropagation="true">
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <div class="rq-modal-title">@Title</div>
+            }
+
+            <div class="rq-modal-body">
+                @ChildContent
+            </div>
+
+            @if (Footer is not null)
+            {
+                <div class="rq-modal-footer">
+                    @Footer
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public bool CloseOnBackdropClick { get; set; } = true;
+
+    private async Task OnBackdropClickAsync()
+    {
+        if (CloseOnBackdropClick)
+        {
+            await OnClose.InvokeAsync();
+        }
+    }
+}

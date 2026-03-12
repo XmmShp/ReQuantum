@@ -12,16 +12,15 @@
         <button class="btn btn-sm btn-primary" @onclick="ShowAddTodoDialog">@L["AddTodo"]</button>
     </div>
 
-    @if (isEditing)
-    {
-        <div class="todo-editor mb-2">
+    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit">
+        <ChildContent>
             <input class="form-control mb-2"
                    @bind="editingContent"
                    placeholder="@L["TodoContent"]" />
-            <input class="form-control mb-2"
-                   type="datetime-local"
-                   @bind-value="editingDueTime"
-                   @bind-value:format="yyyy-MM-ddTHH:mm" />
+            <InputDate TValue="DateTime"
+                       class="form-control mb-2"
+                       Type="InputDateType.DateTimeLocal"
+                       @bind-Value="editingDueTime" />
             @if (!editingId.HasValue)
             {
                 <label class="form-check-label d-flex align-items-center gap-2 mb-2">
@@ -29,12 +28,12 @@
                     <span>@L["Completed"]</span>
                 </label>
             }
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-primary" @onclick="SaveTodoAsync">@L["Save"]</button>
-                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
-            </div>
-        </div>
-    }
+        </ChildContent>
+        <Footer>
+            <button class="btn btn-sm btn-primary" @onclick="SaveTodoAsync">@L["Save"]</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+        </Footer>
+    </Modal>
 
     <div class="list-content">
         @if (todos.Any())
@@ -68,6 +67,9 @@
 @code {
     [Parameter]
     public DateOnly SelectedDate { get; set; }
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
 
     private List<CalendarTodo> todos = new();
     private bool isEditing;
@@ -132,17 +134,20 @@
 
         CancelEdit();
         await LoadTodosAsync();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task ToggleTodo(long id)
     {
         await ReQuantumService.ToggleTodoCompleteAsync(new ToggleTodoCompleteRequest(id));
         await LoadTodosAsync();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task DeleteTodo(long id)
     {
         await ReQuantumService.RemoveTodoAsync(new RemoveTodoRequest(id));
         await LoadTodosAsync();
+        await OnChanged.InvokeAsync();
     }
 }
