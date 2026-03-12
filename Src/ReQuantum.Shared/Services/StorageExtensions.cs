@@ -1,32 +1,34 @@
+using NOF.Contract;
 using System.Text.Json;
 
 namespace ReQuantum.Shared.Services;
 
 public static class StorageExtensions
 {
-    public static T? Get<T>(this IStorage storage, string key)
+    extension(IStorage storage)
     {
-        var value = storage.GetString(key);
-        return JsonSerializer.Deserialize<T>(value);
-    }
-
-    public static bool TryGet<T>(this IStorage storage, string key, out T? value)
-    {
-        try
+        public async ValueTask<T?> GetAsync<T>(string key)
         {
-            value = storage.Get<T>(key);
-            return true;
+            var value = await storage.GetAsync(key);
+            return JsonSerializer.Deserialize<T>(value);
         }
-        catch
-        {
-            value = default;
-            return false;
-        }
-    }
 
-    public static void Set<T>(this IStorage storage, string key, T? value)
-    {
-        var json = JsonSerializer.Serialize(value);
-        storage.SetString(key, json);
+        public async ValueTask<Optional<T?>> TryGetAsync<T>(string key)
+        {
+            try
+            {
+                return await storage.GetAsync<T>(key);
+            }
+            catch
+            {
+                return Optional.None;
+            }
+        }
+
+        public async ValueTask SetAsync<T>(string key, T? value)
+        {
+            var json = JsonSerializer.Serialize(value);
+            await storage.SetAsync(key, json);
+        }
     }
 }

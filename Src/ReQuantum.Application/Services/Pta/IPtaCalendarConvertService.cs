@@ -1,5 +1,5 @@
 using ReQuantum.Application.Models.Pta;
-using ReQuantum.Domain.Calendar;
+using ReQuantum.Domain.Calendar.AggregateRoots;
 
 namespace ReQuantum.Application.Services.Pta;
 

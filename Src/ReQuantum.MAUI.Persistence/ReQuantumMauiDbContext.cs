@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NOF.Infrastructure.EntityFrameworkCore;
-using ReQuantum.Domain.Calendar;
+using ReQuantum.Domain.Calendar.AggregateRoots;
 using System.Text.Json;
 
 namespace ReQuantum.MAUI.Persistence;

@@ -1,15 +1,40 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
+@using ReQuantum.Contract.Calendar.Events
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <div class="event-list">
     <div class="list-header">
         <h4>@L["EventList"]</h4>
         <button class="btn btn-sm btn-primary" @onclick="ShowAddEventDialog">@L["AddEvent"]</button>
     </div>
+
+    @if (isEditing)
+    {
+        <div class="event-editor mb-2">
+            <input class="form-control mb-2"
+                   @bind="editingContent"
+                   placeholder="@L["Title"]" />
+            <input class="form-control mb-2"
+                   type="datetime-local"
+                   @bind-value="editingStartTime"
+                   @bind-value:format="yyyy-MM-ddTHH:mm" />
+            <input class="form-control mb-2"
+                   type="datetime-local"
+                   @bind-value="editingEndTime"
+                   @bind-value:format="yyyy-MM-ddTHH:mm" />
+            <input class="form-control mb-2"
+                   @bind="editingNote"
+                   placeholder="@L["Note"]" />
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" @onclick="SaveEventAsync">@L["Save"]</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+            </div>
+        </div>
+    }
 
     <div class="list-content">
         @if (events.Any())
@@ -50,28 +75,84 @@
     public DateOnly SelectedDate { get; set; }
 
     private List<CalendarEvent> events = new();
+    private bool isEditing;
+    private long? editingId;
+    private string editingContent = string.Empty;
+    private DateTime editingStartTime = DateTime.Now;
+    private DateTime editingEndTime = DateTime.Now.AddHours(1);
+    private string editingNote = string.Empty;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        LoadEvents();
+        await LoadEventsAsync();
     }
 
-    private void LoadEvents()
+    private async Task LoadEventsAsync()
     {
-        events = CalendarService.FindEventsByDate(SelectedDate);
+        var result = await ReQuantumService.GetEventsByDateAsync(new GetEventsByDateRequest(SelectedDate));
+        events = result.IsSuccess ? result.Value!.Events : [];
     }
 
     private void ShowAddEventDialog()
     {
+        editingId = null;
+        editingContent = string.Empty;
+        editingStartTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
+        editingEndTime = SelectedDate.ToDateTime(new TimeOnly(10, 0));
+        editingNote = string.Empty;
+        isEditing = true;
     }
 
     private void EditEvent(CalendarEvent evt)
     {
+        editingId = evt.Id;
+        editingContent = evt.Content;
+        editingStartTime = evt.StartTime;
+        editingEndTime = evt.EndTime;
+        editingNote = evt.Note;
+        isEditing = true;
     }
 
-    private void DeleteEvent(long id)
+    private void CancelEdit()
     {
-        CalendarService.DeleteEvent(id);
-        LoadEvents();
+        isEditing = false;
+        editingId = null;
+        editingContent = string.Empty;
+        editingStartTime = DateTime.Now;
+        editingEndTime = DateTime.Now.AddHours(1);
+        editingNote = string.Empty;
+    }
+
+    private async Task SaveEventAsync()
+    {
+        var content = editingContent.Trim();
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return;
+        }
+
+        if (editingEndTime <= editingStartTime)
+        {
+            return;
+        }
+
+        var note = editingNote.Trim();
+        if (editingId.HasValue)
+        {
+            await ReQuantumService.UpdateEventAsync(new UpdateEventRequest(editingId.Value, content, editingStartTime, editingEndTime, note));
+        }
+        else
+        {
+            await ReQuantumService.AddEventAsync(new AddEventRequest(content, editingStartTime, editingEndTime, note, "manual", 0));
+        }
+
+        CancelEdit();
+        await LoadEventsAsync();
+    }
+
+    private async Task DeleteEvent(long id)
+    {
+        await ReQuantumService.RemoveEventAsync(new RemoveEventRequest(id));
+        await LoadEventsAsync();
     }
 }

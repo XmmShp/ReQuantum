@@ -1,7 +1,10 @@
 @page "/"
-@using ReQuantum.Application.Services.Calendar
+@using NOF.Contract
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
+@using ReQuantum.Contract.Calendar.Events
+@using ReQuantum.Contract.Calendar.Notes
+@using ReQuantum.Contract.Calendar.Todos
+@inject IRequestSender RequestSender
 
 <PageTitle>ReQuantum</PageTitle>
 
@@ -104,28 +107,31 @@
     private List<CalendarTodo> _recentTodos = [];
     private List<CalendarNote> _recentNotes = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LoadRecentItems();
+        await LoadRecentItemsAsync();
     }
 
-    private void LoadRecentItems()
+    private async Task LoadRecentItemsAsync()
     {
         var now = DateTime.Now;
 
-        _recentEvents = CalendarService.FindAllEvents()
+        var eventsResult = await RequestSender.SendAsync(new GetAllEventsRequest());
+        _recentEvents = (eventsResult.IsSuccess ? eventsResult.Value!.Events : [])
             .Where(e => e.StartTime.Date >= now.Date)
             .OrderBy(e => e.StartTime)
             .Take(5)
             .ToList();
 
-        _recentTodos = CalendarService.FindAllTodos()
+        var todosResult = await RequestSender.SendAsync(new GetAllTodosRequest());
+        _recentTodos = (todosResult.IsSuccess ? todosResult.Value!.Todos : [])
             .Where(t => !t.IsCompleted && t.DueTime >= now)
             .OrderBy(t => t.DueTime)
             .Take(5)
             .ToList();
 
-        _recentNotes = CalendarService.FindAllNotes()
+        var notesResult = await RequestSender.SendAsync(new GetAllNotesRequest());
+        _recentNotes = (notesResult.IsSuccess ? notesResult.Value!.Notes : [])
             .OrderByDescending(n => n.CreatedAt)
             .Take(5)
             .ToList();

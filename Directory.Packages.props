@@ -23,7 +23,7 @@
     <!-- Playwright -->
     <PackageVersion Include="Microsoft.Playwright" Version="1.51.0" />
     <PackageVersion Include="NOF.Application" Version="$(NofVersion)" />
-    <PackageVersion Include="NOF.Contract" Version="$(NofVersion)" />
+    <PackageVersion Include="NOF.Contract" Version="7.1.0-nightly.1152597.510d4a6" />
     <PackageVersion Include="NOF.Domain" Version="$(NofVersion)" />
     <PackageVersion Include="NOF.Hosting.AspNetCore" Version="$(NofVersion)" />
     <PackageVersion Include="NOF.Hosting.Maui" Version="$(NofVersion)" />

@@ -1,9 +1,10 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
+@using ReQuantum.Contract.Calendar.Events
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <div class="week-calendar">
     <div class="week-header">
@@ -31,17 +32,17 @@
                         @day.Day
                     </div>
                 </div>
-                
+
                 <div class="events-container">
                     @{
-                        var dayEvents = CalendarService.FindEventsByDate(day);
+                        var dayEvents = GetEvents(day);
                         foreach (var evt in dayEvents)
                         {
                             var startHour = evt.StartTime.Hour + evt.StartTime.Minute / 60.0;
                             var duration = (evt.EndTime - evt.StartTime).TotalHours;
                             var top = startHour * 60;
                             var height = duration * 60;
-                            
+
                             <div class="event-block" style="top: @(top)px; height: @(height)px;" title="@evt.Content">
                                 <div class="event-time">@evt.StartTime.ToString("HH:mm")</div>
                                 <div class="event-content">@evt.Content</div>
@@ -63,20 +64,27 @@
 
     private DateOnly currentWeekStart;
     private List<DateOnly> weekDays = new();
+    private readonly Dictionary<DateOnly, List<CalendarEvent>> _eventsByDate = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         GenerateWeekDays();
+        await LoadWeekEventsAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadWeekEventsAsync();
     }
 
     private void GenerateWeekDays()
     {
         weekDays.Clear();
-        
+
         var today = DateOnly.FromDateTime(DateTime.Today);
         var dayOfWeek = (int)today.DayOfWeek;
         currentWeekStart = today.AddDays(-dayOfWeek);
-        
+
         for (int i = 0; i < 7; i++)
         {
             weekDays.Add(currentWeekStart.AddDays(i));
@@ -110,21 +118,45 @@
         await SelectedDateChanged.InvokeAsync(day);
     }
 
-    private void PreviousWeek()
+    private async Task PreviousWeek()
     {
         currentWeekStart = currentWeekStart.AddDays(-7);
         GenerateWeekDays();
+        await LoadWeekEventsAsync();
     }
 
-    private void NextWeek()
+    private async Task NextWeek()
     {
         currentWeekStart = currentWeekStart.AddDays(7);
         GenerateWeekDays();
+        await LoadWeekEventsAsync();
     }
 
-    private void GoToToday()
+    private async Task GoToToday()
     {
         GenerateWeekDays();
-        SelectDay(DateOnly.FromDateTime(DateTime.Today));
+        await LoadWeekEventsAsync();
+        await SelectDay(DateOnly.FromDateTime(DateTime.Today));
+    }
+
+    private List<CalendarEvent> GetEvents(DateOnly day)
+    {
+        return _eventsByDate.TryGetValue(day, out var events) ? events : [];
+    }
+
+    private async Task LoadWeekEventsAsync()
+    {
+        if (!weekDays.Any())
+        {
+            return;
+        }
+
+        _eventsByDate.Clear();
+
+        foreach (var day in weekDays)
+        {
+            var result = await ReQuantumService.GetEventsByDateAsync(new GetEventsByDateRequest(day));
+            _eventsByDate[day] = result.IsSuccess ? result.Value!.Events : [];
+        }
     }
 }

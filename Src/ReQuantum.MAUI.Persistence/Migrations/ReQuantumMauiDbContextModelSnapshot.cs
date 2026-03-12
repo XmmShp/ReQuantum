@@ -154,7 +154,7 @@ namespace ReQuantum.MAUI.Persistence.Migrations
                     b.ToTable("NOFTenant", (string)null);
                 });
 
-            modelBuilder.Entity("ReQuantum.Domain.Calendar.CalendarEvent", b =>
+            modelBuilder.Entity("ReQuantum.Domain.Calendar.AggregateRoots.CalendarEvent", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("INTEGER");
@@ -168,9 +168,6 @@ namespace ReQuantum.MAUI.Persistence.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("From")
                         .IsRequired()
@@ -191,7 +188,7 @@ namespace ReQuantum.MAUI.Persistence.Migrations
                     b.ToTable("CalendarEvents");
                 });
 
-            modelBuilder.Entity("ReQuantum.Domain.Calendar.CalendarNote", b =>
+            modelBuilder.Entity("ReQuantum.Domain.Calendar.AggregateRoots.CalendarNote", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("INTEGER");
@@ -203,15 +200,12 @@ namespace ReQuantum.MAUI.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("NoteId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.ToTable("CalendarNotes");
                 });
 
-            modelBuilder.Entity("ReQuantum.Domain.Calendar.CalendarTodo", b =>
+            modelBuilder.Entity("ReQuantum.Domain.Calendar.AggregateRoots.CalendarTodo", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("INTEGER");
@@ -233,9 +227,6 @@ namespace ReQuantum.MAUI.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TodoId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.ToTable("CalendarTodos");
@@ -243,14 +234,14 @@ namespace ReQuantum.MAUI.Persistence.Migrations
 
             modelBuilder.Entity("ReQuantum.MAUI.Persistence.StorageEntry", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("Key")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("Key");
 
                     b.ToTable("StorageEntries");
                 });

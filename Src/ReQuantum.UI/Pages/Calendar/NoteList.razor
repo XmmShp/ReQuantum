@@ -1,15 +1,30 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
+@using ReQuantum.Contract.Calendar.Notes
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <div class="note-list">
     <div class="list-header">
         <h4>@L["NoteList"]</h4>
         <button class="btn btn-sm btn-primary" @onclick="ShowAddNoteDialog">@L["AddNote"]</button>
     </div>
+
+    @if (isEditing)
+    {
+        <div class="note-editor mb-2">
+            <textarea class="form-control"
+                      rows="3"
+                      @bind="editingContent"
+                      placeholder="@L["NoteContent"]"></textarea>
+            <div class="mt-2 d-flex gap-2">
+                <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">@L["Save"]</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+            </div>
+        </div>
+    }
 
     <div class="list-content">
         @if (notes.Any())
@@ -39,28 +54,66 @@
 
 @code {
     private List<CalendarNote> notes = new();
+    private bool isEditing;
+    private long? editingId;
+    private string editingContent = string.Empty;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LoadNotes();
+        await LoadNotesAsync();
     }
 
-    private void LoadNotes()
+    private async Task LoadNotesAsync()
     {
-        notes = CalendarService.FindAllNotes();
+        var result = await ReQuantumService.GetAllNotesAsync(new GetAllNotesRequest());
+        notes = result.IsSuccess ? result.Value!.Notes : [];
     }
 
     private void ShowAddNoteDialog()
     {
+        editingId = null;
+        editingContent = string.Empty;
+        isEditing = true;
     }
 
     private void EditNote(CalendarNote note)
     {
+        editingId = note.Id;
+        editingContent = note.Content;
+        isEditing = true;
     }
 
-    private void DeleteNote(long id)
+    private void CancelEdit()
     {
-        CalendarService.DeleteNote(id);
-        LoadNotes();
+        isEditing = false;
+        editingId = null;
+        editingContent = string.Empty;
+    }
+
+    private async Task SaveNoteAsync()
+    {
+        var content = editingContent.Trim();
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return;
+        }
+
+        if (editingId.HasValue)
+        {
+            await ReQuantumService.UpdateNoteAsync(new UpdateNoteRequest(editingId.Value, content));
+        }
+        else
+        {
+            await ReQuantumService.AddNoteAsync(new AddNoteRequest(content));
+        }
+
+        CancelEdit();
+        await LoadNotesAsync();
+    }
+
+    private async Task DeleteNote(long id)
+    {
+        await ReQuantumService.RemoveNoteAsync(new RemoveNoteRequest(id));
+        await LoadNotesAsync();
     }
 }

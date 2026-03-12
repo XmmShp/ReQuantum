@@ -1,5 +1,5 @@
 using ReQuantum.Application.Models.Zdbk;
-using ReQuantum.Domain.Calendar;
+using ReQuantum.Domain.Calendar.AggregateRoots;
 
 namespace ReQuantum.Application.Services.Zdbk;
 

@@ -1,10 +1,9 @@
 @page "/calendar"
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
-@using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <PageTitle>@L["Calendar"]</PageTitle>
 

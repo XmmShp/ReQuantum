@@ -29,7 +29,6 @@ public class ZjuSsoService : IZjuSsoService
         _storage = storage;
         _logger = logger;
         _browserLoginProvider = browserLoginProvider;
-        LoadState();
     }
 
     [MemberNotNullWhen(true, nameof(_state))]
@@ -41,7 +40,7 @@ public class ZjuSsoService : IZjuSsoService
     {
         OnLogout?.Invoke();
         _state = null;
-        SaveState();
+        _ = SaveStateAsync();
     }
 
     public event Action? OnLogin;
@@ -49,6 +48,8 @@ public class ZjuSsoService : IZjuSsoService
 
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
+        await LoadStateAsync();
+
         var result = await ValidOrRefreshTokenAsync();
         if (!result.IsSuccess)
         {
@@ -118,7 +119,7 @@ public class ZjuSsoService : IZjuSsoService
         }
 
         _state = new ZjuSsoState(username, password, cookieNew);
-        SaveState();
+        await SaveStateAsync();
         OnLogin?.Invoke();
         return Result.Success();
     }
@@ -158,7 +159,7 @@ public class ZjuSsoService : IZjuSsoService
         {
             var cookie = new Cookie("iPlanetDirectoryPro", cookieValue, "/", "zju.edu.cn");
             _state = new ZjuSsoState(userId, "", cookie);
-            SaveState();
+            _ = SaveStateAsync();
             OnLogin?.Invoke();
             return Result.Success();
         }
@@ -170,6 +171,8 @@ public class ZjuSsoService : IZjuSsoService
 
     private async Task<bool> IsTokenValidAsync()
     {
+        await LoadStateAsync();
+
         if (!IsAuthenticated)
         {
             return false;
@@ -182,6 +185,8 @@ public class ZjuSsoService : IZjuSsoService
 
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
+        await LoadStateAsync();
+
         if (await IsTokenValidAsync())
         {
             return Result.Success();
@@ -199,16 +204,26 @@ public class ZjuSsoService : IZjuSsoService
         return await LoginAsync(username, password);
     }
 
-    private void LoadState()
+    private async ValueTask LoadStateAsync()
     {
-        _storage.TryGet(StateKey, out _state);
+        if (_state is not null)
+        {
+            return;
+        }
+
+        var state = await _storage.TryGetAsync<ZjuSsoState>(StateKey);
+        _state = state.ValueOr((ZjuSsoState?)null);
     }
 
-    private void SaveState()
+    private async ValueTask SaveStateAsync()
     {
         if (_state is null)
-        { _storage.Remove(StateKey); return; }
-        _storage.Set(StateKey, _state);
+        {
+            await _storage.RemoveAsync(StateKey);
+            return;
+        }
+
+        await _storage.SetAsync(StateKey, _state);
     }
 
     #region Static helpers

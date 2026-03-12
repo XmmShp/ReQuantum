@@ -21,7 +21,6 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     {
         _storage = storage;
         _browserLoginProvider = browserLoginProvider;
-        LoadState();
     }
 
     [MemberNotNullWhen(true, nameof(_state))]
@@ -34,6 +33,8 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
     public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
+        await LoadStateAsync();
+
         var result = await ValidOrRefreshTokenAsync();
         if (!result.IsSuccess)
         {
@@ -94,7 +95,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         {
             var ptaSessionCookie = new Cookie("PTASession", ptaSessionValue, "/", "pintia.cn");
             _state = new PtaState(email, ptaSessionCookie);
-            SaveState();
+            _ = SaveStateAsync();
             OnLogin?.Invoke();
             return Result.Success();
         }
@@ -108,11 +109,13 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     {
         OnLogout?.Invoke();
         _state = null;
-        SaveState();
+        _ = SaveStateAsync();
     }
 
     private async Task<bool> IsTokenValidAsync()
     {
+        await LoadStateAsync();
+
         if (!IsAuthenticated)
         {
             return false;
@@ -129,6 +132,8 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
     private async Task<Result> ValidOrRefreshTokenAsync()
     {
+        await LoadStateAsync();
+
         if (await IsTokenValidAsync())
         {
             return Result.Success();
@@ -177,12 +182,25 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         }
     }
 
-    private void LoadState() => _storage.TryGet(StateKey, out _state);
+    private async ValueTask LoadStateAsync()
+    {
+        if (_state is not null)
+        {
+            return;
+        }
 
-    private void SaveState()
+        var state = await _storage.TryGetAsync<PtaState>(StateKey);
+        _state = state.ValueOr((PtaState?)null);
+    }
+
+    private async ValueTask SaveStateAsync()
     {
         if (_state is null)
-        { _storage.Remove(StateKey); return; }
-        _storage.Set(StateKey, _state);
+        {
+            await _storage.RemoveAsync(StateKey);
+            return;
+        }
+
+        await _storage.SetAsync(StateKey, _state);
     }
 }

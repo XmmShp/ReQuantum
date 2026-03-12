@@ -24,7 +24,6 @@ public class CoursesZjuService : ICoursesZjuService
         _storage = storage;
         _logger = logger;
         _zjuSsoService.OnLogout += () => _state = null;
-        LoadState();
     }
 
     public async Task<Result<HashSet<CoursesZjuTodoDto>>> GetTodoListAsync()
@@ -63,6 +62,8 @@ public class CoursesZjuService : ICoursesZjuService
 
     private async Task<Result<RequestClient>> GetAuthenticatedClient()
     {
+        await LoadStateAsync();
+
         if (_state is not null)
         {
             return RequestClient.Create(new RequestOptions { Cookies = [_state.Session] });
@@ -83,16 +84,29 @@ public class CoursesZjuService : ICoursesZjuService
         }
 
         _state = new CoursesZjuState(session);
-        SaveState();
+        await SaveStateAsync();
         return client;
     }
 
-    private void LoadState() => _storage.TryGet(StateKey, out _state);
+    private async ValueTask LoadStateAsync()
+    {
+        if (_state is not null)
+        {
+            return;
+        }
 
-    private void SaveState()
+        var state = await _storage.TryGetAsync<CoursesZjuState>(StateKey);
+        _state = state.ValueOr((CoursesZjuState?)null);
+    }
+
+    private async ValueTask SaveStateAsync()
     {
         if (_state is null)
-        { _storage.Remove(StateKey); return; }
-        _storage.Set(StateKey, _state);
+        {
+            await _storage.RemoveAsync(StateKey);
+            return;
+        }
+
+        await _storage.SetAsync(StateKey, _state);
     }
 }

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReQuantum.Application\ReQuantum.Application.csproj" />
+    <ProjectReference Include="..\ReQuantum.Contract\ReQuantum.Contract.csproj" />
   </ItemGroup>
 
   <ItemGroup>

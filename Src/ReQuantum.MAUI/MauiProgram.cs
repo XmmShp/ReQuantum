@@ -1,16 +1,15 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NOF.Application;
 using NOF.Hosting.Maui;
 using NOF.Infrastructure.EntityFrameworkCore;
 using NOF.Infrastructure.EntityFrameworkCore.SQLite;
+using ReQuantum.Application.RequestHandlers;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Domain.Calendar;
-using ReQuantum.Infrastructure.Persistence.Repositories;
+using ReQuantum.Contract;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.MAUI.Persistence;
 using ReQuantum.Shared.Services;
-using System.Collections.Generic;
-using System.IO;
 
 namespace ReQuantum;
 
@@ -27,9 +26,11 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
+        builder.Services.Configure<MapperOptions>(o => o.ConfigureAutoMappings());
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddReQuantumAutoInjectServices();
         builder.Services.AddAllHandlers();
+        builder.Services.AddSingleton<IReQuantumService, RequestSenderReQuantumService>();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ConnectionStrings:sqlite"] = $"Data Source={dbPath}"
@@ -39,10 +40,7 @@ public static class MauiProgram
             .AutoMigrate()
             .UseSqlite();
 
-        builder.Services.AddSingleton<IStorage, SqliteStorage>();
-        builder.Services.AddSingleton<ICalendarEventRepository, SqliteCalendarEventRepository>();
-        builder.Services.AddSingleton<ICalendarTodoRepository, SqliteCalendarTodoRepository>();
-        builder.Services.AddSingleton<ICalendarNoteRepository, SqliteCalendarNoteRepository>();
+        builder.Services.AddSingleton<IStorage, EFCoreStorage>();
         builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddLocalization();

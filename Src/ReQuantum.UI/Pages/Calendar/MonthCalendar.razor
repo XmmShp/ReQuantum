@@ -1,9 +1,9 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <div class="month-calendar">
     <div class="month-header">
@@ -31,7 +31,7 @@
                     <div class="day-number">@day.Day</div>
                     @if (day >= firstDayOfMonth && day <= lastDayOfMonth)
                     {
-                        var dayData = CalendarService.FindCalendarDayData(day);
+                        var dayData = GetDayData(day);
                         <div class="day-indicators">
                             @if (dayData.Events.Any())
                             {
@@ -60,10 +60,12 @@
     private DateOnly firstDayOfMonth;
     private DateOnly lastDayOfMonth;
     private List<DateOnly> calendarDays = new();
+    private readonly Dictionary<DateOnly, CalendarDayData> _dayDataMap = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         GenerateCalendarDays();
+        await LoadMonthDataAsync();
     }
 
     private void GenerateCalendarDays()
@@ -113,22 +115,46 @@
         await SelectedDateChanged.InvokeAsync(day);
     }
 
-    private void PreviousMonth()
+    private async Task PreviousMonth()
     {
         currentMonth = currentMonth.AddMonths(-1);
         GenerateCalendarDays();
+        await LoadMonthDataAsync();
     }
 
-    private void NextMonth()
+    private async Task NextMonth()
     {
         currentMonth = currentMonth.AddMonths(1);
         GenerateCalendarDays();
+        await LoadMonthDataAsync();
     }
 
-    private void GoToToday()
+    private async Task GoToToday()
     {
         currentMonth = DateTime.Today;
         GenerateCalendarDays();
-        SelectDay(DateOnly.FromDateTime(DateTime.Today));
+        await LoadMonthDataAsync();
+        await SelectDay(DateOnly.FromDateTime(DateTime.Today));
+    }
+
+    private CalendarDayData GetDayData(DateOnly day)
+    {
+        return _dayDataMap.TryGetValue(day, out var dayData)
+            ? dayData
+            : new CalendarDayData(day, [], [], []);
+    }
+
+    private async Task LoadMonthDataAsync()
+    {
+        _dayDataMap.Clear();
+
+        foreach (var day in calendarDays.Where(d => d >= firstDayOfMonth && d <= lastDayOfMonth))
+        {
+            var result = await ReQuantumService.GetCalendarDayDataAsync(new GetCalendarDayDataRequest(day));
+            if (result.IsSuccess)
+            {
+                _dayDataMap[day] = result.Value!.Data;
+            }
+        }
     }
 }

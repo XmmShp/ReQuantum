@@ -1,15 +1,40 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
-@using ReQuantum.Application.Services.Calendar
 @using ReQuantum.Contract.Calendar
-@inject ICalendarService CalendarService
+@using ReQuantum.Contract.Calendar.Todos
 @inject IStringLocalizer<CalendarStrings> L
+@inject IReQuantumService ReQuantumService
 
 <div class="todo-list">
     <div class="list-header">
         <h4>@L["TodoList"]</h4>
         <button class="btn btn-sm btn-primary" @onclick="ShowAddTodoDialog">@L["AddTodo"]</button>
     </div>
+
+    @if (isEditing)
+    {
+        <div class="todo-editor mb-2">
+            <input class="form-control mb-2"
+                   @bind="editingContent"
+                   placeholder="@L["TodoContent"]" />
+            <input class="form-control mb-2"
+                   type="datetime-local"
+                   @bind-value="editingDueTime"
+                   @bind-value:format="yyyy-MM-ddTHH:mm" />
+            @if (!editingId.HasValue)
+            {
+                <label class="form-check-label d-flex align-items-center gap-2 mb-2">
+                    <input class="form-check-input" type="checkbox" @bind="editingIsCompletedForAdd" />
+                    <span>@L["Completed"]</span>
+                </label>
+            }
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" @onclick="SaveTodoAsync">@L["Save"]</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">@L["Cancel"]</button>
+            </div>
+        </div>
+    }
 
     <div class="list-content">
         @if (todos.Any())
@@ -45,34 +70,79 @@
     public DateOnly SelectedDate { get; set; }
 
     private List<CalendarTodo> todos = new();
+    private bool isEditing;
+    private long? editingId;
+    private string editingContent = string.Empty;
+    private DateTime editingDueTime = DateTime.Now;
+    private bool editingIsCompletedForAdd;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        LoadTodos();
+        await LoadTodosAsync();
     }
 
-    private void LoadTodos()
+    private async Task LoadTodosAsync()
     {
-        todos = CalendarService.FindTodosByDate(SelectedDate);
+        var result = await ReQuantumService.GetTodosByDateAsync(new GetTodosByDateRequest(SelectedDate));
+        todos = result.IsSuccess ? result.Value!.Todos : [];
     }
 
     private void ShowAddTodoDialog()
     {
+        editingId = null;
+        editingContent = string.Empty;
+        editingDueTime = DateTime.Now;
+        editingIsCompletedForAdd = false;
+        isEditing = true;
     }
 
     private void EditTodo(CalendarTodo todo)
     {
+        editingId = todo.Id;
+        editingContent = todo.Content;
+        editingDueTime = todo.DueTime;
+        isEditing = true;
     }
 
-    private void ToggleTodo(long id)
+    private void CancelEdit()
     {
-        CalendarService.ToggleTodoComplete(id);
-        LoadTodos();
+        isEditing = false;
+        editingId = null;
+        editingContent = string.Empty;
+        editingDueTime = DateTime.Now;
+        editingIsCompletedForAdd = false;
     }
 
-    private void DeleteTodo(long id)
+    private async Task SaveTodoAsync()
     {
-        CalendarService.DeleteTodo(id);
-        LoadTodos();
+        var content = editingContent.Trim();
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return;
+        }
+
+        if (editingId.HasValue)
+        {
+            await ReQuantumService.UpdateTodoAsync(new UpdateTodoRequest(editingId.Value, content, editingDueTime));
+        }
+        else
+        {
+            await ReQuantumService.AddTodoAsync(new AddTodoRequest(content, editingDueTime, editingIsCompletedForAdd));
+        }
+
+        CancelEdit();
+        await LoadTodosAsync();
+    }
+
+    private async Task ToggleTodo(long id)
+    {
+        await ReQuantumService.ToggleTodoCompleteAsync(new ToggleTodoCompleteRequest(id));
+        await LoadTodosAsync();
+    }
+
+    private async Task DeleteTodo(long id)
+    {
+        await ReQuantumService.RemoveTodoAsync(new RemoveTodoRequest(id));
+        await LoadTodosAsync();
     }
 }

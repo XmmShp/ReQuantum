@@ -104,11 +104,11 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     private void LoadCachedCalendar()
     {
-        if (_storage.TryGet<AcademicCalendar>(StorageKey, out var calendar) && calendar != null)
+        if (_storage.TryGetAsync<AcademicCalendar>(StorageKey).GetAwaiter().GetResult() is { HasValue: true, Value: { } calendar })
         {
             _cachedCalendar = calendar;
         }
     }
 
-    private void SaveCalendar(AcademicCalendar calendar) => _storage.Set(StorageKey, calendar);
+    private void SaveCalendar(AcademicCalendar calendar) => _storage.SetAsync(StorageKey, calendar);
 }

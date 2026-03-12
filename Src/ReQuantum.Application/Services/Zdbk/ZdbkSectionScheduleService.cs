@@ -192,17 +192,17 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         _ => throw new ArgumentOutOfRangeException(nameof(semester))
     };
 
-    private void LoadState() => _storage.TryGet(StateKey, out _state);
+    private void LoadState() => _state = (_storage.TryGetAsync<ZdbkState>(StateKey).AsTask()).GetAwaiter().GetResult().ValueOr((ZdbkState?)null);
 
     private void SaveState()
     {
         if (_state is null)
         {
-            _storage.Remove(StateKey);
+            _storage.RemoveAsync(StateKey);
         }
         else
         {
-            _storage.Set(StateKey, _state);
+            _storage.SetAsync(StateKey, _state);
         }
     }
 }

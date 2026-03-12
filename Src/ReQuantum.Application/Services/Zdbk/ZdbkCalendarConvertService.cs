@@ -3,6 +3,7 @@ using NOF.Annotation;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Utilities;
 using ReQuantum.Domain.Calendar;
+using ReQuantum.Domain.Calendar.AggregateRoots;
 
 namespace ReQuantum.Application.Services.Zdbk;
 

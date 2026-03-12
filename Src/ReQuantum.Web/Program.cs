@@ -1,7 +1,4 @@
-using ReQuantum.Application.Repositories.Calendar;
-using ReQuantum.Application.Services.Calendar;
 using ReQuantum.Application.Services.CoursesZju;
-using ReQuantum.Domain.Calendar;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.Zdbk;
 using ReQuantum.Application.Services.ZjuSso;
@@ -17,10 +14,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
-builder.Services.AddSingleton<ICalendarEventRepository, StorageCalendarEventRepository>();
-builder.Services.AddSingleton<ICalendarTodoRepository, StorageCalendarTodoRepository>();
-builder.Services.AddSingleton<ICalendarNoteRepository, StorageCalendarNoteRepository>();
-builder.Services.AddSingleton<ICalendarService, CalendarService>();
 builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();
 builder.Services.AddSingleton<IZjuSsoService, ZjuSsoService>();
 builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
