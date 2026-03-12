@@ -57,6 +57,36 @@
   <data name="AddNote" xml:space="preserve"><value>+ 添加便签</value></data>
   <data name="CreatedAt" xml:space="preserve"><value>创建于: {0}</value></data>
   <data name="NoNotes" xml:space="preserve"><value>暂无便签</value></data>
+  <data name="Title" xml:space="preserve"><value>标题</value></data>
+  <data name="Note" xml:space="preserve"><value>备注</value></data>
+  <data name="TodoContent" xml:space="preserve"><value>待办内容</value></data>
+  <data name="NoteContent" xml:space="preserve"><value>便签内容</value></data>
+  <data name="Completed" xml:space="preserve"><value>已完成</value></data>
+  <data name="Save" xml:space="preserve"><value>保存</value></data>
+  <data name="Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="ValidationRequiredTitle" xml:space="preserve"><value>标题不能为空。</value></data>
+  <data name="ValidationInvalidEventTimeRange" xml:space="preserve"><value>结束时间必须晚于开始时间。</value></data>
+  <data name="ValidationRequiredTodoContent" xml:space="preserve"><value>待办内容不能为空。</value></data>
+  <data name="WarningCreatingPastEvent" xml:space="preserve"><value>请注意，你正在过去的时间创建一个事项。再次点击保存以继续。</value></data>
+  <data name="WarningCreatingPastTodo" xml:space="preserve"><value>请注意，你正在过去的时间创建一个待办。再次点击保存以继续。</value></data>
   <data name="DateFormatYearMonth" xml:space="preserve"><value>{0:yyyy年MM月}</value></data>
   <data name="DateFormatRange" xml:space="preserve"><value>{0:yyyy年MM月dd日} - {1:yyyy年MM月dd日}</value></data>
+  <data name="MenuNavigation" xml:space="preserve"><value>导航菜单</value></data>
+  <data name="MenuHome" xml:space="preserve"><value>首页</value></data>
+  <data name="MenuCalendar" xml:space="preserve"><value>日历</value></data>
+  <data name="MenuCourseSelection" xml:space="preserve"><value>选课</value></data>
+  <data name="MenuCoursesZju" xml:space="preserve"><value>学在浙大</value></data>
+  <data name="MenuGrade" xml:space="preserve"><value>成绩查询</value></data>
+  <data name="MenuPta" xml:space="preserve"><value>PTA</value></data>
+  <data name="MenuZdbk" xml:space="preserve"><value>教务网</value></data>
+  <data name="MenuSettings" xml:space="preserve"><value>设置</value></data>
+  <data name="MenuZjuSso" xml:space="preserve"><value>浙大认证</value></data>
+  <data name="SettingsZjuSsoTitle" xml:space="preserve"><value>浙大统一认证 (ZJU SSO)</value></data>
+  <data name="SettingsLoggedInAs" xml:space="preserve"><value>已登录: {0}</value></data>
+  <data name="SettingsLogout" xml:space="preserve"><value>退出登录</value></data>
+  <data name="SettingsNotLoggedIn" xml:space="preserve"><value>未登录</value></data>
+  <data name="SettingsGoToLogin" xml:space="preserve"><value>前往登录</value></data>
+  <data name="SettingsLanguage" xml:space="preserve"><value>语言 / Language</value></data>
+  <data name="SettingsLanguageZhCn" xml:space="preserve"><value>中文</value></data>
+  <data name="SettingsLanguageEnUs" xml:space="preserve"><value>English</value></data>
 </root>

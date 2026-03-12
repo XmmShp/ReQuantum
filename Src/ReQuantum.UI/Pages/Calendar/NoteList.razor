@@ -9,7 +9,9 @@
 <div class="note-list">
     <div class="list-header">
         <h4>@L["NoteList"]</h4>
-        <button class="btn btn-sm btn-primary" @onclick="ShowAddNoteDialog">@L["AddNote"]</button>
+        <button class="add-btn" title="@L["AddNote"]" aria-label="@L["AddNote"]" @onclick="ShowAddNoteDialog">
+            <img class="add-icon" src="_content/ReQuantum.UI/icons/plus.svg" alt="" aria-hidden="true" />
+        </button>
     </div>
 
     <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit">
@@ -41,9 +43,7 @@
                     </div>
                     <div class="note-actions">
                         <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditNote(note)">
-                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
-                            </svg>
+                            <img class="action-icon" src="_content/ReQuantum.UI/icons/edit.svg" alt="" aria-hidden="true" />
                         </button>
                         <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
                                 title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
@@ -55,9 +55,7 @@
                             }
                             else
                             {
-                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
-                                </svg>
+                                <img class="trash-icon" src="_content/ReQuantum.UI/icons/trash.svg" alt="" aria-hidden="true" />
                             }
                         </button>
                     </div>

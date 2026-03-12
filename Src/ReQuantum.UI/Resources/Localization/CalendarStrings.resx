@@ -57,6 +57,36 @@
   <data name="AddNote" xml:space="preserve"><value>+ Add Note</value></data>
   <data name="CreatedAt" xml:space="preserve"><value>Created: {0}</value></data>
   <data name="NoNotes" xml:space="preserve"><value>No notes</value></data>
+  <data name="Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
+  <data name="TodoContent" xml:space="preserve"><value>Todo content</value></data>
+  <data name="NoteContent" xml:space="preserve"><value>Note content</value></data>
+  <data name="Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ValidationRequiredTitle" xml:space="preserve"><value>Title cannot be empty.</value></data>
+  <data name="ValidationInvalidEventTimeRange" xml:space="preserve"><value>End time must be later than start time.</value></data>
+  <data name="ValidationRequiredTodoContent" xml:space="preserve"><value>Todo content cannot be empty.</value></data>
+  <data name="WarningCreatingPastEvent" xml:space="preserve"><value>Please note: you are creating an event in the past. Click Save again to continue.</value></data>
+  <data name="WarningCreatingPastTodo" xml:space="preserve"><value>Please note: you are creating a todo in the past. Click Save again to continue.</value></data>
   <data name="DateFormatYearMonth" xml:space="preserve"><value>{0:yyyy/MM}</value></data>
   <data name="DateFormatRange" xml:space="preserve"><value>{0:yyyy/MM/dd} - {1:yyyy/MM/dd}</value></data>
+  <data name="MenuNavigation" xml:space="preserve"><value>Navigation menu</value></data>
+  <data name="MenuHome" xml:space="preserve"><value>Home</value></data>
+  <data name="MenuCalendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="MenuCourseSelection" xml:space="preserve"><value>Course Selection</value></data>
+  <data name="MenuCoursesZju" xml:space="preserve"><value>Courses ZJU</value></data>
+  <data name="MenuGrade" xml:space="preserve"><value>Grades</value></data>
+  <data name="MenuPta" xml:space="preserve"><value>PTA</value></data>
+  <data name="MenuZdbk" xml:space="preserve"><value>ZDBK</value></data>
+  <data name="MenuSettings" xml:space="preserve"><value>Settings</value></data>
+  <data name="MenuZjuSso" xml:space="preserve"><value>ZJU SSO</value></data>
+  <data name="SettingsZjuSsoTitle" xml:space="preserve"><value>ZJU SSO</value></data>
+  <data name="SettingsLoggedInAs" xml:space="preserve"><value>Logged in as: {0}</value></data>
+  <data name="SettingsLogout" xml:space="preserve"><value>Log out</value></data>
+  <data name="SettingsNotLoggedIn" xml:space="preserve"><value>Not logged in</value></data>
+  <data name="SettingsGoToLogin" xml:space="preserve"><value>Go to login</value></data>
+  <data name="SettingsLanguage" xml:space="preserve"><value>Language</value></data>
+  <data name="SettingsLanguageZhCn" xml:space="preserve"><value>Chinese (Simplified)</value></data>
+  <data name="SettingsLanguageEnUs" xml:space="preserve"><value>English (US)</value></data>
 </root>

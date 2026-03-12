@@ -1,64 +1,68 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Shared.Resources.Localization
+@inject IStringLocalizer<CalendarStrings> L
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">ReQuantum</a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="@L["MenuNavigation"]" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> @L["MenuHome"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="calendar">
-                <span class="bi bi-calendar-fill-nav-menu" aria-hidden="true"></span> 日历
+                <span class="bi bi-calendar-fill-nav-menu" aria-hidden="true"></span> @L["MenuCalendar"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="course-selection">
-                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> 选课
+                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> @L["MenuCourseSelection"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="courses-zju">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> 学在浙大
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["MenuCoursesZju"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="grade">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> 成绩查询
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["MenuGrade"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="pta">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> PTA
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["MenuPta"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="zdbk">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> 教务网
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["MenuZdbk"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="settings">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> 设置
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["MenuSettings"]
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="zju-sso">
-                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> 浙大认证
+                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @L["MenuZjuSso"]
             </NavLink>
         </div>
     </nav>

@@ -1,0 +1,27 @@
+@namespace ReQuantum.UI.Components
+
+@if (!string.IsNullOrWhiteSpace(Text))
+{
+    <div class="rq-message @GetVariantClass()" role="status" aria-live="polite">
+        @Text
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public string Variant { get; set; } = "info";
+
+    private string GetVariantClass()
+    {
+        return Variant.ToLowerInvariant() switch
+        {
+            "success" => "rq-message-success",
+            "warning" => "rq-message-warning",
+            "error" => "rq-message-error",
+            _ => "rq-message-info"
+        };
+    }
+}

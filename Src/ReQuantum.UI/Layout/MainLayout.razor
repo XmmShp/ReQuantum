@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@using System.Globalization
+@inject IJSRuntime JS
 
 <div class="page">
     <div class="sidebar">
@@ -17,3 +19,42 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">??</span>
 </div>
+
+@code {
+    private const string LanguageStorageKey = "requantum.language";
+    private static readonly HashSet<string> SupportedLanguages = ["zh-CN", "en-US"];
+    private bool _languageInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _languageInitialized)
+        {
+            return;
+        }
+
+        _languageInitialized = true;
+        try
+        {
+            var persistedLanguage = await JS.InvokeAsync<string?>("localStorage.getItem", LanguageStorageKey);
+            if (string.IsNullOrWhiteSpace(persistedLanguage) || !SupportedLanguages.Contains(persistedLanguage))
+            {
+                return;
+            }
+
+            if (string.Equals(CultureInfo.CurrentUICulture.Name, persistedLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var culture = CultureInfo.GetCultureInfo(persistedLanguage);
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+            StateHasChanged();
+        }
+        catch
+        {
+        }
+    }
+}

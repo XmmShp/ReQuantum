@@ -1,24 +1,30 @@
 @page "/settings"
+@using System.Globalization
+@using Microsoft.Extensions.Localization
 @using ReQuantum.Application.Services.ZjuSso
 @using ReQuantum.Application.Services.Pta
+@using ReQuantum.Shared.Resources.Localization
 @inject IZjuSsoService ZjuSsoService
 @inject IPtaBrowserAuthService PtaAuthService
+@inject IStringLocalizer<CalendarStrings> L
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<h3>设置</h3>
+<h3>@L["MenuSettings"]</h3>
 
 @* ZJU SSO 登录状态 *@
 <div class="card mb-3">
     <div class="card-body">
-        <h5 class="card-title">浙大统一认证 (ZJU SSO)</h5>
+        <h5 class="card-title">@L["SettingsZjuSsoTitle"]</h5>
         @if (ZjuSsoService.IsAuthenticated)
         {
-            <p class="text-success">已登录: @ZjuSsoService.Id</p>
-            <button class="btn btn-outline-danger btn-sm" @onclick="ZjuSsoLogout">退出登录</button>
+            <p class="text-success">@string.Format(L["SettingsLoggedInAs"], ZjuSsoService.Id)</p>
+            <button class="btn btn-outline-danger btn-sm" @onclick="ZjuSsoLogout">@L["SettingsLogout"]</button>
         }
         else
         {
-            <p class="text-muted">未登录</p>
-            <a href="zju-sso" class="btn btn-primary btn-sm">前往登录</a>
+            <p class="text-muted">@L["SettingsNotLoggedIn"]</p>
+            <a href="zju-sso" class="btn btn-primary btn-sm">@L["SettingsGoToLogin"]</a>
         }
     </div>
 </div>
@@ -29,13 +35,13 @@
         <h5 class="card-title">PTA</h5>
         @if (PtaAuthService.IsAuthenticated)
         {
-            <p class="text-success">已登录: @PtaAuthService.Email</p>
-            <button class="btn btn-outline-danger btn-sm" @onclick="PtaLogout">退出登录</button>
+            <p class="text-success">@string.Format(L["SettingsLoggedInAs"], PtaAuthService.Email)</p>
+            <button class="btn btn-outline-danger btn-sm" @onclick="PtaLogout">@L["SettingsLogout"]</button>
         }
         else
         {
-            <p class="text-muted">未登录</p>
-            <a href="pta" class="btn btn-primary btn-sm">前往登录</a>
+            <p class="text-muted">@L["SettingsNotLoggedIn"]</p>
+            <a href="pta" class="btn btn-primary btn-sm">@L["SettingsGoToLogin"]</a>
         }
     </div>
 </div>
@@ -43,16 +49,41 @@
 @* 语言设置 *@
 <div class="card mb-3">
     <div class="card-body">
-        <h5 class="card-title">语言 / Language</h5>
-        <select class="form-select" style="max-width: 200px;" @bind="_selectedLanguage" @bind:after="OnLanguageChanged">
-            <option value="zh-CN">中文</option>
-            <option value="en-US">English</option>
+        <h5 class="card-title">@L["SettingsLanguage"]</h5>
+        <select class="form-select" style="max-width: 200px;" @bind="_selectedLanguage" @bind:after="OnLanguageChangedAsync">
+            <option value="zh-CN">@L["SettingsLanguageZhCn"]</option>
+            <option value="en-US">@L["SettingsLanguageEnUs"]</option>
         </select>
     </div>
 </div>
 
 @code {
-    private string _selectedLanguage = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    private const string LanguageStorageKey = "requantum.language";
+    private static readonly HashSet<string> SupportedLanguages = ["zh-CN", "en-US"];
+    private string _selectedLanguage = CultureInfo.CurrentUICulture.Name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var persistedLanguage = await JS.InvokeAsync<string?>("localStorage.getItem", LanguageStorageKey);
+            if (!string.IsNullOrWhiteSpace(persistedLanguage) && SupportedLanguages.Contains(persistedLanguage))
+            {
+                _selectedLanguage = persistedLanguage;
+            }
+            else if (!SupportedLanguages.Contains(_selectedLanguage))
+            {
+                _selectedLanguage = "zh-CN";
+            }
+        }
+        catch
+        {
+            if (!SupportedLanguages.Contains(_selectedLanguage))
+            {
+                _selectedLanguage = "zh-CN";
+            }
+        }
+    }
 
     private void ZjuSsoLogout()
     {
@@ -64,9 +95,27 @@
         PtaAuthService.Logout();
     }
 
-    private void OnLanguageChanged()
+    private async Task OnLanguageChangedAsync()
     {
-        // Language change would require culture switching logic
-        // This is a placeholder for now
+        if (!SupportedLanguages.Contains(_selectedLanguage))
+        {
+            _selectedLanguage = "zh-CN";
+        }
+
+        var culture = CultureInfo.GetCultureInfo(_selectedLanguage);
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", LanguageStorageKey, _selectedLanguage);
+        }
+        catch
+        {
+        }
+
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
     }
 }

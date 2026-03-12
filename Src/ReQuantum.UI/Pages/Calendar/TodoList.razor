@@ -9,11 +9,14 @@
 <div class="todo-list">
     <div class="list-header">
         <h4>@L["TodoList"]</h4>
-        <button class="btn btn-sm btn-primary" @onclick="ShowAddTodoDialog">@L["AddTodo"]</button>
+        <button class="add-btn" title="@L["AddTodo"]" aria-label="@L["AddTodo"]" @onclick="ShowAddTodoDialog">
+            <img class="add-icon" src="_content/ReQuantum.UI/icons/plus.svg" alt="" aria-hidden="true" />
+        </button>
     </div>
 
     <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit">
         <ChildContent>
+            <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <input class="form-control mb-2"
                    @bind="editingContent"
                    placeholder="@L["TodoContent"]" />
@@ -21,13 +24,6 @@
                        class="form-control mb-2"
                        Type="InputDateType.DateTimeLocal"
                        @bind-Value="editingDueTime" />
-            @if (!editingId.HasValue)
-            {
-                <label class="form-check-label d-flex align-items-center gap-2 mb-2">
-                    <input class="form-check-input" type="checkbox" @bind="editingIsCompletedForAdd" />
-                    <span>@L["Completed"]</span>
-                </label>
-            }
         </ChildContent>
         <Footer>
             <button class="btn btn-sm btn-primary" @onclick="SaveTodoAsync">@L["Save"]</button>
@@ -54,9 +50,7 @@
                     </div>
                     <div class="todo-actions">
                         <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditTodo(todo)">
-                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
-                            </svg>
+                            <img class="action-icon" src="_content/ReQuantum.UI/icons/edit.svg" alt="" aria-hidden="true" />
                         </button>
                         <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
                                 title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
@@ -68,9 +62,7 @@
                             }
                             else
                             {
-                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
-                                </svg>
+                                <img class="trash-icon" src="_content/ReQuantum.UI/icons/trash.svg" alt="" aria-hidden="true" />
                             }
                         </button>
                     </div>
@@ -96,7 +88,9 @@
     private long? editingId;
     private string editingContent = string.Empty;
     private DateTime editingDueTime = DateTime.Now;
-    private bool editingIsCompletedForAdd;
+    private string? _formMessage;
+    private string _formMessageVariant = "info";
+    private bool _pastCreateWarningAcknowledged;
     private long? _pendingDeleteId;
     private readonly HashSet<long> _deletingTodoIds = [];
     private const int DeleteFadeOutDurationMs = 220;
@@ -119,7 +113,8 @@
         editingId = null;
         editingContent = string.Empty;
         editingDueTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
-        editingIsCompletedForAdd = false;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
         isEditing = true;
     }
 
@@ -128,6 +123,8 @@
         editingId = todo.Id;
         editingContent = todo.Content;
         editingDueTime = todo.DueTime;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
         isEditing = true;
     }
 
@@ -137,14 +134,24 @@
         editingId = null;
         editingContent = string.Empty;
         editingDueTime = DateTime.Now;
-        editingIsCompletedForAdd = false;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
     }
 
     private async Task SaveTodoAsync()
     {
+        ClearFormMessage();
         var content = editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
+            SetFormMessage(L["ValidationRequiredTodoContent"], "error");
+            return;
+        }
+
+        if (!editingId.HasValue && editingDueTime < DateTime.Now && !_pastCreateWarningAcknowledged)
+        {
+            _pastCreateWarningAcknowledged = true;
+            SetFormMessage(L["WarningCreatingPastTodo"], "warning");
             return;
         }
 
@@ -154,7 +161,7 @@
         }
         else
         {
-            await ReQuantumService.AddTodoAsync(new AddTodoRequest(content, editingDueTime, editingIsCompletedForAdd));
+            await ReQuantumService.AddTodoAsync(new AddTodoRequest(content, editingDueTime, false));
         }
 
         CancelEdit();
@@ -195,5 +202,17 @@
         await ReQuantumService.RemoveTodoAsync(new RemoveTodoRequest(id));
         await LoadTodosAsync();
         await OnChanged.InvokeAsync();
+    }
+
+    private void SetFormMessage(string text, string variant)
+    {
+        _formMessage = text;
+        _formMessageVariant = variant;
+    }
+
+    private void ClearFormMessage()
+    {
+        _formMessage = null;
+        _formMessageVariant = "info";
     }
 }

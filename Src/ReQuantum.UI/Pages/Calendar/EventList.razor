@@ -9,11 +9,14 @@
 <div class="event-list">
     <div class="list-header">
         <h4>@L["EventList"]</h4>
-        <button class="btn btn-sm btn-primary" @onclick="ShowAddEventDialog">@L["AddEvent"]</button>
+        <button class="add-btn" title="@L["AddEvent"]" aria-label="@L["AddEvent"]" @onclick="ShowAddEventDialog">
+            <img class="add-icon" src="_content/ReQuantum.UI/icons/plus.svg" alt="" aria-hidden="true" />
+        </button>
     </div>
 
     <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddEvent"])" OnClose="CancelEdit">
         <ChildContent>
+            <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <input class="form-control mb-2"
                    @bind="editingContent"
                    placeholder="@L["Title"]" />
@@ -59,9 +62,7 @@
                     </div>
                     <div class="event-actions">
                         <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditEvent(evt)">
-                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
-                            </svg>
+                            <img class="action-icon" src="_content/ReQuantum.UI/icons/edit.svg" alt="" aria-hidden="true" />
                         </button>
                         <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
                                 title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
@@ -73,9 +74,7 @@
                             }
                             else
                             {
-                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
-                                </svg>
+                                <img class="trash-icon" src="_content/ReQuantum.UI/icons/trash.svg" alt="" aria-hidden="true" />
                             }
                         </button>
                     </div>
@@ -103,6 +102,9 @@
     private DateTime editingStartTime = DateTime.Now;
     private DateTime editingEndTime = DateTime.Now.AddHours(1);
     private string editingNote = string.Empty;
+    private string? _formMessage;
+    private string _formMessageVariant = "info";
+    private bool _pastCreateWarningAcknowledged;
     private long? _pendingDeleteId;
     private readonly HashSet<long> _deletingEventIds = [];
     private const int DeleteFadeOutDurationMs = 220;
@@ -127,6 +129,8 @@
         editingStartTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
         editingEndTime = SelectedDate.ToDateTime(new TimeOnly(10, 0));
         editingNote = string.Empty;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
         isEditing = true;
     }
 
@@ -137,6 +141,8 @@
         editingStartTime = evt.StartTime;
         editingEndTime = evt.EndTime;
         editingNote = evt.Note;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
         isEditing = true;
     }
 
@@ -148,18 +154,30 @@
         editingStartTime = DateTime.Now;
         editingEndTime = DateTime.Now.AddHours(1);
         editingNote = string.Empty;
+        _pastCreateWarningAcknowledged = false;
+        ClearFormMessage();
     }
 
     private async Task SaveEventAsync()
     {
+        ClearFormMessage();
         var content = editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
+            SetFormMessage(L["ValidationRequiredTitle"], "error");
             return;
         }
 
         if (editingEndTime <= editingStartTime)
         {
+            SetFormMessage(L["ValidationInvalidEventTimeRange"], "error");
+            return;
+        }
+
+        if (!editingId.HasValue && editingStartTime < DateTime.Now && !_pastCreateWarningAcknowledged)
+        {
+            _pastCreateWarningAcknowledged = true;
+            SetFormMessage(L["WarningCreatingPastEvent"], "warning");
             return;
         }
 
@@ -204,6 +222,18 @@
         await ReQuantumService.RemoveEventAsync(new RemoveEventRequest(id));
         await LoadEventsAsync();
         await OnChanged.InvokeAsync();
+    }
+
+    private void SetFormMessage(string text, string variant)
+    {
+        _formMessage = text;
+        _formMessageVariant = variant;
+    }
+
+    private void ClearFormMessage()
+    {
+        _formMessage = null;
+        _formMessageVariant = "info";
     }
 
     private static string FormatEventTimeRange(DateTime startTime, DateTime endTime)
