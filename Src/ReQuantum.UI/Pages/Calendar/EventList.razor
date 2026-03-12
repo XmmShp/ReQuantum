@@ -14,22 +14,22 @@
         </button>
     </div>
 
-    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddEvent"])" OnClose="CancelEdit">
+    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddEvent"])" OnClose="CancelEdit">
         <ChildContent>
             <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <input class="form-control mb-2"
-                   @bind="editingContent"
+                   @bind="_editingContent"
                    placeholder="@L["Title"]" />
             <InputDate TValue="DateTime"
                        class="form-control mb-2"
                        Type="InputDateType.DateTimeLocal"
-                       @bind-Value="editingStartTime" />
+                       @bind-Value="_editingStartTime" />
             <InputDate TValue="DateTime"
                        class="form-control mb-2"
                        Type="InputDateType.DateTimeLocal"
-                       @bind-Value="editingEndTime" />
+                       @bind-Value="_editingEndTime" />
             <input class="form-control mb-2"
-                   @bind="editingNote"
+                   @bind="_editingNote"
                    placeholder="@L["Note"]" />
         </ChildContent>
         <Footer>
@@ -39,9 +39,9 @@
     </Modal>
 
     <div class="list-content">
-        @if (events.Any())
+        @if (_events.Any())
         {
-            @foreach (var evt in events)
+            @foreach (var evt in _events)
             {
                 var isConfirmingDelete = _pendingDeleteId == evt.Id;
                 var isDeleting = _deletingEventIds.Contains(evt.Id);
@@ -95,13 +95,13 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
-    private List<CalendarEvent> events = new();
-    private bool isEditing;
-    private long? editingId;
-    private string editingContent = string.Empty;
-    private DateTime editingStartTime = DateTime.Now;
-    private DateTime editingEndTime = DateTime.Now.AddHours(1);
-    private string editingNote = string.Empty;
+    private List<CalendarEvent> _events = [];
+    private bool _isEditing;
+    private long? _editingId;
+    private string _editingContent = string.Empty;
+    private DateTime _editingStartTime = DateTime.Now;
+    private DateTime _editingEndTime = DateTime.Now.AddHours(1);
+    private string _editingNote = string.Empty;
     private string? _formMessage;
     private string _formMessageVariant = "info";
     private bool _pastCreateWarningAcknowledged;
@@ -117,43 +117,43 @@
     private async Task LoadEventsAsync()
     {
         var result = await ReQuantumService.GetEventsByDateAsync(new GetEventsByDateRequest(SelectedDate));
-        events = result.IsSuccess ? result.Value!.Events : [];
+        _events = result.IsSuccess ? result.Value!.Events : [];
         _pendingDeleteId = null;
         _deletingEventIds.Clear();
     }
 
     private void ShowAddEventDialog()
     {
-        editingId = null;
-        editingContent = string.Empty;
-        editingStartTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
-        editingEndTime = SelectedDate.ToDateTime(new TimeOnly(10, 0));
-        editingNote = string.Empty;
+        _editingId = null;
+        _editingContent = string.Empty;
+        _editingStartTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
+        _editingEndTime = SelectedDate.ToDateTime(new TimeOnly(10, 0));
+        _editingNote = string.Empty;
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
-        isEditing = true;
+        _isEditing = true;
     }
 
     private void EditEvent(CalendarEvent evt)
     {
-        editingId = evt.Id;
-        editingContent = evt.Content;
-        editingStartTime = evt.StartTime;
-        editingEndTime = evt.EndTime;
-        editingNote = evt.Note;
+        _editingId = evt.Id;
+        _editingContent = evt.Content;
+        _editingStartTime = evt.StartTime;
+        _editingEndTime = evt.EndTime;
+        _editingNote = evt.Note;
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
-        isEditing = true;
+        _isEditing = true;
     }
 
     private void CancelEdit()
     {
-        isEditing = false;
-        editingId = null;
-        editingContent = string.Empty;
-        editingStartTime = DateTime.Now;
-        editingEndTime = DateTime.Now.AddHours(1);
-        editingNote = string.Empty;
+        _isEditing = false;
+        _editingId = null;
+        _editingContent = string.Empty;
+        _editingStartTime = DateTime.Now;
+        _editingEndTime = DateTime.Now.AddHours(1);
+        _editingNote = string.Empty;
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
     }
@@ -161,34 +161,34 @@
     private async Task SaveEventAsync()
     {
         ClearFormMessage();
-        var content = editingContent.Trim();
+        var content = _editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
             SetFormMessage(L["ValidationRequiredTitle"], "error");
             return;
         }
 
-        if (editingEndTime <= editingStartTime)
+        if (_editingEndTime <= _editingStartTime)
         {
             SetFormMessage(L["ValidationInvalidEventTimeRange"], "error");
             return;
         }
 
-        if (!editingId.HasValue && editingStartTime < DateTime.Now && !_pastCreateWarningAcknowledged)
+        if (!_editingId.HasValue && _editingStartTime < DateTime.Now && !_pastCreateWarningAcknowledged)
         {
             _pastCreateWarningAcknowledged = true;
             SetFormMessage(L["WarningCreatingPastEvent"], "warning");
             return;
         }
 
-        var note = editingNote.Trim();
-        if (editingId.HasValue)
+        var note = _editingNote.Trim();
+        if (_editingId.HasValue)
         {
-            await ReQuantumService.UpdateEventAsync(new UpdateEventRequest(editingId.Value, content, editingStartTime, editingEndTime, note));
+            await ReQuantumService.UpdateEventAsync(new UpdateEventRequest(_editingId.Value, content, _editingStartTime, _editingEndTime, note));
         }
         else
         {
-            await ReQuantumService.AddEventAsync(new AddEventRequest(content, editingStartTime, editingEndTime, note, "manual", 0));
+            await ReQuantumService.AddEventAsync(new AddEventRequest(content, _editingStartTime, _editingEndTime, note, "manual", 0));
         }
 
         CancelEdit();

@@ -3,7 +3,6 @@
 @using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Contract.Calendar
-@using ReQuantum.Contract.Calendar.Events
 @inject IStringLocalizer<CalendarStrings> L
 @inject IReQuantumService ReQuantumService
 
@@ -27,7 +26,7 @@
             }
         </div>
 
-        @foreach (var day in weekDays)
+        @foreach (var day in _weekDays)
         {
             <div class="day-column @(day == SelectedDate ? "selected" : "")" @onclick="() => SelectDay(day)">
                 <div class="day-header">
@@ -89,7 +88,7 @@
             }
         </div>
 
-        @foreach (var day in weekDays)
+        @foreach (var day in _weekDays)
         {
             <div class="landscape-day-label @(day == SelectedDate ? "selected" : "")" @onclick="() => SelectDay(day)">
                 <div class="day-name">@GetDayName(day)</div>
@@ -148,8 +147,8 @@
     [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
-    private DateOnly currentWeekStart;
-    private List<DateOnly> weekDays = new();
+    private DateOnly _currentWeekStart;
+    private readonly List<DateOnly> _weekDays = new();
     private readonly Dictionary<DateOnly, List<CalendarEvent>> _eventsByDate = [];
     private readonly Dictionary<DateOnly, List<CalendarTodo>> _todosByDate = [];
     private static readonly string[] PaletteBackgrounds =
@@ -184,13 +183,13 @@
     {
         var dayOfWeek = (int)SelectedDate.DayOfWeek;
         var targetWeekStart = SelectedDate.AddDays(-dayOfWeek);
-        if (targetWeekStart != currentWeekStart)
+        if (targetWeekStart != _currentWeekStart)
         {
-            currentWeekStart = targetWeekStart;
-            weekDays.Clear();
+            _currentWeekStart = targetWeekStart;
+            _weekDays.Clear();
             for (int i = 0; i < 7; i++)
             {
-                weekDays.Add(currentWeekStart.AddDays(i));
+                _weekDays.Add(_currentWeekStart.AddDays(i));
             }
         }
 
@@ -199,22 +198,22 @@
 
     private void GenerateWeekDays()
     {
-        weekDays.Clear();
+        _weekDays.Clear();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
         var dayOfWeek = (int)today.DayOfWeek;
-        currentWeekStart = today.AddDays(-dayOfWeek);
+        _currentWeekStart = today.AddDays(-dayOfWeek);
 
         for (int i = 0; i < 7; i++)
         {
-            weekDays.Add(currentWeekStart.AddDays(i));
+            _weekDays.Add(_currentWeekStart.AddDays(i));
         }
     }
 
     private string GetWeekRange()
     {
-        var weekEnd = currentWeekStart.AddDays(6);
-        return string.Format(L["DateFormatRange"], currentWeekStart.ToDateTime(TimeOnly.MinValue), weekEnd.ToDateTime(TimeOnly.MinValue));
+        var weekEnd = _currentWeekStart.AddDays(6);
+        return string.Format(L["DateFormatRange"], _currentWeekStart.ToDateTime(TimeOnly.MinValue), weekEnd.ToDateTime(TimeOnly.MinValue));
     }
 
     private string GetDayName(DateOnly day)
@@ -240,14 +239,14 @@
 
     private async Task PreviousWeek()
     {
-        currentWeekStart = currentWeekStart.AddDays(-7);
+        _currentWeekStart = _currentWeekStart.AddDays(-7);
         GenerateWeekDays();
         await LoadWeekEventsAsync();
     }
 
     private async Task NextWeek()
     {
-        currentWeekStart = currentWeekStart.AddDays(7);
+        _currentWeekStart = _currentWeekStart.AddDays(7);
         GenerateWeekDays();
         await LoadWeekEventsAsync();
     }
@@ -312,19 +311,19 @@
     {
         var dayStart = day.ToDateTime(TimeOnly.MinValue);
         var dayEnd = day.AddDays(1).ToDateTime(TimeOnly.MinValue);
-        const double MinutesInDay = 24d * 60d;
+        const double minutesInDay = 24d * 60d;
 
         var sourceEvents = events
             .Select(evt =>
             {
                 var segmentStart = evt.StartTime > dayStart ? evt.StartTime : dayStart;
                 var segmentEnd = evt.EndTime < dayEnd ? evt.EndTime : dayEnd;
-                var startMinute = Math.Clamp((segmentStart - dayStart).TotalMinutes, 0d, MinutesInDay);
+                var startMinute = Math.Clamp((segmentStart - dayStart).TotalMinutes, 0d, minutesInDay);
                 var durationMinutes = Math.Max((segmentEnd - segmentStart).TotalMinutes, minDurationMinutes);
-                var endMinute = Math.Clamp(startMinute + durationMinutes, 0d, MinutesInDay);
+                var endMinute = Math.Clamp(startMinute + durationMinutes, 0d, minutesInDay);
                 if (endMinute <= startMinute)
                 {
-                    endMinute = Math.Min(startMinute + minDurationMinutes, MinutesInDay);
+                    endMinute = Math.Min(startMinute + minDurationMinutes, minutesInDay);
                 }
 
                 return new WeekSourceEvent(
@@ -394,8 +393,8 @@
                 : "#000000";
 
             blocks.Add(new WeekEventBlock(
-                StartPercent: (source.StartMinute / MinutesInDay) * 100d,
-                LengthPercent: ((source.EndMinute - source.StartMinute) / MinutesInDay) * 100d,
+                StartPercent: (source.StartMinute / minutesInDay) * 100d,
+                LengthPercent: ((source.EndMinute - source.StartMinute) / minutesInDay) * 100d,
                 CrossOffsetPercent: 0d,
                 CrossLengthPercent: 100d,
                 TimeText: source.StartsInCurrentDay ? source.OriginalStartTime.ToString("HH:mm") : string.Empty,
@@ -412,21 +411,21 @@
 
     private async Task LoadWeekEventsAsync()
     {
-        if (!weekDays.Any())
+        if (!_weekDays.Any())
         {
             return;
         }
 
         _eventsByDate.Clear();
         _todosByDate.Clear();
-        foreach (var day in weekDays)
+        foreach (var day in _weekDays)
         {
             _eventsByDate[day] = [];
             _todosByDate[day] = [];
         }
 
-        var weekStart = weekDays.Min();
-        var weekEnd = weekDays.Max();
+        var weekStart = _weekDays.Min();
+        var weekEnd = _weekDays.Max();
         var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(weekStart, weekEnd));
         if (!result.IsSuccess || result.Value is null)
         {
@@ -438,7 +437,7 @@
             .GroupBy(evt => evt.Id)
             .Select(group => group.First());
 
-        foreach (var day in weekDays)
+        foreach (var day in _weekDays)
         {
             if (result.Value.DataByDate.TryGetValue(day, out var dayData))
             {
@@ -450,7 +449,7 @@
 
         foreach (var evt in uniqueEvents)
         {
-            foreach (var day in weekDays)
+            foreach (var day in _weekDays)
             {
                 var dayStart = day.ToDateTime(TimeOnly.MinValue);
                 var dayEnd = day.AddDays(1).ToDateTime(TimeOnly.MinValue);
@@ -463,7 +462,7 @@
             }
         }
 
-        foreach (var day in weekDays)
+        foreach (var day in _weekDays)
         {
             _eventsByDate[day] = _eventsByDate[day]
                 .OrderBy(evt => evt.StartTime)

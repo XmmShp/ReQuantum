@@ -14,16 +14,16 @@
         </button>
     </div>
 
-    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit">
+    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit">
         <ChildContent>
             <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <input class="form-control mb-2"
-                   @bind="editingContent"
+                   @bind="_editingContent"
                    placeholder="@L["TodoContent"]" />
             <InputDate TValue="DateTime"
                        class="form-control mb-2"
                        Type="InputDateType.DateTimeLocal"
-                       @bind-Value="editingDueTime" />
+                       @bind-Value="_editingDueTime" />
         </ChildContent>
         <Footer>
             <button class="btn btn-sm btn-primary" @onclick="SaveTodoAsync">@L["Save"]</button>
@@ -32,9 +32,9 @@
     </Modal>
 
     <div class="list-content">
-        @if (todos.Any())
+        @if (_todos.Any())
         {
-            @foreach (var todo in todos)
+            @foreach (var todo in _todos)
             {
                 var isConfirmingDelete = _pendingDeleteId == todo.Id;
                 var isDeleting = _deletingTodoIds.Contains(todo.Id);
@@ -83,11 +83,11 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
-    private List<CalendarTodo> todos = new();
-    private bool isEditing;
-    private long? editingId;
-    private string editingContent = string.Empty;
-    private DateTime editingDueTime = DateTime.Now;
+    private List<CalendarTodo> _todos = new();
+    private bool _isEditing;
+    private long? _editingId;
+    private string _editingContent = string.Empty;
+    private DateTime _editingDueTime = DateTime.Now;
     private string? _formMessage;
     private string _formMessageVariant = "info";
     private bool _pastCreateWarningAcknowledged;
@@ -103,37 +103,37 @@
     private async Task LoadTodosAsync()
     {
         var result = await ReQuantumService.GetTodosByDateAsync(new GetTodosByDateRequest(SelectedDate));
-        todos = result.IsSuccess ? result.Value!.Todos : [];
+        _todos = result.IsSuccess ? result.Value!.Todos : [];
         _pendingDeleteId = null;
         _deletingTodoIds.Clear();
     }
 
     private void ShowAddTodoDialog()
     {
-        editingId = null;
-        editingContent = string.Empty;
-        editingDueTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
+        _editingId = null;
+        _editingContent = string.Empty;
+        _editingDueTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
-        isEditing = true;
+        _isEditing = true;
     }
 
     private void EditTodo(CalendarTodo todo)
     {
-        editingId = todo.Id;
-        editingContent = todo.Content;
-        editingDueTime = todo.DueTime;
+        _editingId = todo.Id;
+        _editingContent = todo.Content;
+        _editingDueTime = todo.DueTime;
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
-        isEditing = true;
+        _isEditing = true;
     }
 
     private void CancelEdit()
     {
-        isEditing = false;
-        editingId = null;
-        editingContent = string.Empty;
-        editingDueTime = DateTime.Now;
+        _isEditing = false;
+        _editingId = null;
+        _editingContent = string.Empty;
+        _editingDueTime = DateTime.Now;
         _pastCreateWarningAcknowledged = false;
         ClearFormMessage();
     }
@@ -141,27 +141,27 @@
     private async Task SaveTodoAsync()
     {
         ClearFormMessage();
-        var content = editingContent.Trim();
+        var content = _editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
             SetFormMessage(L["ValidationRequiredTodoContent"], "error");
             return;
         }
 
-        if (!editingId.HasValue && editingDueTime < DateTime.Now && !_pastCreateWarningAcknowledged)
+        if (!_editingId.HasValue && _editingDueTime < DateTime.Now && !_pastCreateWarningAcknowledged)
         {
             _pastCreateWarningAcknowledged = true;
             SetFormMessage(L["WarningCreatingPastTodo"], "warning");
             return;
         }
 
-        if (editingId.HasValue)
+        if (_editingId.HasValue)
         {
-            await ReQuantumService.UpdateTodoAsync(new UpdateTodoRequest(editingId.Value, content, editingDueTime));
+            await ReQuantumService.UpdateTodoAsync(new UpdateTodoRequest(_editingId.Value, content, _editingDueTime));
         }
         else
         {
-            await ReQuantumService.AddTodoAsync(new AddTodoRequest(content, editingDueTime, false));
+            await ReQuantumService.AddTodoAsync(new AddTodoRequest(content, _editingDueTime, false));
         }
 
         CancelEdit();

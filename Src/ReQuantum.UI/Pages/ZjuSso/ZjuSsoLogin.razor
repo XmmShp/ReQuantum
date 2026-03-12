@@ -32,8 +32,8 @@
             </div>
 
             <div class="login-actions">
-                <button class="btn btn-primary" @onclick="HandleBrowserLogin" disabled="@isLoggingIn">
-                    @if (isLoggingIn)
+                <button class="btn btn-primary" @onclick="HandleBrowserLogin" disabled="@_isLoggingIn">
+                    @if (_isLoggingIn)
                     {
                         <span class="spinner-border spinner-border-sm" role="status"></span>
                         @(" ")
@@ -45,27 +45,27 @@
                     <h4>@L["ManualLogin"]</h4>
                     <div class="form-group">
                         <label>@L["CookieValue"]</label>
-                        <input type="text" class="form-control" @bind="manualCookieValue"
+                        <input type="text" class="form-control" @bind="_manualCookieValue"
                                placeholder="@L["CookieValuePlaceholder"]" />
                     </div>
                     <div class="form-group">
                         <label>@L["UserId"]</label>
-                        <input type="text" class="form-control" @bind="manualUserId"
+                        <input type="text" class="form-control" @bind="_manualUserId"
                                placeholder="@L["UserIdPlaceholder"]" />
                     </div>
                     <button class="btn btn-secondary" @onclick="HandleManualLogin"
-                            disabled="@(string.IsNullOrWhiteSpace(manualCookieValue))">
+                            disabled="@(string.IsNullOrWhiteSpace(_manualCookieValue))">
                         @L["Login"]
                     </button>
                 </div>
             </div>
         }
 
-        @if (progressMessages.Count > 0)
+        @if (_progressMessages.Count > 0)
         {
             <div class="progress-log">
                 <h4>@L["Progress"]</h4>
-                @foreach (var msg in progressMessages)
+                @foreach (var msg in _progressMessages)
                 {
                     <div class="progress-message">@msg</div>
                 }
@@ -75,10 +75,10 @@
 </div>
 
 @code {
-    private bool isLoggingIn;
-    private string manualCookieValue = string.Empty;
-    private string manualUserId = string.Empty;
-    private List<string> progressMessages = new();
+    private bool _isLoggingIn;
+    private string _manualCookieValue = string.Empty;
+    private string _manualUserId = string.Empty;
+    private readonly List<string> _progressMessages = new();
 
     protected override void OnInitialized()
     {
@@ -93,40 +93,40 @@
 
     private async Task HandleBrowserLogin()
     {
-        isLoggingIn = true;
-        progressMessages.Clear();
+        _isLoggingIn = true;
+        _progressMessages.Clear();
         StateHasChanged();
 
         var result = await SsoService.OpenBrowserAndWaitForLoginAsync(msg =>
         {
-            progressMessages.Add(msg);
+            _progressMessages.Add(msg);
             InvokeAsync(StateHasChanged);
         });
 
         if (!result.IsSuccess)
         {
-            progressMessages.Add($" {result.Message}");
+            _progressMessages.Add($" {result.Message}");
         }
 
-        isLoggingIn = false;
+        _isLoggingIn = false;
         StateHasChanged();
     }
 
     private void HandleManualLogin()
     {
-        var userId = string.IsNullOrWhiteSpace(manualUserId) ? "ZJU用户" : manualUserId;
-        var result = SsoService.LoginWithSession(userId, manualCookieValue);
+        var userId = string.IsNullOrWhiteSpace(_manualUserId) ? "ZJU用户" : _manualUserId;
+        var result = SsoService.LoginWithSession(userId, _manualCookieValue);
 
-        progressMessages.Clear();
-        progressMessages.Add($" {result.Message}");
+        _progressMessages.Clear();
+        _progressMessages.Add($" {result.Message}");
 
-        manualCookieValue = string.Empty;
-        manualUserId = string.Empty;
+        _manualCookieValue = string.Empty;
+        _manualUserId = string.Empty;
     }
 
     private void HandleLogout()
     {
         SsoService.Logout();
-        progressMessages.Clear();
+        _progressMessages.Clear();
     }
 }

@@ -8,7 +8,7 @@
 <PageTitle>@L["Calendar"]</PageTitle>
 
 <div class="calendar-container">
-    <div class="calendar-header @(currentView == CalendarView.Month ? "month-view-header" : string.Empty)">
+    <div class="calendar-header @(_currentView == CalendarView.Month ? "month-view-header" : string.Empty)">
         <div class="date-switcher">
             <button class="btn btn-outline-secondary" @onclick="PreviousDate">&lt;</button>
             <span class="selected-date-label">@GetDateSwitcherLabel()</span>
@@ -16,11 +16,11 @@
             <button class="btn btn-outline-primary" @onclick="GoToToday">@L["Today"]</button>
         </div>
         <div class="view-switcher">
-            <button class="btn @(currentView == CalendarView.Month ? "btn-primary" : "btn-outline-primary")" 
+            <button class="btn @(_currentView == CalendarView.Month ? "btn-primary" : "btn-outline-primary")" 
                     @onclick="() => SwitchView(CalendarView.Month)">
                 @L["MonthView"]
             </button>
-            <button class="btn @(currentView == CalendarView.Week ? "btn-primary" : "btn-outline-primary")" 
+            <button class="btn @(_currentView == CalendarView.Week ? "btn-primary" : "btn-outline-primary")" 
                     @onclick="() => SwitchView(CalendarView.Week)">
                 @L["WeekView"]
             </button>
@@ -28,13 +28,13 @@
     </div>
 
     <div class="calendar-content">
-        @if (currentView == CalendarView.Month)
+        @if (_currentView == CalendarView.Month)
         {
-            <MonthCalendar @bind-SelectedDate="selectedDate" ShowHeader="false" />
+            <MonthCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" />
         }
         else
         {
-            <WeekCalendar @bind-SelectedDate="selectedDate" ShowHeader="false" />
+            <WeekCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" />
         }
     </div>
 </div>
@@ -46,49 +46,49 @@
         Week
     }
 
-    private CalendarView currentView = CalendarView.Month;
-    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    private CalendarView _currentView = CalendarView.Month;
+    private DateOnly _selectedDate = DateOnly.FromDateTime(DateTime.Today);
 
     private void SwitchView(CalendarView view)
     {
-        currentView = view;
+        _currentView = view;
     }
 
     private void PreviousDate()
     {
-        selectedDate = currentView switch
+        _selectedDate = _currentView switch
         {
-            CalendarView.Month => selectedDate.AddMonths(-1),
-            _ => selectedDate.AddDays(-7)
+            CalendarView.Month => _selectedDate.AddMonths(-1),
+            _ => _selectedDate.AddDays(-7)
         };
     }
 
     private void NextDate()
     {
-        selectedDate = currentView switch
+        _selectedDate = _currentView switch
         {
-            CalendarView.Month => selectedDate.AddMonths(1),
-            _ => selectedDate.AddDays(7)
+            CalendarView.Month => _selectedDate.AddMonths(1),
+            _ => _selectedDate.AddDays(7)
         };
     }
 
     private void GoToToday()
     {
-        selectedDate = DateOnly.FromDateTime(DateTime.Today);
+        _selectedDate = DateOnly.FromDateTime(DateTime.Today);
     }
 
     private string GetDateSwitcherLabel()
     {
-        return currentView switch
+        return _currentView switch
         {
-            CalendarView.Month => selectedDate.ToString("yyyy/MM"),
+            CalendarView.Month => _selectedDate.ToString("yyyy/MM"),
             _ => $"{GetCurrentWeekStart():yyyy-MM-dd} ~ {GetCurrentWeekStart().AddDays(6):yyyy-MM-dd}"
         };
     }
 
     private DateOnly GetCurrentWeekStart()
     {
-        var offset = (int)selectedDate.DayOfWeek;
-        return selectedDate.AddDays(-offset);
+        var offset = (int)_selectedDate.DayOfWeek;
+        return _selectedDate.AddDays(-offset);
     }
 }

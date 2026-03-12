@@ -51,7 +51,7 @@
                                     @foreach (var day in _transitionCalendarDays)
                                     {
                                         var dayData = GetDayData(day, _previousDayDataMap);
-                                        <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                        <div class="day-cell @GetDayClass(day, _firstDayOfMonth, _lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
                                             <div class="day-preview">
                                                 @foreach (var previewItem in GetPreviewItems(day, dayData))
@@ -76,7 +76,7 @@
                                     @foreach (var day in _transitionCalendarDays)
                                     {
                                         var dayData = GetDayData(day, _previousDayDataMap);
-                                        <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                        <div class="day-cell @GetDayClass(day, _firstDayOfMonth, _lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
                                             <div class="day-preview">
                                                 @foreach (var previewItem in GetPreviewItems(day, dayData))
@@ -122,10 +122,10 @@
                     else
                     {
                         <div class="days-grid @(_isDataFadingIn ? "data-fade-in" : string.Empty)" @key="_dataFadeKey">
-                            @foreach (var day in calendarDays)
+                            @foreach (var day in _calendarDays)
                             {
                                 var dayData = GetDayData(day, _dayDataMap);
-                                <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
+                                <div class="day-cell @GetDayClass(day, _firstDayOfMonth, _lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                     <div class="day-number">@day.Day</div>
                                     <div class="day-preview">
                                         @foreach (var previewItem in GetPreviewItems(day, dayData))
@@ -167,10 +167,10 @@
     [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
-    private DateTime currentMonth = DateTime.Today;
-    private DateOnly firstDayOfMonth;
-    private DateOnly lastDayOfMonth;
-    private List<DateOnly> calendarDays = new();
+    private DateTime _currentMonth = DateTime.Today;
+    private DateOnly _firstDayOfMonth;
+    private DateOnly _lastDayOfMonth;
+    private readonly List<DateOnly> _calendarDays = [];
     private readonly Dictionary<DateOnly, CalendarDayData> _dayDataMap = [];
 
     protected override async Task OnInitializedAsync()
@@ -183,7 +183,7 @@
     protected override async Task OnParametersSetAsync()
     {
         var targetMonth = SelectedDate.ToDateTime(TimeOnly.MinValue);
-        if (currentMonth.Year != targetMonth.Year || currentMonth.Month != targetMonth.Month)
+        if (_currentMonth.Year != targetMonth.Year || _currentMonth.Month != targetMonth.Month)
         {
             await TransitionToMonthAsync(targetMonth);
         }
@@ -196,20 +196,20 @@
 
     private void GenerateCalendarDays()
     {
-        calendarDays.Clear();
+        _calendarDays.Clear();
 
-        var year = currentMonth.Year;
-        var month = currentMonth.Month;
+        var year = _currentMonth.Year;
+        var month = _currentMonth.Month;
 
-        firstDayOfMonth = new DateOnly(year, month, 1);
-        lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+        _firstDayOfMonth = new DateOnly(year, month, 1);
+        _lastDayOfMonth = _firstDayOfMonth.AddMonths(1).AddDays(-1);
 
-        var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-        var startDate = firstDayOfMonth.AddDays(-firstDayOfWeek);
+        var firstDayOfWeek = (int)_firstDayOfMonth.DayOfWeek;
+        var startDate = _firstDayOfMonth.AddDays(-firstDayOfWeek);
 
         for (int i = 0; i < 42; i++)
         {
-            calendarDays.Add(startDate.AddDays(i));
+            _calendarDays.Add(startDate.AddDays(i));
         }
     }
 
@@ -239,34 +239,12 @@
     {
         SelectedDate = day;
 
-        if (day.Month == currentMonth.Month && day.Year == currentMonth.Year)
+        if (day.Month == _currentMonth.Month && day.Year == _currentMonth.Year)
         {
             await EnsureDayDataLoadedAsync(day);
         }
 
         await SelectedDateChanged.InvokeAsync(day);
-    }
-
-    private async Task PreviousMonth()
-    {
-        currentMonth = currentMonth.AddMonths(-1);
-        GenerateCalendarDays();
-        await LoadMonthDataAsync();
-    }
-
-    private async Task NextMonth()
-    {
-        currentMonth = currentMonth.AddMonths(1);
-        GenerateCalendarDays();
-        await LoadMonthDataAsync();
-    }
-
-    private async Task GoToToday()
-    {
-        currentMonth = DateTime.Today;
-        GenerateCalendarDays();
-        await LoadMonthDataAsync();
-        await SelectDay(DateOnly.FromDateTime(DateTime.Today));
     }
 
     private static CalendarDayData GetDayData(DateOnly day, IReadOnlyDictionary<DateOnly, CalendarDayData> dayDataMap)
@@ -309,13 +287,13 @@
 
     private async Task LoadMonthDataAsync()
     {
-        if (!calendarDays.Any())
+        if (!_calendarDays.Any())
         {
             return;
         }
 
-        var startDate = calendarDays.Min().AddDays(-42);
-        var endDate = calendarDays.Max().AddDays(42);
+        var startDate = _calendarDays.Min().AddDays(-42);
+        var endDate = _calendarDays.Max().AddDays(42);
         var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(startDate, endDate));
         if (!result.IsSuccess || result.Value is null)
         {
@@ -343,7 +321,7 @@
         }
 
         var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(day, day));
-        if (result.IsSuccess && result.Value is not null && result.Value.DataByDate.TryGetValue(day, out var dayData))
+        if (result is { IsSuccess: true, Value: not null } && result.Value.DataByDate.TryGetValue(day, out var dayData))
         {
             _dayDataMap[day] = dayData;
         }

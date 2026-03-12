@@ -24,18 +24,18 @@ public partial class MonthCalendar
 
     private async Task TransitionToMonthAsync(DateTime targetMonth)
     {
-        var monthDelta = (targetMonth.Year - currentMonth.Year) * 12 + (targetMonth.Month - currentMonth.Month);
+        var monthDelta = (targetMonth.Year - _currentMonth.Year) * 12 + (targetMonth.Month - _currentMonth.Month);
         _monthTransitionClass = monthDelta > 0 ? "slide-up" : "slide-down";
 
-        _previousCalendarDays = [.. calendarDays];
+        _previousCalendarDays = [.. _calendarDays];
         _previousDayDataMap.Clear();
         foreach (var kvp in _dayDataMap)
         {
             _previousDayDataMap[kvp.Key] = kvp.Value;
         }
 
-        _previousFirstDayOfMonth = firstDayOfMonth;
-        _previousLastDayOfMonth = lastDayOfMonth;
+        _previousFirstDayOfMonth = _firstDayOfMonth;
+        _previousLastDayOfMonth = _lastDayOfMonth;
 
         _transitionCalendarDays.Clear();
         if (monthDelta > 0)
@@ -55,7 +55,7 @@ public partial class MonthCalendar
             }
         }
 
-        currentMonth = targetMonth;
+        _currentMonth = targetMonth;
         GenerateCalendarDays();
 
         ConfigureMonthTransitionDistance(monthDelta);
@@ -85,14 +85,14 @@ public partial class MonthCalendar
 
         if (monthDelta > 0)
         {
-            var rowsToScrollUp = GetRowIndex(_previousCalendarDays, firstDayOfMonth) - 1;
+            var rowsToScrollUp = GetRowIndex(_previousCalendarDays, _firstDayOfMonth) - 1;
             rowsToScrollUp = Math.Clamp(rowsToScrollUp, 0, 5);
             _monthTransitionFromPercent = 0;
             _monthTransitionToPercent = -(rowsToScrollUp * perRowTrackPercent);
             return;
         }
 
-        var rowsToScrollDown = GetRowIndex(calendarDays, _previousFirstDayOfMonth) - 1;
+        var rowsToScrollDown = GetRowIndex(_calendarDays, _previousFirstDayOfMonth) - 1;
         rowsToScrollDown = Math.Clamp(rowsToScrollDown, 0, 5);
         _monthTransitionFromPercent = -50;
         _monthTransitionToPercent = _monthTransitionFromPercent + (rowsToScrollDown * perRowTrackPercent);

@@ -14,11 +14,11 @@
         </button>
     </div>
 
-    <Modal Visible="isEditing" Title="@(editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit">
+    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit">
         <ChildContent>
             <textarea class="form-control"
                       rows="4"
-                      @bind="editingContent"
+                      @bind="_editingContent"
                       placeholder="@L["NoteContent"]"></textarea>
         </ChildContent>
         <Footer>
@@ -28,9 +28,9 @@
     </Modal>
 
     <div class="list-content">
-        @if (notes.Any())
+        @if (_notes.Any())
         {
-            @foreach (var note in notes)
+            @foreach (var note in _notes)
             {
                 var isConfirmingDelete = _pendingDeleteId == note.Id;
                 var isDeleting = _deletingNoteIds.Contains(note.Id);
@@ -73,10 +73,10 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
-    private List<CalendarNote> notes = new();
-    private bool isEditing;
-    private long? editingId;
-    private string editingContent = string.Empty;
+    private List<CalendarNote> _notes = [];
+    private bool _isEditing;
+    private long? _editingId;
+    private string _editingContent = string.Empty;
     private long? _pendingDeleteId;
     private readonly HashSet<long> _deletingNoteIds = [];
     private const int DeleteFadeOutDurationMs = 220;
@@ -89,43 +89,43 @@
     private async Task LoadNotesAsync()
     {
         var result = await ReQuantumService.GetAllNotesAsync(new GetAllNotesRequest());
-        notes = result.IsSuccess ? result.Value!.Notes : [];
+        _notes = result.IsSuccess ? result.Value!.Notes : [];
         _pendingDeleteId = null;
         _deletingNoteIds.Clear();
     }
 
     private void ShowAddNoteDialog()
     {
-        editingId = null;
-        editingContent = string.Empty;
-        isEditing = true;
+        _editingId = null;
+        _editingContent = string.Empty;
+        _isEditing = true;
     }
 
     private void EditNote(CalendarNote note)
     {
-        editingId = note.Id;
-        editingContent = note.Content;
-        isEditing = true;
+        _editingId = note.Id;
+        _editingContent = note.Content;
+        _isEditing = true;
     }
 
     private void CancelEdit()
     {
-        isEditing = false;
-        editingId = null;
-        editingContent = string.Empty;
+        _isEditing = false;
+        _editingId = null;
+        _editingContent = string.Empty;
     }
 
     private async Task SaveNoteAsync()
     {
-        var content = editingContent.Trim();
+        var content = _editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
             return;
         }
 
-        if (editingId.HasValue)
+        if (_editingId.HasValue)
         {
-            await ReQuantumService.UpdateNoteAsync(new UpdateNoteRequest(editingId.Value, content));
+            await ReQuantumService.UpdateNoteAsync(new UpdateNoteRequest(_editingId.Value, content));
         }
         else
         {
