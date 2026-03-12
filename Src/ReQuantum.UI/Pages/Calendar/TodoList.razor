@@ -40,7 +40,9 @@
         {
             @foreach (var todo in todos)
             {
-                <div class="todo-item @(todo.IsCompleted ? "completed" : "")">
+                var isConfirmingDelete = _pendingDeleteId == todo.Id;
+                var isDeleting = _deletingTodoIds.Contains(todo.Id);
+                <div class="todo-item @(todo.IsCompleted ? "completed" : "") @(isDeleting ? "deleting" : string.Empty)" @key="todo.Id">
                     <input type="checkbox" 
                            checked="@todo.IsCompleted" 
                            @onchange="() => ToggleTodo(todo.Id)" />
@@ -51,8 +53,26 @@
                         </div>
                     </div>
                     <div class="todo-actions">
-                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditTodo(todo)">@L["Edit"]</button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTodo(todo.Id)">@L["Delete"]</button>
+                        <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditTodo(todo)">
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
+                            </svg>
+                        </button>
+                        <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
+                                title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
+                                @onclick="() => OnDeleteClickAsync(todo.Id)"
+                                disabled="@isDeleting">
+                            @if (isConfirmingDelete)
+                            {
+                                <span class="delete-confirm-mark">?</span>
+                            }
+                            else
+                            {
+                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
+                                </svg>
+                            }
+                        </button>
                     </div>
                 </div>
             }
@@ -77,6 +97,9 @@
     private string editingContent = string.Empty;
     private DateTime editingDueTime = DateTime.Now;
     private bool editingIsCompletedForAdd;
+    private long? _pendingDeleteId;
+    private readonly HashSet<long> _deletingTodoIds = [];
+    private const int DeleteFadeOutDurationMs = 220;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -87,13 +110,15 @@
     {
         var result = await ReQuantumService.GetTodosByDateAsync(new GetTodosByDateRequest(SelectedDate));
         todos = result.IsSuccess ? result.Value!.Todos : [];
+        _pendingDeleteId = null;
+        _deletingTodoIds.Clear();
     }
 
     private void ShowAddTodoDialog()
     {
         editingId = null;
         editingContent = string.Empty;
-        editingDueTime = DateTime.Now;
+        editingDueTime = SelectedDate.ToDateTime(new TimeOnly(9, 0));
         editingIsCompletedForAdd = false;
         isEditing = true;
     }
@@ -144,7 +169,28 @@
         await OnChanged.InvokeAsync();
     }
 
-    private async Task DeleteTodo(long id)
+    private async Task OnDeleteClickAsync(long id)
+    {
+        if (_deletingTodoIds.Contains(id))
+        {
+            return;
+        }
+
+        if (_pendingDeleteId != id)
+        {
+            _pendingDeleteId = id;
+            return;
+        }
+
+        _pendingDeleteId = null;
+        _deletingTodoIds.Add(id);
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(DeleteFadeOutDurationMs);
+        await DeleteTodoAsync(id);
+        _deletingTodoIds.Remove(id);
+    }
+
+    private async Task DeleteTodoAsync(long id)
     {
         await ReQuantumService.RemoveTodoAsync(new RemoveTodoRequest(id));
         await LoadTodosAsync();

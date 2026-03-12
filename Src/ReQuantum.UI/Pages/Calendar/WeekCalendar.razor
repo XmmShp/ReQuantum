@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Localization
+@using System.Globalization
 @using ReQuantum.Contract
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Contract.Calendar
@@ -17,7 +18,7 @@
         </div>
     }
 
-    <div class="week-grid">
+    <div class="week-grid-portrait">
         <div class="time-column">
             <div class="time-header"></div>
             @for (int hour = 0; hour < 24; hour++)
@@ -38,21 +39,100 @@
 
                 <div class="events-container">
                     @{
-                        var dayEvents = GetEvents(day);
-                        foreach (var evt in dayEvents)
-                        {
-                            var startHour = evt.StartTime.Hour + evt.StartTime.Minute / 60.0;
-                            var duration = (evt.EndTime - evt.StartTime).TotalHours;
-                            var top = startHour * 60;
-                            var height = duration * 60;
+                        var dayEventBlocks = GetVerticalEventBlocks(day);
+                        var dayTodoMarkers = GetTodoDeadlineMarkers(day);
 
-                            <div class="event-block" style="top: @(top)px; height: @(height)px;" title="@evt.Content">
-                                <div class="event-time">@evt.StartTime.ToString("HH:mm")</div>
-                                <div class="event-content">@evt.Content</div>
+                        foreach (var marker in dayTodoMarkers)
+                        {
+                            <div class="todo-deadline-marker"
+                                 style="top: @($"{FormatCssNumber(marker.PositionPercent)}%");"
+                                 title="@($"{marker.TimeText} {marker.Content}")">
+                                <span class="todo-deadline-label">@marker.Content</span>
+                            </div>
+                        }
+
+                        foreach (var block in dayEventBlocks)
+                        {
+                            <div class="event-block @(block.StartsBeforeDay ? "continues-from-start" : string.Empty) @(block.EndsAfterDay ? "continues-to-end" : string.Empty)"
+                                 style="top: @($"{FormatCssNumber(block.StartPercent)}%"); height: @($"{FormatCssNumber(block.LengthPercent)}%"); left: calc(@(FormatCssNumber(block.CrossOffsetPercent))% + 2px); width: calc(@(FormatCssNumber(block.CrossLengthPercent))% - 4px); --event-bg: @block.BackgroundColor; --event-border: @block.BorderColor; z-index: @block.StackOrder;"
+                                 title="@block.Content">
+                                @if (block.StartsBeforeDay)
+                                {
+                                    <span class="continuation-indicator top" aria-hidden="true"></span>
+                                }
+                                @if (!string.IsNullOrEmpty(block.TimeText))
+                                {
+                                    <div class="event-time">@block.TimeText</div>
+                                }
+                                @if (!string.IsNullOrEmpty(block.Content))
+                                {
+                                    <div class="event-content">@block.Content</div>
+                                }
+                                @if (block.EndsAfterDay)
+                                {
+                                    <span class="continuation-indicator bottom" aria-hidden="true"></span>
+                                }
                             </div>
                         }
                     }
                 </div>
+            </div>
+        }
+    </div>
+
+    <div class="week-grid-landscape">
+        <div class="landscape-corner"></div>
+        <div class="landscape-time-header">
+            @for (int hour = 0; hour < 24; hour++)
+            {
+                <div class="landscape-time-slot">@hour.ToString("00"):00</div>
+            }
+        </div>
+
+        @foreach (var day in weekDays)
+        {
+            <div class="landscape-day-label @(day == SelectedDate ? "selected" : "")" @onclick="() => SelectDay(day)">
+                <div class="day-name">@GetDayName(day)</div>
+                <div class="day-date @(day == DateOnly.FromDateTime(DateTime.Today) ? "today" : "")">@day.Day</div>
+            </div>
+            <div class="landscape-events-row @(day == SelectedDate ? "selected" : "")" @onclick="() => SelectDay(day)">
+                @{
+                    var dayEventBlocks = GetHorizontalEventBlocks(day);
+                    var dayTodoMarkers = GetTodoDeadlineMarkers(day);
+
+                    foreach (var marker in dayTodoMarkers)
+                    {
+                        <div class="todo-deadline-marker horizontal"
+                             style="left: @($"{FormatCssNumber(marker.PositionPercent)}%");"
+                             title="@($"{marker.TimeText} {marker.Content}")">
+                            <span class="todo-deadline-label">@marker.Content</span>
+                        </div>
+                    }
+
+                    foreach (var block in dayEventBlocks)
+                    {
+                        <div class="event-block horizontal @(block.StartsBeforeDay ? "continues-from-start" : string.Empty) @(block.EndsAfterDay ? "continues-to-end" : string.Empty)"
+                             style="left: @($"{FormatCssNumber(block.StartPercent)}%"); width: @($"{FormatCssNumber(block.LengthPercent)}%"); top: calc(@(FormatCssNumber(block.CrossOffsetPercent))% + 2px); height: calc(@(FormatCssNumber(block.CrossLengthPercent))% - 4px); --event-bg: @block.BackgroundColor; --event-border: @block.BorderColor; z-index: @block.StackOrder;"
+                             title="@block.Content">
+                            @if (block.StartsBeforeDay)
+                            {
+                                <span class="continuation-indicator left" aria-hidden="true"></span>
+                            }
+                            @if (!string.IsNullOrEmpty(block.TimeText))
+                            {
+                                <div class="event-time">@block.TimeText</div>
+                            }
+                            @if (!string.IsNullOrEmpty(block.Content))
+                            {
+                                <div class="event-content">@block.Content</div>
+                            }
+                            @if (block.EndsAfterDay)
+                            {
+                                <span class="continuation-indicator right" aria-hidden="true"></span>
+                            }
+                        </div>
+                    }
+                }
             </div>
         }
     </div>
@@ -71,6 +151,28 @@
     private DateOnly currentWeekStart;
     private List<DateOnly> weekDays = new();
     private readonly Dictionary<DateOnly, List<CalendarEvent>> _eventsByDate = [];
+    private readonly Dictionary<DateOnly, List<CalendarTodo>> _todosByDate = [];
+    private static readonly string[] PaletteBackgrounds =
+    [
+        "rgba(37, 99, 235, 0.72)",
+        "rgba(5, 150, 105, 0.72)",
+        "rgba(217, 119, 6, 0.72)",
+        "rgba(220, 38, 38, 0.72)",
+        "rgba(124, 58, 237, 0.72)",
+        "rgba(190, 24, 93, 0.72)",
+        "rgba(8, 145, 178, 0.72)"
+    ];
+
+    private static readonly string[] PaletteBorders =
+    [
+        "#1d4ed8",
+        "#047857",
+        "#b45309",
+        "#b91c1c",
+        "#6d28d9",
+        "#9d174d",
+        "#0e7490"
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -157,9 +259,155 @@
         await SelectDay(DateOnly.FromDateTime(DateTime.Today));
     }
 
-    private List<CalendarEvent> GetEvents(DateOnly day)
+    private IEnumerable<WeekEventBlock> GetVerticalEventBlocks(DateOnly day)
     {
-        return _eventsByDate.TryGetValue(day, out var events) ? events : [];
+        if (!_eventsByDate.TryGetValue(day, out var events))
+        {
+            return [];
+        }
+
+        return BuildEventBlocks(day, events, minDurationMinutes: 18);
+    }
+
+    private IEnumerable<WeekEventBlock> GetHorizontalEventBlocks(DateOnly day)
+    {
+        if (!_eventsByDate.TryGetValue(day, out var events))
+        {
+            return [];
+        }
+
+        return BuildEventBlocks(day, events, minDurationMinutes: 22);
+    }
+
+    private IEnumerable<TodoDeadlineMarker> GetTodoDeadlineMarkers(DateOnly day)
+    {
+        if (!_todosByDate.TryGetValue(day, out var todos))
+        {
+            return [];
+        }
+
+        var dayStart = day.ToDateTime(TimeOnly.MinValue);
+        var minutesInDay = 24d * 60d;
+
+        return todos
+            .Where(todo => todo.DueTime.Date == dayStart.Date)
+            .OrderBy(todo => todo.DueTime)
+            .Select(todo =>
+            {
+                var positionPercent = Math.Clamp(((todo.DueTime - dayStart).TotalMinutes / minutesInDay) * 100d, 0d, 100d);
+                return new TodoDeadlineMarker(
+                    positionPercent,
+                    todo.DueTime.ToString("HH:mm"),
+                    todo.Content);
+            })
+            .ToList();
+    }
+
+    private static string FormatCssNumber(double value)
+    {
+        return value.ToString("0.###", CultureInfo.InvariantCulture);
+    }
+
+    private static IEnumerable<WeekEventBlock> BuildEventBlocks(DateOnly day, List<CalendarEvent> events, int minDurationMinutes)
+    {
+        var dayStart = day.ToDateTime(TimeOnly.MinValue);
+        var dayEnd = day.AddDays(1).ToDateTime(TimeOnly.MinValue);
+        const double MinutesInDay = 24d * 60d;
+
+        var sourceEvents = events
+            .Select(evt =>
+            {
+                var segmentStart = evt.StartTime > dayStart ? evt.StartTime : dayStart;
+                var segmentEnd = evt.EndTime < dayEnd ? evt.EndTime : dayEnd;
+                var startMinute = Math.Clamp((segmentStart - dayStart).TotalMinutes, 0d, MinutesInDay);
+                var durationMinutes = Math.Max((segmentEnd - segmentStart).TotalMinutes, minDurationMinutes);
+                var endMinute = Math.Clamp(startMinute + durationMinutes, 0d, MinutesInDay);
+                if (endMinute <= startMinute)
+                {
+                    endMinute = Math.Min(startMinute + minDurationMinutes, MinutesInDay);
+                }
+
+                return new WeekSourceEvent(
+                    evt.Content,
+                    evt.StartTime,
+                    startMinute,
+                    endMinute,
+                    startsInCurrentDay: evt.StartTime >= dayStart && evt.StartTime < dayEnd,
+                    evt.StartTime < dayStart,
+                    evt.EndTime > dayEnd);
+            })
+            .Where(source => source.EndMinute > source.StartMinute)
+            .ToList();
+
+        if (sourceEvents.Count == 0)
+        {
+            return [];
+        }
+
+        var usedPaletteByStartTime = new Dictionary<DateTime, HashSet<int>>();
+        var blocks = new List<WeekEventBlock>();
+        var orderedEvents = sourceEvents
+            .OrderBy(source => source.StartMinute)
+            .ThenBy(source => source.EndMinute)
+            .ThenBy(source => source.Content)
+            .ToList();
+
+        var stackOrder = 1;
+        foreach (var source in orderedEvents)
+        {
+            var startKey = new DateTime(
+                source.OriginalStartTime.Year,
+                source.OriginalStartTime.Month,
+                source.OriginalStartTime.Day,
+                source.OriginalStartTime.Hour,
+                source.OriginalStartTime.Minute,
+                0);
+
+            if (!usedPaletteByStartTime.TryGetValue(startKey, out var usedIndices))
+            {
+                usedIndices = [];
+                usedPaletteByStartTime[startKey] = usedIndices;
+            }
+
+            var colorIndex = -1;
+            for (int i = 0; i < PaletteBackgrounds.Length; i++)
+            {
+                if (usedIndices.Contains(i))
+                {
+                    continue;
+                }
+
+                colorIndex = i;
+                break;
+            }
+
+            if (colorIndex >= 0)
+            {
+                usedIndices.Add(colorIndex);
+            }
+
+            var backgroundColor = colorIndex >= 0
+                ? PaletteBackgrounds[colorIndex]
+                : "rgba(0, 0, 0, 0.72)";
+            var borderColor = colorIndex >= 0
+                ? PaletteBorders[colorIndex]
+                : "#000000";
+
+            blocks.Add(new WeekEventBlock(
+                StartPercent: (source.StartMinute / MinutesInDay) * 100d,
+                LengthPercent: ((source.EndMinute - source.StartMinute) / MinutesInDay) * 100d,
+                CrossOffsetPercent: 0d,
+                CrossLengthPercent: 100d,
+                TimeText: source.StartsInCurrentDay ? source.OriginalStartTime.ToString("HH:mm") : string.Empty,
+                Content: source.Content,
+                StartsBeforeDay: source.StartsBeforeDay,
+                EndsAfterDay: source.EndsAfterDay,
+                BackgroundColor: backgroundColor,
+                BorderColor: borderColor,
+                StackOrder: stackOrder++));
+        }
+
+        return blocks;
     }
 
     private async Task LoadWeekEventsAsync()
@@ -170,11 +418,92 @@
         }
 
         _eventsByDate.Clear();
+        _todosByDate.Clear();
+        foreach (var day in weekDays)
+        {
+            _eventsByDate[day] = [];
+            _todosByDate[day] = [];
+        }
+
+        var weekStart = weekDays.Min();
+        var weekEnd = weekDays.Max();
+        var result = await ReQuantumService.GetCalendarRangeDataAsync(new GetCalendarRangeDataRequest(weekStart, weekEnd));
+        if (!result.IsSuccess || result.Value is null)
+        {
+            return;
+        }
+
+        var uniqueEvents = result.Value.DataByDate.Values
+            .SelectMany(data => data.Events)
+            .GroupBy(evt => evt.Id)
+            .Select(group => group.First());
 
         foreach (var day in weekDays)
         {
-            var result = await ReQuantumService.GetEventsByDateAsync(new GetEventsByDateRequest(day));
-            _eventsByDate[day] = result.IsSuccess ? result.Value!.Events : [];
+            if (result.Value.DataByDate.TryGetValue(day, out var dayData))
+            {
+                _todosByDate[day] = dayData.Todos
+                    .OrderBy(todo => todo.DueTime)
+                    .ToList();
+            }
+        }
+
+        foreach (var evt in uniqueEvents)
+        {
+            foreach (var day in weekDays)
+            {
+                var dayStart = day.ToDateTime(TimeOnly.MinValue);
+                var dayEnd = day.AddDays(1).ToDateTime(TimeOnly.MinValue);
+                if (evt.EndTime <= dayStart || evt.StartTime >= dayEnd)
+                {
+                    continue;
+                }
+
+                _eventsByDate[day].Add(evt);
+            }
+        }
+
+        foreach (var day in weekDays)
+        {
+            _eventsByDate[day] = _eventsByDate[day]
+                .OrderBy(evt => evt.StartTime)
+                .ToList();
         }
     }
+
+    private readonly record struct WeekEventBlock(
+        double StartPercent,
+        double LengthPercent,
+        double CrossOffsetPercent,
+        double CrossLengthPercent,
+        string TimeText,
+        string Content,
+        bool StartsBeforeDay,
+        bool EndsAfterDay,
+        string BackgroundColor,
+        string BorderColor,
+        int StackOrder);
+
+    private sealed class WeekSourceEvent(
+        string content,
+        DateTime originalStartTime,
+        double startMinute,
+        double endMinute,
+        bool startsInCurrentDay,
+        bool startsBeforeDay,
+        bool endsAfterDay)
+    {
+        public string Content { get; } = content;
+        public DateTime OriginalStartTime { get; } = originalStartTime;
+        public double StartMinute { get; } = startMinute;
+        public double EndMinute { get; } = endMinute;
+        public bool StartsInCurrentDay { get; } = startsInCurrentDay;
+        public bool StartsBeforeDay { get; } = startsBeforeDay;
+        public bool EndsAfterDay { get; } = endsAfterDay;
+    }
+
+    private readonly record struct TodoDeadlineMarker(
+        double PositionPercent,
+        string TimeText,
+        string Content);
 }

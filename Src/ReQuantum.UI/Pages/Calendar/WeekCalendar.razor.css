@@ -1,10 +1,17 @@
 .week-calendar {
+    --week-day-header-height: clamp(40px, 5.2vh, 52px);
+    --week-hour-min-height: 30px;
+    --week-min-day-height: calc(var(--week-day-header-height) + (var(--week-hour-min-height) * 24));
+    --week-landscape-header-height: clamp(40px, 5vh, 50px);
+    --week-landscape-row-min-height: clamp(48px, 7.2vh, 74px);
     background: white;
     border-radius: 8px;
     padding: 20px;
     height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .week-header {
@@ -15,28 +22,37 @@
     margin-bottom: 20px;
 }
 
-.week-grid {
+.week-grid-portrait {
     display: grid;
-    grid-template-columns: 60px repeat(7, 1fr);
+    grid-template-columns: 64px repeat(7, minmax(0, 1fr));
     gap: 1px;
     background: #e0e0e0;
     flex: 1;
+    height: 100%;
+    min-height: 0;
     overflow: auto;
+    overscroll-behavior: contain;
 }
 
 .time-column {
     background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: var(--week-min-day-height);
 }
 
 .time-header {
-    height: 60px;
+    height: var(--week-day-header-height);
+    flex: 0 0 var(--week-day-header-height);
     border-bottom: 1px solid #e0e0e0;
 }
 
 .time-slot {
-    height: 60px;
+    flex: 1 0 0;
+    min-height: var(--week-hour-min-height);
     padding: 4px;
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -44,6 +60,10 @@
 .day-column {
     background: white;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: var(--week-min-day-height);
     cursor: pointer;
 }
 
@@ -52,7 +72,8 @@
 }
 
 .day-header {
-    height: 60px;
+    height: var(--week-day-header-height);
+    flex: 0 0 var(--week-day-header-height);
     text-align: center;
     padding: 10px;
     border-bottom: 2px solid #e0e0e0;
@@ -63,7 +84,7 @@
 }
 
 .day-name {
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
 }
 
@@ -79,30 +100,248 @@
 
 .events-container {
     position: relative;
-    height: 1440px;
+    flex: 1;
+    min-height: calc(var(--week-hour-min-height) * 24);
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent calc((100% / 24) - 1px),
+        #eef2f7 calc((100% / 24) - 1px),
+        #eef2f7 calc(100% / 24)
+    );
 }
 
 .event-block {
     position: absolute;
-    left: 2px;
-    right: 2px;
-    background: #2196f3;
+    left: 0;
+    right: auto;
+    background: var(--event-bg, rgba(37, 99, 235, 0.72));
     color: white;
     border-radius: 4px;
     padding: 4px;
-    font-size: 12px;
+    font-size: 13px;
     overflow: hidden;
     cursor: pointer;
+    border-left: 3px solid var(--event-border, #1d4ed8);
+    box-sizing: border-box;
 }
 
 .event-time {
     font-weight: bold;
-    font-size: 10px;
+    font-size: 11px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    background: rgba(15, 23, 42, 0.22);
+    border-radius: 4px;
+    padding: 0 4px;
+    display: inline-block;
+    backdrop-filter: blur(1px);
 }
 
 .event-content {
     margin-top: 2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 4px;
+    padding: 0 4px;
+    display: inline-block;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.todo-deadline-marker {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    height: 2px;
+    background: #ef4444;
+    border-radius: 999px;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.todo-deadline-label {
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 48%;
+    color: #dc2626;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.todo-deadline-marker.horizontal {
+    top: 1px;
+    bottom: 1px;
+    width: 2px;
+    height: auto;
+}
+
+.todo-deadline-marker.horizontal .todo-deadline-label {
+    left: auto;
+    right: 100%;
+    top: 50%;
+    transform: translate(-6px, -50%);
+    max-width: 120px;
+}
+
+.todo-deadline-marker::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    transform: translate(50%, -50%);
+    border-radius: 999px;
+    background: #ef4444;
+}
+
+.todo-deadline-marker.horizontal::after {
+    right: auto;
+    top: auto;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+}
+
+.week-grid-landscape {
+    display: none;
+    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-rows: var(--week-landscape-header-height) repeat(7, minmax(var(--week-landscape-row-min-height), 1fr));
+    gap: 1px;
+    background: #e0e0e0;
+    flex: 1;
+    height: 100%;
+    min-height: calc(var(--week-landscape-header-height) + (var(--week-landscape-row-min-height) * 7));
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.landscape-corner {
+    background: #f5f5f5;
+}
+
+.landscape-time-header {
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    background: #f5f5f5;
+    min-height: var(--week-landscape-header-height);
+}
+
+.landscape-time-slot {
+    border-left: 1px solid #e0e0e0;
+    padding: 6px 4px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.landscape-day-label {
+    background: white;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: var(--week-landscape-row-min-height);
+    cursor: pointer;
+}
+
+.landscape-day-label.selected {
+    background: #f5f5f5;
+}
+
+.landscape-events-row {
+    position: relative;
+    background: white;
+    min-height: var(--week-landscape-row-min-height);
+    cursor: pointer;
+    background-image: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent calc((100% / 24) - 1px),
+        #eef2f7 calc((100% / 24) - 1px),
+        #eef2f7 calc(100% / 24)
+    );
+}
+
+.landscape-events-row.selected {
+    background-color: #f8fbff;
+}
+
+.event-block.horizontal {
+    top: 0;
+    bottom: auto;
+    height: auto;
+    right: auto;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.event-block.horizontal .event-content {
+    margin-top: 0;
+}
+
+.continuation-indicator {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.continuation-indicator.top {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #0b5bd3;
+}
+
+.continuation-indicator.bottom {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #0b5bd3;
+}
+
+.continuation-indicator.left {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid #0b5bd3;
+}
+
+.continuation-indicator.right {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid #0b5bd3;
+}
+
+@media (orientation: landscape) {
+    .week-grid-portrait {
+        display: none;
+    }
+
+    .week-grid-landscape {
+        display: grid;
+    }
 }

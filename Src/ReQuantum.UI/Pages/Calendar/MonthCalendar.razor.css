@@ -163,25 +163,6 @@
     margin-bottom: 2px;
 }
 
-.day-indicators {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-.indicator {
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.event-indicator {
-    color: #2196f3;
-}
-
-.todo-indicator {
-    color: #ff9800;
-}
-
 .day-preview {
     display: flex;
     flex-direction: column;
@@ -190,12 +171,12 @@
 }
 
 .preview-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     font-size: 11px;
     line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #444;
+    min-width: 0;
 }
 
 .preview-item.event {
@@ -204,6 +185,32 @@
 
 .preview-item.todo {
     color: #a15c00;
+}
+
+.preview-item.remaining {
+    color: #6b7280;
+}
+
+.preview-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    flex: none;
+    margin-top: 1px;
+}
+
+.preview-item.event .preview-dot {
+    background: #2563eb;
+}
+
+.preview-item.todo .preview-dot {
+    background: #b45309;
+}
+
+.preview-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .selected-day-panels {

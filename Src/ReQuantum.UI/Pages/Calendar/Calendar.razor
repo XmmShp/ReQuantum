@@ -24,10 +24,6 @@
                     @onclick="() => SwitchView(CalendarView.Week)">
                 @L["WeekView"]
             </button>
-            <button class="btn @(currentView == CalendarView.List ? "btn-primary" : "btn-outline-primary")" 
-                    @onclick="() => SwitchView(CalendarView.List)">
-                @L["ListView"]
-            </button>
         </div>
     </div>
 
@@ -36,17 +32,9 @@
         {
             <MonthCalendar @bind-SelectedDate="selectedDate" ShowHeader="false" />
         }
-        else if (currentView == CalendarView.Week)
+        else
         {
             <WeekCalendar @bind-SelectedDate="selectedDate" ShowHeader="false" />
-        }
-        else if (currentView == CalendarView.List)
-        {
-            <div class="list-view-container">
-                <EventList SelectedDate="selectedDate" />
-                <TodoList SelectedDate="selectedDate" />
-                <NoteList />
-            </div>
         }
     </div>
 </div>
@@ -55,8 +43,7 @@
     private enum CalendarView
     {
         Month,
-        Week,
-        List
+        Week
     }
 
     private CalendarView currentView = CalendarView.Month;
@@ -72,8 +59,7 @@
         selectedDate = currentView switch
         {
             CalendarView.Month => selectedDate.AddMonths(-1),
-            CalendarView.Week => selectedDate.AddDays(-7),
-            _ => selectedDate.AddDays(-1)
+            _ => selectedDate.AddDays(-7)
         };
     }
 
@@ -82,8 +68,7 @@
         selectedDate = currentView switch
         {
             CalendarView.Month => selectedDate.AddMonths(1),
-            CalendarView.Week => selectedDate.AddDays(7),
-            _ => selectedDate.AddDays(1)
+            _ => selectedDate.AddDays(7)
         };
     }
 
@@ -97,8 +82,7 @@
         return currentView switch
         {
             CalendarView.Month => selectedDate.ToString("yyyy/MM"),
-            CalendarView.Week => $"{GetCurrentWeekStart():yyyy-MM-dd} ~ {GetCurrentWeekStart().AddDays(6):yyyy-MM-dd}",
-            _ => selectedDate.ToString("yyyy-MM-dd")
+            _ => $"{GetCurrentWeekStart():yyyy-MM-dd} ~ {GetCurrentWeekStart().AddDays(6):yyyy-MM-dd}"
         };
     }
 

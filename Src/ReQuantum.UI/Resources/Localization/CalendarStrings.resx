@@ -46,7 +46,9 @@
   <data name="Source" xml:space="preserve"><value>Source: {0}</value></data>
   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Click again to delete</value></data>
   <data name="NoEvents" xml:space="preserve"><value>No events</value></data>
+  <data name="RemainingEvents" xml:space="preserve"><value>{0} more</value></data>
   <data name="TodoList" xml:space="preserve"><value>Todos</value></data>
   <data name="AddTodo" xml:space="preserve"><value>+ Add Todo</value></data>
   <data name="DueTime" xml:space="preserve"><value>Due: {0}</value></data>

@@ -30,7 +30,9 @@
         {
             @foreach (var note in notes)
             {
-                <div class="note-item">
+                var isConfirmingDelete = _pendingDeleteId == note.Id;
+                var isDeleting = _deletingNoteIds.Contains(note.Id);
+                <div class="note-item @(isDeleting ? "deleting" : string.Empty)" @key="note.Id">
                     <div class="note-info">
                         <div class="note-content">@note.Content</div>
                         <div class="note-created">
@@ -38,8 +40,26 @@
                         </div>
                     </div>
                     <div class="note-actions">
-                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditNote(note)">@L["Edit"]</button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteNote(note.Id)">@L["Delete"]</button>
+                        <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditNote(note)">
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
+                            </svg>
+                        </button>
+                        <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
+                                title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
+                                @onclick="() => OnDeleteClickAsync(note.Id)"
+                                disabled="@isDeleting">
+                            @if (isConfirmingDelete)
+                            {
+                                <span class="delete-confirm-mark">?</span>
+                            }
+                            else
+                            {
+                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
+                                </svg>
+                            }
+                        </button>
                     </div>
                 </div>
             }
@@ -59,6 +79,9 @@
     private bool isEditing;
     private long? editingId;
     private string editingContent = string.Empty;
+    private long? _pendingDeleteId;
+    private readonly HashSet<long> _deletingNoteIds = [];
+    private const int DeleteFadeOutDurationMs = 220;
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,6 +92,8 @@
     {
         var result = await ReQuantumService.GetAllNotesAsync(new GetAllNotesRequest());
         notes = result.IsSuccess ? result.Value!.Notes : [];
+        _pendingDeleteId = null;
+        _deletingNoteIds.Clear();
     }
 
     private void ShowAddNoteDialog()
@@ -114,7 +139,28 @@
         await OnChanged.InvokeAsync();
     }
 
-    private async Task DeleteNote(long id)
+    private async Task OnDeleteClickAsync(long id)
+    {
+        if (_deletingNoteIds.Contains(id))
+        {
+            return;
+        }
+
+        if (_pendingDeleteId != id)
+        {
+            _pendingDeleteId = id;
+            return;
+        }
+
+        _pendingDeleteId = null;
+        _deletingNoteIds.Add(id);
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(DeleteFadeOutDurationMs);
+        await DeleteNoteAsync(id);
+        _deletingNoteIds.Remove(id);
+    }
+
+    private async Task DeleteNoteAsync(long id)
     {
         await ReQuantumService.RemoveNoteAsync(new RemoveNoteRequest(id));
         await LoadNotesAsync();

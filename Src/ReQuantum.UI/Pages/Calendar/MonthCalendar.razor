@@ -31,26 +31,17 @@
                                         var previousDayData = GetDayData(day, _previousDayDataMap);
                                         <div class="day-cell @GetDayClass(day, _previousFirstDayOfMonth, _previousLastDayOfMonth, includeSelected: false)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
-                                            <div class="day-indicators">
-                                                @if (previousDayData.Events.Any())
-                                                {
-                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], previousDayData.Events.Count)">@previousDayData.Events.Count</span>
-                                                }
-                                                @if (previousDayData.Todos.Any())
-                                                {
-                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], previousDayData.Todos.Count)">@previousDayData.Todos.Count</span>
-                                                }
-                                            </div>
                                             <div class="day-preview">
-                                                @if (previousDayData.Events.Any())
+                                                @foreach (var previewItem in GetPreviewItems(day, previousDayData))
                                                 {
-                                                    var firstEvent = previousDayData.Events[0];
-                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                    <div class="preview-item @(previewItem.IsEvent ? "event" : "todo")">
+                                                        <span class="preview-dot" aria-hidden="true"></span>
+                                                        <span class="preview-text">@previewItem.DisplayText</span>
+                                                    </div>
                                                 }
-                                                @if (previousDayData.Todos.Any())
+                                                @if (GetRemainingPreviewCount(previousDayData) > 0)
                                                 {
-                                                    var firstTodo = previousDayData.Todos[0];
-                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                    <div class="preview-item remaining">@string.Format(L["RemainingEvents"], GetRemainingPreviewCount(previousDayData))</div>
                                                 }
                                             </div>
                                         </div>
@@ -62,26 +53,17 @@
                                         var dayData = GetDayData(day, _previousDayDataMap);
                                         <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
-                                            <div class="day-indicators">
-                                                @if (dayData.Events.Any())
-                                                {
-                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
-                                                }
-                                                @if (dayData.Todos.Any())
-                                                {
-                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
-                                                }
-                                            </div>
                                             <div class="day-preview">
-                                                @if (dayData.Events.Any())
+                                                @foreach (var previewItem in GetPreviewItems(day, dayData))
                                                 {
-                                                    var firstEvent = dayData.Events[0];
-                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                    <div class="preview-item @(previewItem.IsEvent ? "event" : "todo")">
+                                                        <span class="preview-dot" aria-hidden="true"></span>
+                                                        <span class="preview-text">@previewItem.DisplayText</span>
+                                                    </div>
                                                 }
-                                                @if (dayData.Todos.Any())
+                                                @if (GetRemainingPreviewCount(dayData) > 0)
                                                 {
-                                                    var firstTodo = dayData.Todos[0];
-                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                    <div class="preview-item remaining">@string.Format(L["RemainingEvents"], GetRemainingPreviewCount(dayData))</div>
                                                 }
                                             </div>
                                         </div>
@@ -96,26 +78,17 @@
                                         var dayData = GetDayData(day, _previousDayDataMap);
                                         <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
-                                            <div class="day-indicators">
-                                                @if (dayData.Events.Any())
-                                                {
-                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
-                                                }
-                                                @if (dayData.Todos.Any())
-                                                {
-                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
-                                                }
-                                            </div>
                                             <div class="day-preview">
-                                                @if (dayData.Events.Any())
+                                                @foreach (var previewItem in GetPreviewItems(day, dayData))
                                                 {
-                                                    var firstEvent = dayData.Events[0];
-                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                    <div class="preview-item @(previewItem.IsEvent ? "event" : "todo")">
+                                                        <span class="preview-dot" aria-hidden="true"></span>
+                                                        <span class="preview-text">@previewItem.DisplayText</span>
+                                                    </div>
                                                 }
-                                                @if (dayData.Todos.Any())
+                                                @if (GetRemainingPreviewCount(dayData) > 0)
                                                 {
-                                                    var firstTodo = dayData.Todos[0];
-                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                    <div class="preview-item remaining">@string.Format(L["RemainingEvents"], GetRemainingPreviewCount(dayData))</div>
                                                 }
                                             </div>
                                         </div>
@@ -127,26 +100,17 @@
                                         var previousDayData = GetDayData(day, _previousDayDataMap);
                                         <div class="day-cell @GetDayClass(day, _previousFirstDayOfMonth, _previousLastDayOfMonth, includeSelected: false)" @onclick="() => SelectDay(day)">
                                             <div class="day-number">@day.Day</div>
-                                            <div class="day-indicators">
-                                                @if (previousDayData.Events.Any())
-                                                {
-                                                    <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], previousDayData.Events.Count)">@previousDayData.Events.Count</span>
-                                                }
-                                                @if (previousDayData.Todos.Any())
-                                                {
-                                                    <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], previousDayData.Todos.Count)">@previousDayData.Todos.Count</span>
-                                                }
-                                            </div>
                                             <div class="day-preview">
-                                                @if (previousDayData.Events.Any())
+                                                @foreach (var previewItem in GetPreviewItems(day, previousDayData))
                                                 {
-                                                    var firstEvent = previousDayData.Events[0];
-                                                    <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                                    <div class="preview-item @(previewItem.IsEvent ? "event" : "todo")">
+                                                        <span class="preview-dot" aria-hidden="true"></span>
+                                                        <span class="preview-text">@previewItem.DisplayText</span>
+                                                    </div>
                                                 }
-                                                @if (previousDayData.Todos.Any())
+                                                @if (GetRemainingPreviewCount(previousDayData) > 0)
                                                 {
-                                                    var firstTodo = previousDayData.Todos[0];
-                                                    <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                                    <div class="preview-item remaining">@string.Format(L["RemainingEvents"], GetRemainingPreviewCount(previousDayData))</div>
                                                 }
                                             </div>
                                         </div>
@@ -163,26 +127,17 @@
                                 var dayData = GetDayData(day, _dayDataMap);
                                 <div class="day-cell @GetDayClass(day, firstDayOfMonth, lastDayOfMonth)" @onclick="() => SelectDay(day)">
                                     <div class="day-number">@day.Day</div>
-                                    <div class="day-indicators">
-                                        @if (dayData.Events.Any())
-                                        {
-                                            <span class="indicator event-indicator" title="@string.Format(L["EventsCount"], dayData.Events.Count)">@dayData.Events.Count</span>
-                                        }
-                                        @if (dayData.Todos.Any())
-                                        {
-                                            <span class="indicator todo-indicator" title="@string.Format(L["TodosCount"], dayData.Todos.Count)">@dayData.Todos.Count</span>
-                                        }
-                                    </div>
                                     <div class="day-preview">
-                                        @if (dayData.Events.Any())
+                                        @foreach (var previewItem in GetPreviewItems(day, dayData))
                                         {
-                                            var firstEvent = dayData.Events[0];
-                                            <div class="preview-item event">@firstEvent.StartTime.ToString("HH:mm") @firstEvent.Content</div>
+                                            <div class="preview-item @(previewItem.IsEvent ? "event" : "todo")">
+                                                <span class="preview-dot" aria-hidden="true"></span>
+                                                <span class="preview-text">@previewItem.DisplayText</span>
+                                            </div>
                                         }
-                                        @if (dayData.Todos.Any())
+                                        @if (GetRemainingPreviewCount(dayData) > 0)
                                         {
-                                            var firstTodo = dayData.Todos[0];
-                                            <div class="preview-item todo">TODO: @firstTodo.Content</div>
+                                            <div class="preview-item remaining">@string.Format(L["RemainingEvents"], GetRemainingPreviewCount(dayData))</div>
                                         }
                                     </div>
                                 </div>
@@ -320,6 +275,37 @@
             ? dayData
             : new CalendarDayData(day, [], [], []);
     }
+
+    private static IEnumerable<CalendarPreviewItem> GetPreviewItems(DateOnly day, CalendarDayData dayData)
+    {
+        var eventItems = dayData.Events
+            .Select(evt => new CalendarPreviewItem(
+                evt.StartTime,
+                evt.StartTime.Date == day.ToDateTime(TimeOnly.MinValue).Date
+                    ? $"{evt.StartTime:HH:mm} {evt.Content}"
+                    : evt.Content,
+                IsEvent: true));
+        var todoItems = dayData.Todos
+            .Select(todo => new CalendarPreviewItem(
+                todo.DueTime,
+                todo.Content,
+                IsEvent: false));
+
+        return eventItems
+            .Concat(todoItems)
+            .OrderBy(item => item.When)
+            .Take(3);
+    }
+
+    private static int GetRemainingPreviewCount(CalendarDayData dayData)
+    {
+        var totalCount = dayData.Events.Count + dayData.Todos.Count;
+        return totalCount > 3
+            ? totalCount - 3
+            : 0;
+    }
+
+    private readonly record struct CalendarPreviewItem(DateTime When, string DisplayText, bool IsEvent);
 
     private async Task LoadMonthDataAsync()
     {

@@ -40,11 +40,13 @@
         {
             @foreach (var evt in events)
             {
-                <div class="event-item">
+                var isConfirmingDelete = _pendingDeleteId == evt.Id;
+                var isDeleting = _deletingEventIds.Contains(evt.Id);
+                <div class="event-item @(isDeleting ? "deleting" : string.Empty)" @key="evt.Id">
                     <div class="event-info">
                         <div class="event-title">@evt.Content</div>
                         <div class="event-time">
-                            @evt.StartTime.ToString("yyyy-MM-dd HH:mm") - @evt.EndTime.ToString("HH:mm")
+                            @FormatEventTimeRange(evt.StartTime, evt.EndTime)
                         </div>
                         @if (!string.IsNullOrEmpty(evt.Note))
                         {
@@ -56,8 +58,26 @@
                         }
                     </div>
                     <div class="event-actions">
-                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditEvent(evt)">@L["Edit"]</button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteEvent(evt.Id)">@L["Delete"]</button>
+                        <button class="icon-btn edit-btn" title="@L["Edit"]" @onclick="() => EditEvent(evt)">
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M4 20h4l10-10a2.12 2.12 0 0 0-3-3L5 17v3zM14 7l3 3" />
+                            </svg>
+                        </button>
+                        <button class="icon-btn delete-btn @(isConfirmingDelete ? "confirm" : string.Empty)"
+                                title="@(isConfirmingDelete ? L["ConfirmDelete"] : L["Delete"])"
+                                @onclick="() => OnDeleteClickAsync(evt.Id)"
+                                disabled="@isDeleting">
+                            @if (isConfirmingDelete)
+                            {
+                                <span class="delete-confirm-mark">?</span>
+                            }
+                            else
+                            {
+                                <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M9 3.5a1 1 0 0 0-1 1V6H5a1 1 0 1 0 0 2h.56l.9 10.2A2 2 0 0 0 8.45 20h7.1a2 2 0 0 0 1.99-1.8l.9-10.2H19a1 1 0 1 0 0-2h-3V4.5a1 1 0 0 0-1-1H9Zm2 2h2V6h-2V5.5ZM8.46 8h7.08l-.88 10H9.34L8.46 8Zm2.04 1.5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Zm3 0a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-5a1 1 0 0 0-1-1Z" />
+                                </svg>
+                            }
+                        </button>
                     </div>
                 </div>
             }
@@ -83,6 +103,9 @@
     private DateTime editingStartTime = DateTime.Now;
     private DateTime editingEndTime = DateTime.Now.AddHours(1);
     private string editingNote = string.Empty;
+    private long? _pendingDeleteId;
+    private readonly HashSet<long> _deletingEventIds = [];
+    private const int DeleteFadeOutDurationMs = 220;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -93,6 +116,8 @@
     {
         var result = await ReQuantumService.GetEventsByDateAsync(new GetEventsByDateRequest(SelectedDate));
         events = result.IsSuccess ? result.Value!.Events : [];
+        _pendingDeleteId = null;
+        _deletingEventIds.Clear();
     }
 
     private void ShowAddEventDialog()
@@ -153,10 +178,38 @@
         await OnChanged.InvokeAsync();
     }
 
-    private async Task DeleteEvent(long id)
+    private async Task OnDeleteClickAsync(long id)
+    {
+        if (_deletingEventIds.Contains(id))
+        {
+            return;
+        }
+
+        if (_pendingDeleteId != id)
+        {
+            _pendingDeleteId = id;
+            return;
+        }
+
+        _pendingDeleteId = null;
+        _deletingEventIds.Add(id);
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(DeleteFadeOutDurationMs);
+        await DeleteEventAsync(id);
+        _deletingEventIds.Remove(id);
+    }
+
+    private async Task DeleteEventAsync(long id)
     {
         await ReQuantumService.RemoveEventAsync(new RemoveEventRequest(id));
         await LoadEventsAsync();
         await OnChanged.InvokeAsync();
+    }
+
+    private static string FormatEventTimeRange(DateTime startTime, DateTime endTime)
+    {
+        return startTime.Date == endTime.Date
+            ? $"{startTime:yyyy-MM-dd HH:mm} - {endTime:HH:mm}"
+            : $"{startTime:yyyy-MM-dd HH:mm} - {endTime:yyyy-MM-dd HH:mm}";
     }
 }
