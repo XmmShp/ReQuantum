@@ -4,6 +4,7 @@ using NOF.Contract;
 using ReQuantum.Application.Models.CoursesZju;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.CoursesZju;
@@ -11,19 +12,19 @@ namespace ReQuantum.Application.Services.CoursesZju;
 [AutoInject(Lifetime.Singleton)]
 public class CoursesZjuService : ICoursesZjuService
 {
-    private readonly IZjuSsoService _zjuSsoService;
+    private readonly IZjuContext _zjuContext;
     private readonly IStorage _storage;
     private readonly ILogger<CoursesZjuService> _logger;
     private CoursesZjuState? _state;
     private const string StateKey = "CoursesZju:State";
     private const string TodoApi = "https://courses.zju.edu.cn/api/todos?no-intercept=true";
 
-    public CoursesZjuService(IZjuSsoService zjuSsoService, IStorage storage, ILogger<CoursesZjuService> logger)
+    public CoursesZjuService(IZjuContext zjuContext, IStorage storage, ILogger<CoursesZjuService> logger)
     {
-        _zjuSsoService = zjuSsoService;
+        _zjuContext = zjuContext;
         _storage = storage;
         _logger = logger;
-        _zjuSsoService.OnLogout += () => _state = null;
+        _zjuContext.OnLogout += () => _state = null;
     }
 
     public async Task<Result<HashSet<CoursesZjuTodoDto>>> GetTodoListAsync()
@@ -60,24 +61,34 @@ public class CoursesZjuService : ICoursesZjuService
         }
     }
 
-    private async Task<Result<RequestClient>> GetAuthenticatedClient()
+    private async Task<Result<HttpClient>> GetAuthenticatedClient()
     {
         await LoadStateAsync();
 
         if (_state is not null)
         {
-            return RequestClient.Create(new RequestOptions { Cookies = [_state.Session] });
+            return HttpClientUtilities.Create(new RequestOptions { Cookies = [_state.Session] });
         }
 
-        var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess)
+        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        if (!authResult.IsSuccess)
         {
-            return Result.Fail("400", clientResult.Message);
+            return Result.Fail("400", authResult.Message);
         }
 
-        var client = clientResult.Value!;
-        await client.GetAsync(TodoApi);
-        var session = client.CookieContainer.GetAllCookies().FirstOrDefault(cookie => cookie.Name == "session");
+        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
+        {
+            return Result.Fail("400", "未登录");
+        }
+
+        var cookies = new List<Cookie> { _zjuContext.SessionCookie };
+        using var client = HttpClientUtilities.Create(new RequestOptions
+        {
+            AllowRedirects = false,
+            Cookies = [_zjuContext.SessionCookie]
+        });
+        using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, TodoApi, cookies);
+        var session = cookies.FirstOrDefault(cookie => cookie.Name == "session");
         if (session is null)
         {
             return Result.Fail("400", "无法获取Cookie");
@@ -85,7 +96,7 @@ public class CoursesZjuService : ICoursesZjuService
 
         _state = new CoursesZjuState(session);
         await SaveStateAsync();
-        return client;
+        return HttpClientUtilities.Create(new RequestOptions { Cookies = [session] });
     }
 
     private async ValueTask LoadStateAsync()

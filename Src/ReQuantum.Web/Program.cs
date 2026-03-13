@@ -14,10 +14,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
-builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();
-builder.Services.AddSingleton<IZjuSsoService, ZjuSsoService>();
+builder.Services.AddSingleton<WebZjuContext>();
+builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
+builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
-builder.Services.AddSingleton<IPtaBrowserAuthService, PtaBrowserAuthService>();
+builder.Services.AddSingleton<IPtaBrowserAuthService, WebPtaBrowserAuthService>();
 builder.Services.AddSingleton<IPtaProblemSetService, PtaProblemSetService>();
 builder.Services.AddSingleton<IPtaCalendarConvertService, PtaCalendarConvertService>();
 builder.Services.AddSingleton<IAcademicCalendarService, AcademicCalendarService>();

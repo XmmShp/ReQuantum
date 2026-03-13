@@ -1,7 +1,5 @@
-using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Pta;
-using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -9,18 +7,15 @@ using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Pta;
 
-[AutoInject(Lifetime.Singleton)]
-public class PtaBrowserAuthService : IPtaBrowserAuthService
+public abstract class PtaBrowserAuthService : IPtaBrowserAuthService
 {
     private readonly IStorage _storage;
-    private readonly IBrowserLoginProvider _browserLoginProvider;
     private PtaState? _state;
     private const string StateKey = "Pta:State";
 
-    public PtaBrowserAuthService(IStorage storage, IBrowserLoginProvider browserLoginProvider)
+    protected PtaBrowserAuthService(IStorage storage)
     {
         _storage = storage;
-        _browserLoginProvider = browserLoginProvider;
     }
 
     [MemberNotNullWhen(true, nameof(_state))]
@@ -31,7 +26,7 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
     public event Action? OnLogin;
     public event Action? OnLogout;
 
-    public async Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
+    public async Task<Result<HttpClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
         await LoadStateAsync();
 
@@ -57,37 +52,10 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
             requestOptions.Headers["Accept"] = "application/json, text/plain, */*";
         }
 
-        return RequestClient.Create(requestOptions);
+        return HttpClientUtilities.Create(requestOptions);
     }
 
-    public async Task<Result> OpenBrowserAndWaitForLoginAsync(Action<string>? progressCallback = null, int timeoutSeconds = 300)
-    {
-        try
-        {
-            progressCallback?.Invoke("正在初始化浏览器环境...");
-
-            var loginResult = await _browserLoginProvider.OpenBrowserAndWaitForCookieAsync(
-                "https://pintia.cn/auth/login", "PTASession", progressCallback, timeoutSeconds);
-            if (!loginResult.IsSuccess)
-            {
-                return Result.Fail("400", $"浏览器登录失败: {loginResult.Message}");
-            }
-
-            var result = loginResult.Value!;
-
-            progressCallback?.Invoke("正在获取用户信息...");
-            var userInfoResult = await GetUserInfoAsync(result.CookieValue);
-            var username = userInfoResult.IsSuccess ? userInfoResult.Value! : "PTA用户";
-
-            progressCallback?.Invoke($"登录成功！欢迎 {username}");
-            LoginWithSession(username, result.CookieValue);
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
-        }
-    }
+    public abstract Task<Result> OpenBrowserAndWaitForLoginAsync(CancellationToken cancellationToken = default);
 
     public Result LoginWithSession(string email, string ptaSessionValue)
     {
@@ -123,8 +91,10 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
 
         try
         {
-            using var client = RequestClient.Create(new RequestOptions { Cookies = [_state.PTASessionCookie] });
-            var response = await client.GetAsync("https://pintia.cn/api/users/profile");
+            using var client = HttpClientUtilities.Create();
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://pintia.cn/api/users/profile");
+            HttpClientUtilities.ApplyCookies(request, [_state.PTASessionCookie]);
+            var response = await client.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
         catch { return false; }
@@ -148,11 +118,11 @@ public class PtaBrowserAuthService : IPtaBrowserAuthService
         return Result.Fail("400", "Session 已过期，请重新登录");
     }
 
-    private static async Task<Result<string>> GetUserInfoAsync(string ptaSessionValue)
+    protected static async Task<Result<string>> GetUserInfoAsync(string ptaSessionValue)
     {
         try
         {
-            using var client = new HttpClient();
+            using var client = HttpClientUtilities.Create();
             var request = new HttpRequestMessage(HttpMethod.Get, "https://passport.pintia.cn/api/u/current");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Cookie", $"PTASession={ptaSessionValue}");

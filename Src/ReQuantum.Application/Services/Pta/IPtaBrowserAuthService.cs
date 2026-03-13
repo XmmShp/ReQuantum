@@ -11,9 +11,9 @@ public interface IPtaBrowserAuthService
 
     string? Email { get; }
 
-    Task<Result<RequestClient>> GetAuthenticatedClientAsync(RequestOptions? options = null);
+    Task<Result<HttpClient>> GetAuthenticatedClientAsync(RequestOptions? options = null);
 
-    Task<Result> OpenBrowserAndWaitForLoginAsync(Action<string>? progressCallback = null, int timeoutSeconds = 300);
+    Task<Result> OpenBrowserAndWaitForLoginAsync(CancellationToken cancellationToken = default);
 
     Result LoginWithSession(string email, string ptaSessionValue);
     void Logout();

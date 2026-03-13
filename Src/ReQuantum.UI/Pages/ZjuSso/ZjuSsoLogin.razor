@@ -2,7 +2,7 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Shared.Resources.Localization
 @using ReQuantum.Application.Services.ZjuSso
-@inject IZjuSsoService SsoService
+@inject IMutableZjuContext SsoService
 @inject IStringLocalizer<ZjuSsoStrings> L
 
 <PageTitle>@L["ZjuSso"]</PageTitle>
@@ -79,6 +79,7 @@
     private string _manualCookieValue = string.Empty;
     private string _manualUserId = string.Empty;
     private readonly List<string> _progressMessages = new();
+    private CancellationTokenSource? _loginCancellationTokenSource;
 
     protected override void OnInitialized()
     {
@@ -97,11 +98,11 @@
         _progressMessages.Clear();
         StateHasChanged();
 
-        var result = await SsoService.OpenBrowserAndWaitForLoginAsync(msg =>
-        {
-            _progressMessages.Add(msg);
-            InvokeAsync(StateHasChanged);
-        });
+        _loginCancellationTokenSource?.Cancel();
+        _loginCancellationTokenSource?.Dispose();
+        _loginCancellationTokenSource = new CancellationTokenSource();
+
+        var result = await SsoService.AcquireSessionAsync(_loginCancellationTokenSource.Token);
 
         if (!result.IsSuccess)
         {
@@ -115,7 +116,7 @@
     private void HandleManualLogin()
     {
         var userId = string.IsNullOrWhiteSpace(_manualUserId) ? "ZJU用户" : _manualUserId;
-        var result = SsoService.LoginWithSession(userId, _manualCookieValue);
+        var result = SsoService.Set(userId, _manualCookieValue);
 
         _progressMessages.Clear();
         _progressMessages.Add($" {result.Message}");
@@ -126,6 +127,7 @@
 
     private void HandleLogout()
     {
+        _loginCancellationTokenSource?.Cancel();
         SsoService.Logout();
         _progressMessages.Clear();
     }

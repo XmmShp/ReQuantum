@@ -100,6 +100,7 @@ else if (!_isLoading && _problemSets is not null)
     private string? _loginMessage;
     private string _manualEmail = "";
     private string _manualCookie = "";
+    private CancellationTokenSource? _loginCancellationTokenSource;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,8 +116,11 @@ else if (!_isLoading && _problemSets is not null)
         _loginMessage = "正在打开浏览器...";
         StateHasChanged();
 
-        var result = await PtaAuthService.OpenBrowserAndWaitForLoginAsync(
-            msg => { _loginMessage = msg; InvokeAsync(StateHasChanged); });
+        _loginCancellationTokenSource?.Cancel();
+        _loginCancellationTokenSource?.Dispose();
+        _loginCancellationTokenSource = new CancellationTokenSource();
+
+        var result = await PtaAuthService.OpenBrowserAndWaitForLoginAsync(_loginCancellationTokenSource.Token);
 
         _isLoginLoading = false;
         _loginMessage = result.IsSuccess ? null : result.Message?.ToString();
@@ -145,6 +149,7 @@ else if (!_isLoading && _problemSets is not null)
 
     private void Logout()
     {
+        _loginCancellationTokenSource?.Cancel();
         PtaAuthService.Logout();
         _problemSets = null;
     }

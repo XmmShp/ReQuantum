@@ -26,7 +26,7 @@ public class EFCoreStorage : IStorage
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
-        var existing = await dbContext.StorageEntries.FindAsync(key, cancellationToken);
+        var existing = await dbContext.StorageEntries.FindAsync([key], cancellationToken);
         if (existing is null)
         {
             dbContext.StorageEntries.Add(new StorageEntry { Key = key, Value = value });
@@ -51,7 +51,7 @@ public class EFCoreStorage : IStorage
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
-        var entry = await dbContext.StorageEntries.FindAsync(key, cancellationToken);
+        var entry = await dbContext.StorageEntries.FindAsync([key], cancellationToken);
         if (entry is not null)
         {
             dbContext.StorageEntries.Remove(entry);

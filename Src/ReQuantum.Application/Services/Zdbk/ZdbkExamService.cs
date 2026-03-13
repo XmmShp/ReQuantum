@@ -5,6 +5,7 @@ using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Parsers;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
@@ -12,7 +13,7 @@ namespace ReQuantum.Application.Services.Zdbk;
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkExamService : IZdbkExamService
 {
-    private readonly IZjuSsoService _zjuSsoService;
+    private readonly IZjuContext _zjuContext;
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkExamService> _logger;
 
@@ -22,18 +23,18 @@ public class ZdbkExamService : IZdbkExamService
     private const string SsoRedirectUrl = "/jwglxt/xtgl/login_ssologin.html";
 
     public ZdbkExamService(
-        IZjuSsoService zjuSsoService,
+        IZjuContext zjuContext,
         IAcademicCalendarService calendarService,
         ILogger<ZdbkExamService> logger)
     {
-        _zjuSsoService = zjuSsoService;
+        _zjuContext = zjuContext;
         _calendarService = calendarService;
         _logger = logger;
     }
 
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
-        if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
+        if (!_zjuContext.IsAuthenticated || string.IsNullOrEmpty(_zjuContext.Id))
         {
             return Result.Fail("400", "未登录或无学号");
         }
@@ -47,7 +48,7 @@ public class ZdbkExamService : IZdbkExamService
         try
         {
             var client = clientResult.Value!;
-            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuSsoService.Id}";
+            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuContext.Id}";
 
             var formData = new Dictionary<string, string>
             {
@@ -141,25 +142,34 @@ public class ZdbkExamService : IZdbkExamService
         return result;
     }
 
-    private async Task<Result<RequestClient>> GetAuthenticatedClientAsync()
+    private async Task<Result<HttpClient>> GetAuthenticatedClientAsync()
     {
-        var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess)
+        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        if (!authResult.IsSuccess)
         {
-            return Result.Fail("500", clientResult.Message);
+            return Result.Fail("500", authResult.Message);
+        }
+
+        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
+        {
+            return Result.Fail("500", "未登录");
         }
 
         try
         {
-            var client = clientResult.Value!;
+            var cookies = new List<Cookie> { _zjuContext.SessionCookie };
+            using var client = HttpClientUtilities.Create(new RequestOptions
+            {
+                AllowRedirects = false,
+                Cookies = [_zjuContext.SessionCookie]
+            });
             var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            await client.GetAsync(ssoUrl);
+            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, ssoUrl, cookies);
 
-            var allCookies = client.CookieContainer.GetAllCookies();
-            var sessionCookie = allCookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
-            var route = allCookies.Last(ck => ck is { Name: "route" });
+            var sessionCookie = cookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
+            var route = cookies.Last(ck => ck is { Name: "route" });
 
-            return RequestClient.Create(new RequestOptions { Cookies = [sessionCookie, route] });
+            return HttpClientUtilities.Create(new RequestOptions { Cookies = [sessionCookie, route] });
         }
         catch (Exception ex)
         {

@@ -4,6 +4,7 @@ using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace ReQuantum.Application.Services.Zdbk;
@@ -11,7 +12,7 @@ namespace ReQuantum.Application.Services.Zdbk;
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
-    private readonly IZjuSsoService _zjuSsoService;
+    private readonly IZjuContext _zjuContext;
     private readonly IAcademicCalendarService _calendarService;
     private readonly IStorage _storage;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
@@ -24,16 +25,16 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
     private const string CourseScheduleApiBase = "https://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html";
 
     public ZdbkSectionScheduleService(
-        IZjuSsoService zjuSsoService,
+        IZjuContext zjuContext,
         IAcademicCalendarService calendarService,
         IStorage storage,
         ILogger<ZdbkSectionScheduleService> logger)
     {
-        _zjuSsoService = zjuSsoService;
+        _zjuContext = zjuContext;
         _calendarService = calendarService;
         _storage = storage;
         _logger = logger;
-        _zjuSsoService.OnLogout += () => _state = null;
+        _zjuContext.OnLogout += () => _state = null;
         LoadState();
     }
 
@@ -119,7 +120,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
 
         var client = clientResult.Value!;
-        if (!_zjuSsoService.IsAuthenticated || string.IsNullOrEmpty(_zjuSsoService.Id))
+        if (!_zjuContext.IsAuthenticated || string.IsNullOrEmpty(_zjuContext.Id))
         {
             return Result.Fail("400", "未找到学号");
         }
@@ -127,7 +128,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         try
         {
             var semesterCode = MapSemesterToCode(semester);
-            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={_zjuSsoService.Id}";
+            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={_zjuContext.Id}";
             var formData = new Dictionary<string, string>
             {
                 { "xnm", academicYear },
@@ -157,27 +158,36 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
     }
 
-    private async Task<Result<RequestClient>> GetAuthenticatedClient()
+    private async Task<Result<HttpClient>> GetAuthenticatedClient()
     {
-        var clientResult = await _zjuSsoService.GetAuthenticatedClientAsync(new RequestOptions { AllowRedirects = true });
-        if (!clientResult.IsSuccess)
+        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        if (!authResult.IsSuccess)
         {
-            return Result.Fail("500", clientResult.Message);
+            return Result.Fail("500", authResult.Message);
+        }
+
+        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
+        {
+            return Result.Fail("500", "未登录");
         }
 
         try
         {
-            var client = clientResult.Value!;
+            var cookies = new List<Cookie> { _zjuContext.SessionCookie };
+            using var client = HttpClientUtilities.Create(new RequestOptions
+            {
+                AllowRedirects = false,
+                Cookies = [_zjuContext.SessionCookie]
+            });
             var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            await client.GetAsync(ssoUrl);
+            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, ssoUrl, cookies);
 
-            var allCookies = client.CookieContainer.GetAllCookies();
-            var sessionCookie = allCookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
-            var route = allCookies.Last(ck => ck is { Name: "route" });
+            var sessionCookie = cookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
+            var route = cookies.Last(ck => ck is { Name: "route" });
 
             _state = new ZdbkState(sessionCookie, route);
             SaveState();
-            return RequestClient.Create(new RequestOptions { Cookies = [sessionCookie, route] });
+            return HttpClientUtilities.Create(new RequestOptions { Cookies = [sessionCookie, route] });
         }
         catch (Exception ex)
         {
