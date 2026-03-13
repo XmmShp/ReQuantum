@@ -14,7 +14,7 @@
         </button>
     </div>
 
-    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit">
+    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddTodo"])" OnClose="CancelEdit" CloseOnBackdropClick="false">
         <ChildContent>
             <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <input class="form-control mb-2"
@@ -36,7 +36,7 @@
         {
             @foreach (var todo in _todos)
             {
-                var isConfirmingDelete = _pendingDeleteId == todo.Id;
+                var isConfirmingDelete = PendingDeleteId == todo.Id;
                 var isDeleting = _deletingTodoIds.Contains(todo.Id);
                 <div class="todo-item @(todo.IsCompleted ? "completed" : "") @(isDeleting ? "deleting" : string.Empty)" @key="todo.Id">
                     <input type="checkbox" 
@@ -83,6 +83,12 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
+    [Parameter]
+    public long? PendingDeleteId { get; set; }
+
+    [Parameter]
+    public EventCallback<long?> PendingDeleteIdChanged { get; set; }
+
     private List<CalendarTodo> _todos = new();
     private bool _isEditing;
     private long? _editingId;
@@ -91,20 +97,23 @@
     private string? _formMessage;
     private string _formMessageVariant = "info";
     private bool _pastCreateWarningAcknowledged;
-    private long? _pendingDeleteId;
+    private DateOnly? _loadedDate;
     private readonly HashSet<long> _deletingTodoIds = [];
     private const int DeleteFadeOutDurationMs = 220;
 
     protected override async Task OnParametersSetAsync()
     {
-        await LoadTodosAsync();
+        if (_loadedDate != SelectedDate)
+        {
+            _loadedDate = SelectedDate;
+            await LoadTodosAsync();
+        }
     }
 
     private async Task LoadTodosAsync()
     {
         var result = await ReQuantumService.GetTodosByDateAsync(new GetTodosByDateRequest(SelectedDate));
         _todos = result.IsSuccess ? result.Value!.Todos : [];
-        _pendingDeleteId = null;
         _deletingTodoIds.Clear();
     }
 
@@ -183,13 +192,13 @@
             return;
         }
 
-        if (_pendingDeleteId != id)
+        if (PendingDeleteId != id)
         {
-            _pendingDeleteId = id;
+            await PendingDeleteIdChanged.InvokeAsync(id);
             return;
         }
 
-        _pendingDeleteId = null;
+        await PendingDeleteIdChanged.InvokeAsync(null);
         _deletingTodoIds.Add(id);
         await InvokeAsync(StateHasChanged);
         await Task.Delay(DeleteFadeOutDurationMs);

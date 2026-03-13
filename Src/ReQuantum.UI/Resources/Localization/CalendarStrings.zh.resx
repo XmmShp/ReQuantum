@@ -41,7 +41,7 @@
   <data name="Sat" xml:space="preserve"><value>六</value></data>
   <data name="EventsCount" xml:space="preserve"><value>{0} 个日程</value></data>
   <data name="TodosCount" xml:space="preserve"><value>{0} 个待办</value></data>
-  <data name="EventList" xml:space="preserve"><value>日程列表</value></data>
+  <data name="EventList" xml:space="preserve"><value>日程</value></data>
   <data name="AddEvent" xml:space="preserve"><value>+ 添加日程</value></data>
   <data name="Source" xml:space="preserve"><value>来源: {0}</value></data>
   <data name="Edit" xml:space="preserve"><value>编辑</value></data>
@@ -49,7 +49,7 @@
   <data name="ConfirmDelete" xml:space="preserve"><value>再次点击确认删除</value></data>
   <data name="NoEvents" xml:space="preserve"><value>暂无日程</value></data>
   <data name="RemainingEvents" xml:space="preserve"><value>还剩 {0} 个</value></data>
-  <data name="TodoList" xml:space="preserve"><value>待办事项</value></data>
+  <data name="TodoList" xml:space="preserve"><value>待办</value></data>
   <data name="AddTodo" xml:space="preserve"><value>+ 添加待办</value></data>
   <data name="DueTime" xml:space="preserve"><value>截止: {0}</value></data>
   <data name="NoTodos" xml:space="preserve"><value>暂无待办事项</value></data>
@@ -67,6 +67,7 @@
   <data name="ValidationRequiredTitle" xml:space="preserve"><value>标题不能为空。</value></data>
   <data name="ValidationInvalidEventTimeRange" xml:space="preserve"><value>结束时间必须晚于开始时间。</value></data>
   <data name="ValidationRequiredTodoContent" xml:space="preserve"><value>待办内容不能为空。</value></data>
+  <data name="ValidationRequiredNoteContent" xml:space="preserve"><value>便签内容不能为空。</value></data>
   <data name="WarningCreatingPastEvent" xml:space="preserve"><value>请注意，你正在过去的时间创建一个事项。再次点击保存以继续。</value></data>
   <data name="WarningCreatingPastTodo" xml:space="preserve"><value>请注意，你正在过去的时间创建一个待办。再次点击保存以继续。</value></data>
   <data name="DateFormatYearMonth" xml:space="preserve"><value>{0:yyyy年MM月}</value></data>

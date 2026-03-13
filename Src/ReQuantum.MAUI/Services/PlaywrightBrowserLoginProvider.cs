@@ -62,7 +62,7 @@ public class PlaywrightBrowserLoginProvider : IBrowserLoginProvider
                 }
 
                 var cookies = await _page.Context.CookiesAsync();
-                var target = cookies?.FirstOrDefault(c => c.Name.Equals(targetCookieName, StringComparison.OrdinalIgnoreCase));
+                var target = cookies.FirstOrDefault(c => c.Name.Equals(targetCookieName, StringComparison.OrdinalIgnoreCase));
 
                 if (target is not null && !string.IsNullOrWhiteSpace(target.Value))
                 {

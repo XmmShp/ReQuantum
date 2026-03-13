@@ -14,8 +14,9 @@
         </button>
     </div>
 
-    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit">
+    <Modal Visible="_isEditing" Title="@(_editingId.HasValue ? L["Edit"] : L["AddNote"])" OnClose="CancelEdit" CloseOnBackdropClick="false">
         <ChildContent>
+            <Message Text="@_formMessage" Variant="@_formMessageVariant" />
             <textarea class="form-control"
                       rows="4"
                       @bind="_editingContent"
@@ -32,7 +33,7 @@
         {
             @foreach (var note in _notes)
             {
-                var isConfirmingDelete = _pendingDeleteId == note.Id;
+                var isConfirmingDelete = PendingDeleteId == note.Id;
                 var isDeleting = _deletingNoteIds.Contains(note.Id);
                 <div class="note-item @(isDeleting ? "deleting" : string.Empty)" @key="note.Id">
                     <div class="note-info">
@@ -73,11 +74,18 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
+    [Parameter]
+    public long? PendingDeleteId { get; set; }
+
+    [Parameter]
+    public EventCallback<long?> PendingDeleteIdChanged { get; set; }
+
     private List<CalendarNote> _notes = [];
     private bool _isEditing;
     private long? _editingId;
     private string _editingContent = string.Empty;
-    private long? _pendingDeleteId;
+    private string? _formMessage;
+    private string _formMessageVariant = "info";
     private readonly HashSet<long> _deletingNoteIds = [];
     private const int DeleteFadeOutDurationMs = 220;
 
@@ -90,7 +98,6 @@
     {
         var result = await ReQuantumService.GetAllNotesAsync(new GetAllNotesRequest());
         _notes = result.IsSuccess ? result.Value!.Notes : [];
-        _pendingDeleteId = null;
         _deletingNoteIds.Clear();
     }
 
@@ -98,6 +105,7 @@
     {
         _editingId = null;
         _editingContent = string.Empty;
+        ClearFormMessage();
         _isEditing = true;
     }
 
@@ -105,6 +113,7 @@
     {
         _editingId = note.Id;
         _editingContent = note.Content;
+        ClearFormMessage();
         _isEditing = true;
     }
 
@@ -113,13 +122,16 @@
         _isEditing = false;
         _editingId = null;
         _editingContent = string.Empty;
+        ClearFormMessage();
     }
 
     private async Task SaveNoteAsync()
     {
+        ClearFormMessage();
         var content = _editingContent.Trim();
         if (string.IsNullOrWhiteSpace(content))
         {
+            SetFormMessage(L["ValidationRequiredNoteContent"], "error");
             return;
         }
 
@@ -144,13 +156,13 @@
             return;
         }
 
-        if (_pendingDeleteId != id)
+        if (PendingDeleteId != id)
         {
-            _pendingDeleteId = id;
+            await PendingDeleteIdChanged.InvokeAsync(id);
             return;
         }
 
-        _pendingDeleteId = null;
+        await PendingDeleteIdChanged.InvokeAsync(null);
         _deletingNoteIds.Add(id);
         await InvokeAsync(StateHasChanged);
         await Task.Delay(DeleteFadeOutDurationMs);
@@ -163,5 +175,17 @@
         await ReQuantumService.RemoveNoteAsync(new RemoveNoteRequest(id));
         await LoadNotesAsync();
         await OnChanged.InvokeAsync();
+    }
+
+    private void SetFormMessage(string text, string variant)
+    {
+        _formMessage = text;
+        _formMessageVariant = variant;
+    }
+
+    private void ClearFormMessage()
+    {
+        _formMessage = null;
+        _formMessageVariant = "info";
     }
 }

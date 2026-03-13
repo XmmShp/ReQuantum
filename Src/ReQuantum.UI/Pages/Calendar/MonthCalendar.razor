@@ -150,9 +150,17 @@
 
         <div class="selected-day-panels">
             <div class="selected-date-badge">@SelectedDate.ToString("yyyy-MM-dd")</div>
-            <EventList SelectedDate="SelectedDate" OnChanged="RefreshCalendarDataAsync" />
-            <TodoList SelectedDate="SelectedDate" OnChanged="RefreshCalendarDataAsync" />
-            <NoteList OnChanged="RefreshCalendarDataAsync" />
+            <EventList SelectedDate="SelectedDate"
+                       OnChanged="RefreshCalendarDataAsync"
+                       PendingDeleteId="_pendingDeleteEventId"
+                       PendingDeleteIdChanged="SetPendingDeleteEventIdAsync" />
+            <TodoList SelectedDate="SelectedDate"
+                      OnChanged="RefreshCalendarDataAsync"
+                      PendingDeleteId="_pendingDeleteTodoId"
+                      PendingDeleteIdChanged="SetPendingDeleteTodoIdAsync" />
+            <NoteList OnChanged="RefreshCalendarDataAsync"
+                      PendingDeleteId="_pendingDeleteNoteId"
+                      PendingDeleteIdChanged="SetPendingDeleteNoteIdAsync" />
         </div>
     </div>
 </div>
@@ -168,6 +176,9 @@
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
     private DateTime _currentMonth = DateTime.Today;
+    private long? _pendingDeleteEventId;
+    private long? _pendingDeleteTodoId;
+    private long? _pendingDeleteNoteId;
     private DateOnly _firstDayOfMonth;
     private DateOnly _lastDayOfMonth;
     private readonly List<DateOnly> _calendarDays = [];
@@ -237,6 +248,7 @@
 
     private async Task SelectDay(DateOnly day)
     {
+        ClearPendingDeleteIds();
         SelectedDate = day;
 
         if (day.Month == _currentMonth.Month && day.Year == _currentMonth.Year)
@@ -332,5 +344,48 @@
         await LoadMonthDataAsync();
         await EnsureDayDataLoadedAsync(SelectedDate);
         await InvokeAsync(StateHasChanged);
+    }
+
+    private Task SetPendingDeleteEventIdAsync(long? id)
+    {
+        _pendingDeleteEventId = id;
+        if (id.HasValue)
+        {
+            _pendingDeleteTodoId = null;
+            _pendingDeleteNoteId = null;
+        }
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task SetPendingDeleteTodoIdAsync(long? id)
+    {
+        _pendingDeleteTodoId = id;
+        if (id.HasValue)
+        {
+            _pendingDeleteEventId = null;
+            _pendingDeleteNoteId = null;
+        }
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task SetPendingDeleteNoteIdAsync(long? id)
+    {
+        _pendingDeleteNoteId = id;
+        if (id.HasValue)
+        {
+            _pendingDeleteEventId = null;
+            _pendingDeleteTodoId = null;
+        }
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private void ClearPendingDeleteIds()
+    {
+        _pendingDeleteEventId = null;
+        _pendingDeleteTodoId = null;
+        _pendingDeleteNoteId = null;
     }
 }

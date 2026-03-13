@@ -41,7 +41,7 @@
   <data name="Sat" xml:space="preserve"><value>Sat</value></data>
   <data name="EventsCount" xml:space="preserve"><value>{0} event(s)</value></data>
   <data name="TodosCount" xml:space="preserve"><value>{0} todo(s)</value></data>
-  <data name="EventList" xml:space="preserve"><value>Events</value></data>
+  <data name="EventList" xml:space="preserve"><value>Event</value></data>
   <data name="AddEvent" xml:space="preserve"><value>+ Add Event</value></data>
   <data name="Source" xml:space="preserve"><value>Source: {0}</value></data>
   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
@@ -49,11 +49,11 @@
   <data name="ConfirmDelete" xml:space="preserve"><value>Click again to delete</value></data>
   <data name="NoEvents" xml:space="preserve"><value>No events</value></data>
   <data name="RemainingEvents" xml:space="preserve"><value>{0} more</value></data>
-  <data name="TodoList" xml:space="preserve"><value>Todos</value></data>
+  <data name="TodoList" xml:space="preserve"><value>Todo</value></data>
   <data name="AddTodo" xml:space="preserve"><value>+ Add Todo</value></data>
   <data name="DueTime" xml:space="preserve"><value>Due: {0}</value></data>
   <data name="NoTodos" xml:space="preserve"><value>No todos</value></data>
-  <data name="NoteList" xml:space="preserve"><value>Notes</value></data>
+  <data name="NoteList" xml:space="preserve"><value>Note</value></data>
   <data name="AddNote" xml:space="preserve"><value>+ Add Note</value></data>
   <data name="CreatedAt" xml:space="preserve"><value>Created: {0}</value></data>
   <data name="NoNotes" xml:space="preserve"><value>No notes</value></data>
@@ -67,6 +67,7 @@
   <data name="ValidationRequiredTitle" xml:space="preserve"><value>Title cannot be empty.</value></data>
   <data name="ValidationInvalidEventTimeRange" xml:space="preserve"><value>End time must be later than start time.</value></data>
   <data name="ValidationRequiredTodoContent" xml:space="preserve"><value>Todo content cannot be empty.</value></data>
+  <data name="ValidationRequiredNoteContent" xml:space="preserve"><value>Note content cannot be empty.</value></data>
   <data name="WarningCreatingPastEvent" xml:space="preserve"><value>Please note: you are creating an event in the past. Click Save again to continue.</value></data>
   <data name="WarningCreatingPastTodo" xml:space="preserve"><value>Please note: you are creating a todo in the past. Click Save again to continue.</value></data>
   <data name="DateFormatYearMonth" xml:space="preserve"><value>{0:yyyy/MM}</value></data>
