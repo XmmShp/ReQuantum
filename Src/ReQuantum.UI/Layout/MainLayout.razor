@@ -1,6 +1,7 @@
 @inherits LayoutComponentBase
 @using System.Globalization
-@inject IJSRuntime JS
+@using ReQuantum.Shared.Services
+@inject IStorage Storage
 
 <div class="page">
     <div class="sidebar">
@@ -35,7 +36,7 @@
         _languageInitialized = true;
         try
         {
-            var persistedLanguage = await JS.InvokeAsync<string?>("localStorage.getItem", LanguageStorageKey);
+            var persistedLanguage = await Storage.GetAsync(LanguageStorageKey);
             if (string.IsNullOrWhiteSpace(persistedLanguage) || !SupportedLanguages.Contains(persistedLanguage))
             {
                 return;
@@ -52,6 +53,9 @@
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
             StateHasChanged();
+        }
+        catch (KeyNotFoundException)
+        {
         }
         catch
         {

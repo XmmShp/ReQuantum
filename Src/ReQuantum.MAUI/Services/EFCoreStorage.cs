@@ -1,47 +1,61 @@
 using Microsoft.EntityFrameworkCore;
+using NOF.Annotation;
 using ReQuantum.MAUI.Persistence;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Infrastructure.Services;
 
+[AutoInject(Lifetime.Singleton)]
 public class EFCoreStorage : IStorage
 {
-    private readonly ReQuantumMauiDbContext _dbContext;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public EFCoreStorage(ReQuantumMauiDbContext dbContext)
+    public EFCoreStorage(IServiceScopeFactory serviceScopeFactory)
     {
-        _dbContext = dbContext;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     public async ValueTask<bool> ContainsAsync(string key, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.StorageEntries.AnyAsync(e => e.Key == key, cancellationToken: cancellationToken);
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
+        return await dbContext.StorageEntries.AnyAsync(e => e.Key == key, cancellationToken: cancellationToken);
     }
 
     public async ValueTask SetAsync(string key, string value, CancellationToken cancellationToken = default)
     {
-        var existing = await _dbContext.StorageEntries.FindAsync([key], cancellationToken);
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
+        var existing = await dbContext.StorageEntries.FindAsync(key, cancellationToken);
         if (existing is null)
         {
-            _dbContext.StorageEntries.Add(new StorageEntry { Key = key, Value = value });
-            return;
+            dbContext.StorageEntries.Add(new StorageEntry { Key = key, Value = value });
+        }
+        else
+        {
+            existing.Value = value;
         }
 
-        existing.Value = value;
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async ValueTask<string> GetAsync(string key, CancellationToken cancellationToken = default)
     {
-        var entry = await _dbContext.StorageEntries.AsNoTracking().FirstOrDefaultAsync(e => e.Key == key, cancellationToken: cancellationToken);
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
+        var entry = await dbContext.StorageEntries.AsNoTracking().FirstOrDefaultAsync(e => e.Key == key, cancellationToken: cancellationToken);
         return entry?.Value ?? throw new KeyNotFoundException($"Key '{key}' not found");
     }
 
     public async ValueTask RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        var entry = await _dbContext.StorageEntries.FindAsync([key], cancellationToken);
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ReQuantumMauiDbContext>();
+        var entry = await dbContext.StorageEntries.FindAsync(key, cancellationToken);
         if (entry is not null)
         {
-            _dbContext.StorageEntries.Remove(entry);
+            dbContext.StorageEntries.Remove(entry);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

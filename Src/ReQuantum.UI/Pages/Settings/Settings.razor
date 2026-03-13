@@ -3,12 +3,13 @@
 @using Microsoft.Extensions.Localization
 @using ReQuantum.Application.Services.ZjuSso
 @using ReQuantum.Application.Services.Pta
+@using ReQuantum.Shared.Services
 @using ReQuantum.Shared.Resources.Localization
 @inject IZjuSsoService ZjuSsoService
 @inject IPtaBrowserAuthService PtaAuthService
 @inject IStringLocalizer<CalendarStrings> L
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
+@inject IStorage Storage
 
 <h3>@L["MenuSettings"]</h3>
 
@@ -79,7 +80,7 @@
     {
         try
         {
-            var persistedLanguage = await JS.InvokeAsync<string?>("localStorage.getItem", LanguageStorageKey);
+            var persistedLanguage = await Storage.GetAsync(LanguageStorageKey);
             if (!string.IsNullOrWhiteSpace(persistedLanguage) && SupportedLanguages.Contains(persistedLanguage))
             {
                 _selectedLanguage = persistedLanguage;
@@ -89,11 +90,20 @@
                 _selectedLanguage = "zh-CN";
             }
 
-            var persistedWeekStart = await JS.InvokeAsync<string?>("localStorage.getItem", WeekStartStorageKey);
+            var persistedWeekStart = await Storage.GetAsync(WeekStartStorageKey);
             if (!string.IsNullOrWhiteSpace(persistedWeekStart) && SupportedWeekStarts.Contains(persistedWeekStart))
             {
                 _selectedWeekStart = persistedWeekStart;
             }
+        }
+        catch (KeyNotFoundException)
+        {
+            if (!SupportedLanguages.Contains(_selectedLanguage))
+            {
+                _selectedLanguage = "zh-CN";
+            }
+
+            _selectedWeekStart = "sunday";
         }
         catch
         {
@@ -131,7 +141,7 @@
 
         try
         {
-            await JS.InvokeVoidAsync("localStorage.setItem", LanguageStorageKey, _selectedLanguage);
+            await Storage.SetAsync(LanguageStorageKey, _selectedLanguage);
         }
         catch
         {
@@ -149,7 +159,7 @@
 
         try
         {
-            await JS.InvokeVoidAsync("localStorage.setItem", WeekStartStorageKey, _selectedWeekStart);
+            await Storage.SetAsync(WeekStartStorageKey, _selectedWeekStart);
         }
         catch
         {

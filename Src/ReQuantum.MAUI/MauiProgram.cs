@@ -9,7 +9,6 @@ using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Contract;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.MAUI.Persistence;
-using ReQuantum.Shared.Services;
 
 namespace ReQuantum;
 
@@ -40,7 +39,6 @@ public static class MauiProgram
             .AutoMigrate()
             .UseSqlite();
 
-        builder.Services.AddSingleton<IStorage, EFCoreStorage>();
         builder.Services.AddSingleton<IBrowserLoginProvider, PlaywrightBrowserLoginProvider>();
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddLocalization();
