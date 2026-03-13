@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using NOF.Contract;
+using ReQuantum.Application.Models.ZjuSso;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using System.Text.Json;
@@ -52,8 +53,8 @@ public class WebZjuContext : ZjuContext
                 return Result.Fail("400", "登录已取消或未完成");
             }
 
-            var username = await TryGetUserNameAsync(page, cancellationToken);
-            return Set(username ?? "ZJU用户", cookieValue);
+            var loginInfo = await TryGetLoginInfoAsync(page, cancellationToken);
+            return Set(cookieValue, loginInfo);
         }
         catch (OperationCanceledException)
         {
@@ -65,7 +66,7 @@ public class WebZjuContext : ZjuContext
         }
     }
 
-    private static async Task<string?> TryGetUserNameAsync(IPage page, CancellationToken cancellationToken)
+    private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IPage page, CancellationToken cancellationToken)
     {
         try
         {
@@ -94,13 +95,24 @@ public class WebZjuContext : ZjuContext
                 return null;
             }
 
-            if (!data.TryGetProperty("userName", out var userNameElement))
+            var userName = data.TryGetProperty("userName", out var userNameElement)
+                ? userNameElement.GetString()
+                : null;
+            var loginName = data.TryGetProperty("loginName", out var loginNameElement)
+                ? loginNameElement.GetString()
+                : null;
+            var userId = data.TryGetProperty("userId", out var userIdElement)
+                ? userIdElement.ToString()
+                : null;
+
+            if (string.IsNullOrWhiteSpace(userName)
+                && string.IsNullOrWhiteSpace(loginName)
+                && string.IsNullOrWhiteSpace(userId))
             {
                 return null;
             }
 
-            var userName = userNameElement.GetString();
-            return string.IsNullOrWhiteSpace(userName) ? null : userName;
+            return new ZjuLoginInfo(userName, loginName, userId);
         }
         catch
         {

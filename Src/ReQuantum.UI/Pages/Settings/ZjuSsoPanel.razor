@@ -1,0 +1,154 @@
+@using Microsoft.Extensions.Localization
+@using ReQuantum.Application.Models.ZjuSso
+@using ReQuantum.Application.Services.ZjuSso
+@using ReQuantum.Shared.Resources.Localization
+@implements IDisposable
+@inject IMutableZjuContext SsoService
+@inject IStringLocalizer<ZjuSsoStrings> L
+
+<div>
+    @if (SsoService.IsAuthenticated)
+    {
+        <div class="auth-status authenticated">
+            <div class="status-info">
+                <p class="status-text">@L["LoggedInAs"]</p>
+                @if (SsoService.LoginInfo is not null)
+                {
+                    <p class="user-id">@($"{SsoService.LoginInfo.LoginName} · {SsoService.LoginInfo.UserName}")</p>
+                }
+            </div>
+            <button class="btn btn-outline-danger" @onclick="HandleLogout">@L["Logout"]</button>
+        </div>
+    }
+    else
+    {
+        <div class="auth-status not-authenticated mb-3">
+            <p class="status-text mb-0">@L["NotLoggedIn"]</p>
+        </div>
+
+        <div class="login-actions d-flex flex-column gap-3">
+            <button class="btn btn-primary align-self-start" @onclick="HandleBrowserLogin" disabled="@_isLoggingIn">
+                @if (_isLoggingIn)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    @(" ")
+                }
+                @L["BrowserLogin"]
+            </button>
+
+            @if (ShowAdvancedOptions)
+            {
+                <div class="manual-login">
+                    <h6>@L["ManualLogin"]</h6>
+                    <div class="form-group mb-2">
+                        <label>@L["CookieValue"]</label>
+                        <input type="text" class="form-control" @bind="_manualCookieValue" placeholder="@L["CookieValuePlaceholder"]" />
+                    </div>
+                    <div class="form-group mb-2">
+                        <label>@L["UserName"]</label>
+                        <input type="text" class="form-control" @bind="_manualUserName" placeholder="@L["UserNamePlaceholder"]" />
+                    </div>
+                    <div class="form-group mb-2">
+                        <label>@L["LoginName"]</label>
+                        <input type="text" class="form-control" @bind="_manualLoginName" placeholder="@L["LoginNamePlaceholder"]" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>@L["UserId"]</label>
+                        <input type="text" class="form-control" @bind="_manualUserId" placeholder="@L["UserIdPlaceholder"]" />
+                    </div>
+                    <button class="btn btn-secondary" @onclick="HandleManualLogin" disabled="@(string.IsNullOrWhiteSpace(_manualCookieValue) || string.IsNullOrWhiteSpace(_manualUserName) || string.IsNullOrWhiteSpace(_manualLoginName) || string.IsNullOrWhiteSpace(_manualUserId))">
+                        @L["Login"]
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    @if (_progressMessages.Count > 0)
+    {
+        <div class="progress-log mt-3">
+            <h6>@L["Progress"]</h6>
+            @foreach (var msg in _progressMessages)
+            {
+                <div class="progress-message">@msg</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public bool ShowAdvancedOptions { get; set; }
+
+    private bool _isLoggingIn;
+    private string _manualCookieValue = string.Empty;
+    private string _manualUserName = string.Empty;
+    private string _manualLoginName = string.Empty;
+    private string _manualUserId = string.Empty;
+    private readonly List<string> _progressMessages = new();
+    private CancellationTokenSource? _loginCancellationTokenSource;
+
+    protected override void OnInitialized()
+    {
+        SsoService.OnLogin += OnAuthStateChanged;
+        SsoService.OnLogout += OnAuthStateChanged;
+    }
+
+    public void Dispose()
+    {
+        SsoService.OnLogin -= OnAuthStateChanged;
+        SsoService.OnLogout -= OnAuthStateChanged;
+        _loginCancellationTokenSource?.Cancel();
+        _loginCancellationTokenSource?.Dispose();
+    }
+
+    private void OnAuthStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleBrowserLogin()
+    {
+        _isLoggingIn = true;
+        _progressMessages.Clear();
+        StateHasChanged();
+
+        _loginCancellationTokenSource?.Cancel();
+        _loginCancellationTokenSource?.Dispose();
+        _loginCancellationTokenSource = new CancellationTokenSource();
+
+        var result = await SsoService.AcquireSessionAsync(_loginCancellationTokenSource.Token);
+
+        if (!result.IsSuccess)
+        {
+            _progressMessages.Add($" {result.Message}");
+        }
+
+        _isLoggingIn = false;
+        StateHasChanged();
+    }
+
+    private void HandleManualLogin()
+    {
+        var loginInfo = new ZjuLoginInfo(
+            _manualUserName,
+            _manualLoginName,
+            _manualUserId);
+        var result = SsoService.Set(_manualCookieValue, loginInfo);
+
+        _progressMessages.Clear();
+        _progressMessages.Add($" {result.Message}");
+
+        _manualCookieValue = string.Empty;
+        _manualUserName = string.Empty;
+        _manualLoginName = string.Empty;
+        _manualUserId = string.Empty;
+    }
+
+    private void HandleLogout()
+    {
+        _loginCancellationTokenSource?.Cancel();
+        SsoService.Logout();
+        _progressMessages.Clear();
+    }
+}

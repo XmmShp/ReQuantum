@@ -34,7 +34,7 @@ public class ZdbkExamService : IZdbkExamService
 
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
-        if (!_zjuContext.IsAuthenticated || string.IsNullOrEmpty(_zjuContext.Id))
+        if (!_zjuContext.IsAuthenticated || _zjuContext.LoginInfo is null)
         {
             return Result.Fail("400", "未登录或无学号");
         }
@@ -48,7 +48,7 @@ public class ZdbkExamService : IZdbkExamService
         try
         {
             var client = clientResult.Value!;
-            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuContext.Id}";
+            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuContext.LoginInfo.LoginName}";
 
             var formData = new Dictionary<string, string>
             {
@@ -144,25 +144,19 @@ public class ZdbkExamService : IZdbkExamService
 
     private async Task<Result<HttpClient>> GetAuthenticatedClientAsync()
     {
-        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        using var client = HttpClientUtilities.Create(new RequestOptions
+        {
+            AllowRedirects = false
+        });
+        var authResult = await _zjuContext.AuthorizeAsync(client);
         if (!authResult.IsSuccess)
         {
             return Result.Fail("500", authResult.Message);
         }
 
-        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
-        {
-            return Result.Fail("500", "未登录");
-        }
-
         try
         {
-            var cookies = new List<Cookie> { _zjuContext.SessionCookie };
-            using var client = HttpClientUtilities.Create(new RequestOptions
-            {
-                AllowRedirects = false,
-                Cookies = [_zjuContext.SessionCookie]
-            });
+            var cookies = new List<Cookie>();
             var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
             using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, ssoUrl, cookies);
 

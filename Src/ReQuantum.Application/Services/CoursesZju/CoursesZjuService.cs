@@ -70,23 +70,17 @@ public class CoursesZjuService : ICoursesZjuService
             return HttpClientUtilities.Create(new RequestOptions { Cookies = [_state.Session] });
         }
 
-        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        using var client = HttpClientUtilities.Create(new RequestOptions
+        {
+            AllowRedirects = false
+        });
+        var authResult = await _zjuContext.AuthorizeAsync(client);
         if (!authResult.IsSuccess)
         {
             return Result.Fail("400", authResult.Message);
         }
 
-        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
-        {
-            return Result.Fail("400", "未登录");
-        }
-
-        var cookies = new List<Cookie> { _zjuContext.SessionCookie };
-        using var client = HttpClientUtilities.Create(new RequestOptions
-        {
-            AllowRedirects = false,
-            Cookies = [_zjuContext.SessionCookie]
-        });
+        var cookies = new List<Cookie>();
         using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, TodoApi, cookies);
         var session = cookies.FirstOrDefault(cookie => cookie.Name == "session");
         if (session is null)

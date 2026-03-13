@@ -1,32 +1,28 @@
 using NOF.Contract;
 using ReQuantum.Application.Models.ZjuSso;
 using ReQuantum.Shared.Services;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 
 public interface IZjuContext
 {
-    [MemberNotNullWhen(true, nameof(Id), nameof(SessionCookie))]
     bool IsAuthenticated { get; }
 
-    string? Id { get; }
-
-    Cookie? SessionCookie { get; }
+    ZjuLoginInfo? LoginInfo { get; }
 
     event Action? OnLogin;
 
     event Action? OnLogout;
 
-    Task<Result> EnsureAuthenticatedAsync();
+    Task<Result> AuthorizeAsync(HttpClient client, CancellationToken cancellationToken = default);
 }
 
 public interface IMutableZjuContext : IZjuContext
 {
     Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default);
 
-    Result Set(string userId, string cookieValue);
+    Result Set(string cookieValue, ZjuLoginInfo? loginInfo = null);
 
     void Logout();
 }
@@ -44,12 +40,11 @@ public abstract class ZjuContext : IMutableZjuContext
         _storage = storage;
     }
 
-    [MemberNotNullWhen(true, nameof(_state))]
     public bool IsAuthenticated => _state is not null;
 
-    public string? Id => _state?.Id;
-
-    public Cookie? SessionCookie => _state?.IPlanetDirectoryPro;
+    public ZjuLoginInfo? LoginInfo => _state is null
+        ? null
+        : new ZjuLoginInfo(_state.UserName, _state.LoginName, _state.UserId);
 
     public void Logout()
     {
@@ -61,20 +56,52 @@ public abstract class ZjuContext : IMutableZjuContext
     public event Action? OnLogin;
     public event Action? OnLogout;
 
-    public async Task<Result> EnsureAuthenticatedAsync()
+    public async Task<Result> AuthorizeAsync(HttpClient client, CancellationToken cancellationToken = default)
     {
         await LoadStateAsync();
-        return await ValidOrRefreshTokenAsync();
+
+        if (!IsAuthenticated)
+        {
+            return Result.Fail("400", "未登录");
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, LoginUrl);
+        HttpClientUtilities.ApplyCookies(request, [_state!.IPlanetDirectoryPro]);
+        var response = await client.SendAsync(request, cancellationToken);
+        if (response.StatusCode != HttpStatusCode.Redirect)
+        {
+            Logout();
+            return Result.Fail("400", "Session 已过期，请重新登录");
+        }
+
+        var cookieHeader = HttpClientUtilities.BuildCookieHeader([_state.IPlanetDirectoryPro]);
+        client.DefaultRequestHeaders.Remove("Cookie");
+        client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+        return Result.Success();
     }
 
     public abstract Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default);
 
-    public Result Set(string userId, string cookieValue)
+    public Result Set(string cookieValue, ZjuLoginInfo? loginInfo = null)
     {
         try
         {
+            if (loginInfo is null
+                || string.IsNullOrWhiteSpace(loginInfo.UserName)
+                || string.IsNullOrWhiteSpace(loginInfo.LoginName)
+                || string.IsNullOrWhiteSpace(loginInfo.UserId))
+            {
+                return Result.Fail("400", "登录信息不完整");
+            }
+
             var cookie = new Cookie("iPlanetDirectoryPro", cookieValue, "/", "zju.edu.cn");
-            _state = new ZjuSsoState(userId, cookie);
+            _state = new ZjuSsoState
+            {
+                UserName = loginInfo.UserName,
+                LoginName = loginInfo.LoginName,
+                UserId = loginInfo.UserId,
+                IPlanetDirectoryPro = cookie
+            };
             _ = SaveStateAsync();
             OnLogin?.Invoke();
             return Result.Success();
@@ -83,40 +110,6 @@ public abstract class ZjuContext : IMutableZjuContext
         {
             return Result.Fail("400", $"登录异常: {ex.Message}");
         }
-    }
-
-    private async Task<bool> IsTokenValidAsync()
-    {
-        await LoadStateAsync();
-
-        if (!IsAuthenticated)
-        {
-            return false;
-        }
-
-        using var client = HttpClientUtilities.Create(new RequestOptions { AllowRedirects = false });
-        using var request = new HttpRequestMessage(HttpMethod.Get, LoginUrl);
-        HttpClientUtilities.ApplyCookies(request, [_state.IPlanetDirectoryPro]);
-        var response = await client.SendAsync(request);
-        return response.StatusCode == HttpStatusCode.Redirect;
-    }
-
-    private async Task<Result> ValidOrRefreshTokenAsync()
-    {
-        await LoadStateAsync();
-
-        if (await IsTokenValidAsync())
-        {
-            return Result.Success();
-        }
-
-        if (!IsAuthenticated)
-        {
-            return Result.Fail("400", "未登录");
-        }
-
-        Logout();
-        return Result.Fail("400", "Session 已过期，请重新登录");
     }
 
     private async ValueTask LoadStateAsync()

@@ -35,8 +35,12 @@
   <data name="ManualLogin" xml:space="preserve"><value>Manual Login (Cookie)</value></data>
   <data name="CookieValue" xml:space="preserve"><value>iPlanetDirectoryPro Value</value></data>
   <data name="CookieValuePlaceholder" xml:space="preserve"><value>Paste iPlanetDirectoryPro cookie value here</value></data>
+  <data name="UserName" xml:space="preserve"><value>User Name</value></data>
+  <data name="UserNamePlaceholder" xml:space="preserve"><value>Display name from ZJU login info (optional)</value></data>
+  <data name="LoginName" xml:space="preserve"><value>Login Name</value></data>
+  <data name="LoginNamePlaceholder" xml:space="preserve"><value>Student number / login name (optional)</value></data>
   <data name="UserId" xml:space="preserve"><value>User ID</value></data>
-  <data name="UserIdPlaceholder" xml:space="preserve"><value>Student ID or username (optional)</value></data>
+  <data name="UserIdPlaceholder" xml:space="preserve"><value>Numeric user ID from login info (optional)</value></data>
   <data name="Login" xml:space="preserve"><value>Login</value></data>
   <data name="Progress" xml:space="preserve"><value>Progress</value></data>
 </root>

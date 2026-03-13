@@ -120,7 +120,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
 
         var client = clientResult.Value!;
-        if (!_zjuContext.IsAuthenticated || string.IsNullOrEmpty(_zjuContext.Id))
+        if (!_zjuContext.IsAuthenticated || _zjuContext.LoginInfo is null)
         {
             return Result.Fail("400", "未找到学号");
         }
@@ -128,7 +128,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         try
         {
             var semesterCode = MapSemesterToCode(semester);
-            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={_zjuContext.Id}";
+            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={_zjuContext.LoginInfo.LoginName}";
             var formData = new Dictionary<string, string>
             {
                 { "xnm", academicYear },
@@ -160,25 +160,19 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     private async Task<Result<HttpClient>> GetAuthenticatedClient()
     {
-        var authResult = await _zjuContext.EnsureAuthenticatedAsync();
+        using var client = HttpClientUtilities.Create(new RequestOptions
+        {
+            AllowRedirects = false
+        });
+        var authResult = await _zjuContext.AuthorizeAsync(client);
         if (!authResult.IsSuccess)
         {
             return Result.Fail("500", authResult.Message);
         }
 
-        if (!_zjuContext.IsAuthenticated || _zjuContext.SessionCookie is null)
-        {
-            return Result.Fail("500", "未登录");
-        }
-
         try
         {
-            var cookies = new List<Cookie> { _zjuContext.SessionCookie };
-            using var client = HttpClientUtilities.Create(new RequestOptions
-            {
-                AllowRedirects = false,
-                Cookies = [_zjuContext.SessionCookie]
-            });
+            var cookies = new List<Cookie>();
             var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
             using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, ssoUrl, cookies);
 

@@ -1,11 +1,9 @@
 @page "/settings"
 @using System.Globalization
 @using Microsoft.Extensions.Localization
-@using ReQuantum.Application.Services.ZjuSso
 @using ReQuantum.Application.Services.Pta
 @using ReQuantum.Shared.Services
 @using ReQuantum.Shared.Resources.Localization
-@inject IMutableZjuContext ZjuSsoService
 @inject IPtaBrowserAuthService PtaAuthService
 @inject IStringLocalizer<CalendarStrings> L
 @inject NavigationManager Navigation
@@ -13,24 +11,23 @@
 
 <h3>@L["MenuSettings"]</h3>
 
-@* ZJU SSO 登录状态 *@
 <div class="card mb-3">
     <div class="card-body">
-        <h5 class="card-title">@L["SettingsZjuSsoTitle"]</h5>
-        @if (ZjuSsoService.IsAuthenticated)
-        {
-            <p class="text-success">@string.Format(L["SettingsLoggedInAs"], ZjuSsoService.Id)</p>
-            <button class="btn btn-outline-danger btn-sm" @onclick="ZjuSsoLogout">@L["SettingsLogout"]</button>
-        }
-        else
-        {
-            <p class="text-muted">@L["SettingsNotLoggedIn"]</p>
-            <a href="zju-sso" class="btn btn-primary btn-sm">@L["SettingsGoToLogin"]</a>
-        }
+        <h5 class="card-title">@L["SettingsAdvancedUserMode"]</h5>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="advanced-user-mode" @bind="_advancedUserMode" />
+            <label class="form-check-label" for="advanced-user-mode">@L["SettingsAdvancedUserMode"]</label>
+        </div>
     </div>
 </div>
 
-@* PTA 登录状态 *@
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@L["SettingsZjuSsoTitle"]</h5>
+        <ZjuSsoPanel ShowAdvancedOptions="_advancedUserMode" />
+    </div>
+</div>
+
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">PTA</h5>
@@ -75,6 +72,7 @@
     private static readonly HashSet<string> SupportedWeekStarts = ["sunday", "monday"];
     private string _selectedLanguage = CultureInfo.CurrentUICulture.Name;
     private string _selectedWeekStart = "sunday";
+    private bool _advancedUserMode;
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,11 +112,6 @@
 
             _selectedWeekStart = "sunday";
         }
-    }
-
-    private void ZjuSsoLogout()
-    {
-        ZjuSsoService.Logout();
     }
 
     private void PtaLogout()

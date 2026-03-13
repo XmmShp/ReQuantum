@@ -35,8 +35,12 @@
   <data name="ManualLogin" xml:space="preserve"><value>手动登录（Cookie）</value></data>
   <data name="CookieValue" xml:space="preserve"><value>iPlanetDirectoryPro 值</value></data>
   <data name="CookieValuePlaceholder" xml:space="preserve"><value>在此粘贴 iPlanetDirectoryPro Cookie 值</value></data>
+  <data name="UserName" xml:space="preserve"><value>用户名</value></data>
+  <data name="UserNamePlaceholder" xml:space="preserve"><value>从登录信息获取的显示名称（可选）</value></data>
+  <data name="LoginName" xml:space="preserve"><value>登录名</value></data>
+  <data name="LoginNamePlaceholder" xml:space="preserve"><value>学号 / 登录名（可选）</value></data>
   <data name="UserId" xml:space="preserve"><value>用户 ID</value></data>
-  <data name="UserIdPlaceholder" xml:space="preserve"><value>学号或用户名（可选）</value></data>
+  <data name="UserIdPlaceholder" xml:space="preserve"><value>登录信息中的数字用户 ID（可选）</value></data>
   <data name="Login" xml:space="preserve"><value>登录</value></data>
   <data name="Progress" xml:space="preserve"><value>进度</value></data>
 </root>

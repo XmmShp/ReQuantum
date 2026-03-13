@@ -81,12 +81,12 @@
   <data name="MenuPta" xml:space="preserve"><value>PTA</value></data>
   <data name="MenuZdbk" xml:space="preserve"><value>教务网</value></data>
   <data name="MenuSettings" xml:space="preserve"><value>设置</value></data>
-  <data name="MenuZjuSso" xml:space="preserve"><value>浙大认证</value></data>
   <data name="SettingsZjuSsoTitle" xml:space="preserve"><value>浙大统一认证 (ZJU SSO)</value></data>
   <data name="SettingsLoggedInAs" xml:space="preserve"><value>已登录: {0}</value></data>
   <data name="SettingsLogout" xml:space="preserve"><value>退出登录</value></data>
   <data name="SettingsNotLoggedIn" xml:space="preserve"><value>未登录</value></data>
   <data name="SettingsGoToLogin" xml:space="preserve"><value>前往登录</value></data>
+  <data name="SettingsAdvancedUserMode" xml:space="preserve"><value>高级用户模式</value></data>
   <data name="SettingsLanguage" xml:space="preserve"><value>语言 / Language</value></data>
   <data name="SettingsLanguageZhCn" xml:space="preserve"><value>中文</value></data>
   <data name="SettingsLanguageEnUs" xml:space="preserve"><value>English</value></data>
