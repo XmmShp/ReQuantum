@@ -10,13 +10,10 @@
         <div class="month-main">
             <div class="calendar-grid">
                 <div class="weekday-header">
-                    <div class="weekday">@L["Sun"]</div>
-                    <div class="weekday">@L["Mon"]</div>
-                    <div class="weekday">@L["Tue"]</div>
-                    <div class="weekday">@L["Wed"]</div>
-                    <div class="weekday">@L["Thu"]</div>
-                    <div class="weekday">@L["Fri"]</div>
-                    <div class="weekday">@L["Sat"]</div>
+                    @foreach (var weekday in GetOrderedWeekdays())
+                    {
+                        <div class="weekday">@weekday</div>
+                    }
                 </div>
 
                 <div class="days-viewport @(_isLoadingMonthData ? "loading" : string.Empty)">
@@ -175,7 +172,11 @@
     [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
+    [Parameter]
+    public bool WeekStartsOnMonday { get; set; }
+
     private DateTime _currentMonth = DateTime.Today;
+    private bool _lastWeekStartsOnMonday;
     private long? _pendingDeleteEventId;
     private long? _pendingDeleteTodoId;
     private long? _pendingDeleteNoteId;
@@ -186,6 +187,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _lastWeekStartsOnMonday = WeekStartsOnMonday;
         GenerateCalendarDays();
         await LoadMonthDataAsync();
         await EnsureDayDataLoadedAsync(SelectedDate);
@@ -193,6 +195,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (_lastWeekStartsOnMonday != WeekStartsOnMonday)
+        {
+            _lastWeekStartsOnMonday = WeekStartsOnMonday;
+            GenerateCalendarDays();
+            await LoadMonthDataAsync();
+        }
+
         var targetMonth = SelectedDate.ToDateTime(TimeOnly.MinValue);
         if (_currentMonth.Year != targetMonth.Year || _currentMonth.Month != targetMonth.Month)
         {
@@ -215,7 +224,7 @@
         _firstDayOfMonth = new DateOnly(year, month, 1);
         _lastDayOfMonth = _firstDayOfMonth.AddMonths(1).AddDays(-1);
 
-        var firstDayOfWeek = (int)_firstDayOfMonth.DayOfWeek;
+        var firstDayOfWeek = ((int)_firstDayOfMonth.DayOfWeek - (WeekStartsOnMonday ? 1 : 0) + 7) % 7;
         var startDate = _firstDayOfMonth.AddDays(-firstDayOfWeek);
 
         for (int i = 0; i < 42; i++)
@@ -293,6 +302,29 @@
         return totalCount > 3
             ? totalCount - 3
             : 0;
+    }
+
+    private IEnumerable<string> GetOrderedWeekdays()
+    {
+        if (WeekStartsOnMonday)
+        {
+            yield return L["Mon"];
+            yield return L["Tue"];
+            yield return L["Wed"];
+            yield return L["Thu"];
+            yield return L["Fri"];
+            yield return L["Sat"];
+            yield return L["Sun"];
+            yield break;
+        }
+
+        yield return L["Sun"];
+        yield return L["Mon"];
+        yield return L["Tue"];
+        yield return L["Wed"];
+        yield return L["Thu"];
+        yield return L["Fri"];
+        yield return L["Sat"];
     }
 
     private readonly record struct CalendarPreviewItem(DateTime When, string DisplayText, bool IsEvent);

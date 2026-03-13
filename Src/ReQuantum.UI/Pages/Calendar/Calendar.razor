@@ -4,6 +4,7 @@
 @using ReQuantum.Shared.Resources.Localization
 @inject IStringLocalizer<CalendarStrings> L
 @inject IReQuantumService ReQuantumService
+@inject IJSRuntime JS
 
 <PageTitle>@L["Calendar"]</PageTitle>
 
@@ -30,11 +31,11 @@
     <div class="calendar-content">
         @if (_currentView == CalendarView.Month)
         {
-            <MonthCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" />
+            <MonthCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" WeekStartsOnMonday="_weekStartsOnMonday" />
         }
         else
         {
-            <WeekCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" />
+            <WeekCalendar @bind-SelectedDate="_selectedDate" ShowHeader="false" WeekStartsOnMonday="_weekStartsOnMonday" />
         }
     </div>
 </div>
@@ -48,6 +49,29 @@
 
     private CalendarView _currentView = CalendarView.Month;
     private DateOnly _selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    private bool _weekStartsOnMonday;
+    private bool _weekStartLoaded;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _weekStartLoaded)
+        {
+            return;
+        }
+
+        _weekStartLoaded = true;
+
+        try
+        {
+            var persistedWeekStart = await JS.InvokeAsync<string?>("localStorage.getItem", "requantum.weekStart");
+            _weekStartsOnMonday = string.Equals(persistedWeekStart, "monday", StringComparison.OrdinalIgnoreCase);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            _weekStartsOnMonday = false;
+        }
+    }
 
     private void SwitchView(CalendarView view)
     {
@@ -88,7 +112,7 @@
 
     private DateOnly GetCurrentWeekStart()
     {
-        var offset = (int)_selectedDate.DayOfWeek;
+        var offset = ((int)_selectedDate.DayOfWeek - (_weekStartsOnMonday ? 1 : 0) + 7) % 7;
         return _selectedDate.AddDays(-offset);
     }
 }

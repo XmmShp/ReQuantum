@@ -90,4 +90,7 @@
   <data name="SettingsLanguage" xml:space="preserve"><value>Language</value></data>
   <data name="SettingsLanguageZhCn" xml:space="preserve"><value>Chinese (Simplified)</value></data>
   <data name="SettingsLanguageEnUs" xml:space="preserve"><value>English (US)</value></data>
+  <data name="SettingsWeekStart" xml:space="preserve"><value>Week start day</value></data>
+  <data name="SettingsWeekStartSunday" xml:space="preserve"><value>Sunday first</value></data>
+  <data name="SettingsWeekStartMonday" xml:space="preserve"><value>Monday first</value></data>
 </root>

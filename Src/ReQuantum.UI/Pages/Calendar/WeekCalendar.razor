@@ -147,6 +147,9 @@
     [Parameter]
     public EventCallback<DateOnly> SelectedDateChanged { get; set; }
 
+    [Parameter]
+    public bool WeekStartsOnMonday { get; set; }
+
     private DateOnly _currentWeekStart;
     private readonly List<DateOnly> _weekDays = new();
     private readonly Dictionary<DateOnly, List<CalendarEvent>> _eventsByDate = [];
@@ -181,16 +184,12 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var dayOfWeek = (int)SelectedDate.DayOfWeek;
+        var dayOfWeek = ((int)SelectedDate.DayOfWeek - (WeekStartsOnMonday ? 1 : 0) + 7) % 7;
         var targetWeekStart = SelectedDate.AddDays(-dayOfWeek);
         if (targetWeekStart != _currentWeekStart)
         {
             _currentWeekStart = targetWeekStart;
-            _weekDays.Clear();
-            for (int i = 0; i < 7; i++)
-            {
-                _weekDays.Add(_currentWeekStart.AddDays(i));
-            }
+            RebuildWeekDays();
         }
 
         await LoadWeekEventsAsync();
@@ -201,13 +200,10 @@
         _weekDays.Clear();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var dayOfWeek = (int)today.DayOfWeek;
+        var dayOfWeek = ((int)today.DayOfWeek - (WeekStartsOnMonday ? 1 : 0) + 7) % 7;
         _currentWeekStart = today.AddDays(-dayOfWeek);
 
-        for (int i = 0; i < 7; i++)
-        {
-            _weekDays.Add(_currentWeekStart.AddDays(i));
-        }
+        RebuildWeekDays();
     }
 
     private string GetWeekRange()
@@ -240,14 +236,14 @@
     private async Task PreviousWeek()
     {
         _currentWeekStart = _currentWeekStart.AddDays(-7);
-        GenerateWeekDays();
+        RebuildWeekDays();
         await LoadWeekEventsAsync();
     }
 
     private async Task NextWeek()
     {
         _currentWeekStart = _currentWeekStart.AddDays(7);
-        GenerateWeekDays();
+        RebuildWeekDays();
         await LoadWeekEventsAsync();
     }
 
@@ -505,4 +501,13 @@
         double PositionPercent,
         string TimeText,
         string Content);
+
+    private void RebuildWeekDays()
+    {
+        _weekDays.Clear();
+        for (int i = 0; i < 7; i++)
+        {
+            _weekDays.Add(_currentWeekStart.AddDays(i));
+        }
+    }
 }

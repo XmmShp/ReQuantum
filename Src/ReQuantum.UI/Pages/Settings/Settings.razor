@@ -57,10 +57,23 @@
     </div>
 </div>
 
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@L["SettingsWeekStart"]</h5>
+        <select class="form-select" style="max-width: 200px;" @bind="_selectedWeekStart" @bind:after="OnWeekStartChangedAsync">
+            <option value="sunday">@L["SettingsWeekStartSunday"]</option>
+            <option value="monday">@L["SettingsWeekStartMonday"]</option>
+        </select>
+    </div>
+</div>
+
 @code {
     private const string LanguageStorageKey = "requantum.language";
+    private const string WeekStartStorageKey = "requantum.weekStart";
     private static readonly HashSet<string> SupportedLanguages = ["zh-CN", "en-US"];
+    private static readonly HashSet<string> SupportedWeekStarts = ["sunday", "monday"];
     private string _selectedLanguage = CultureInfo.CurrentUICulture.Name;
+    private string _selectedWeekStart = "sunday";
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,6 +88,12 @@
             {
                 _selectedLanguage = "zh-CN";
             }
+
+            var persistedWeekStart = await JS.InvokeAsync<string?>("localStorage.getItem", WeekStartStorageKey);
+            if (!string.IsNullOrWhiteSpace(persistedWeekStart) && SupportedWeekStarts.Contains(persistedWeekStart))
+            {
+                _selectedWeekStart = persistedWeekStart;
+            }
         }
         catch
         {
@@ -82,6 +101,8 @@
             {
                 _selectedLanguage = "zh-CN";
             }
+
+            _selectedWeekStart = "sunday";
         }
     }
 
@@ -111,6 +132,24 @@
         try
         {
             await JS.InvokeVoidAsync("localStorage.setItem", LanguageStorageKey, _selectedLanguage);
+        }
+        catch
+        {
+        }
+
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+
+    private async Task OnWeekStartChangedAsync()
+    {
+        if (!SupportedWeekStarts.Contains(_selectedWeekStart))
+        {
+            _selectedWeekStart = "sunday";
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", WeekStartStorageKey, _selectedWeekStart);
         }
         catch
         {
