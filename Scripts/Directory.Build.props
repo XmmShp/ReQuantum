@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'ScriptSupport'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)ScriptSupport\ScriptSupport.csproj" />
+  </ItemGroup>
+</Project>
