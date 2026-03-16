@@ -9,6 +9,7 @@ using ReQuantum.Web.Wasm.Services;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddSingleton<IStorage, WebClientStorage>();
+builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuTodoAfterReadyHandler>();
 builder.Services.AddSingleton<WasmZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WasmZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WasmZjuContext>());

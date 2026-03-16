@@ -6,6 +6,7 @@ using NOF.Infrastructure.EntityFrameworkCore;
 using NOF.Infrastructure.EntityFrameworkCore.SQLite;
 using ReQuantum.Application.RequestHandlers;
 using ReQuantum.Application.Services;
+using ReQuantum.Application.Services.CoursesZju;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Contract;
@@ -44,6 +45,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<MauiHttpContext>();
         builder.Services.AddSingleton<IHttpContext>(sp => sp.GetRequiredService<MauiHttpContext>());
         builder.Services.AddSingleton<HttpClient>(sp => sp.GetRequiredService<MauiHttpContext>().HttpClient);
+        builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuTodoAfterReadyHandler>();
         builder.Services.AddSingleton<MauiZjuContext>();
         builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());

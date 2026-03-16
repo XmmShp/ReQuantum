@@ -5,105 +5,172 @@ namespace ReQuantum.ScriptSupport;
 
 public static class ScriptUnifiedAuth
 {
-    public const string CasLoginUrl = "https://zjuam.zju.edu.cn/cas/login";
     public const int DefaultNavigationTimeoutMs = 30000;
     public const int DefaultHttpTimeoutSeconds = 100;
     public const int DefaultPollIntervalMs = 1000;
 
-    public static async Task<AuthenticatedHttpClientContext> CreateAuthenticatedHttpClientContextAsync(
-        string readyHost = "service.zju.edu.cn",
-        int navigationTimeoutMs = DefaultNavigationTimeoutMs,
-        int httpTimeoutSeconds = DefaultHttpTimeoutSeconds,
-        int pollIntervalMs = DefaultPollIntervalMs)
+    public static async Task<AuthenticatedHttpClientContext> CreateInteractiveHttpClientContextAsync(
+        InteractiveAuthOptions options,
+        CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentException.ThrowIfNullOrWhiteSpace(options.StartUrl);
+        ArgumentNullException.ThrowIfNull(options.WaitUntil);
+
         var playwright = await Playwright.CreateAsync();
-        var launchOptions = new BrowserTypeLaunchOptions
+        try
         {
-            Headless = false
-        };
-
-        var browserPath = ScriptBrowser.GetLocalBrowserPath();
-        if (!string.IsNullOrWhiteSpace(browserPath))
-        {
-            launchOptions.ExecutablePath = browserPath;
-        }
-
-        var browser = await playwright.Chromium.LaunchAsync(launchOptions);
-        var context = await browser.NewContextAsync();
-        var page = await context.NewPageAsync();
-
-        await page.GotoAsync(CasLoginUrl, new PageGotoOptions { Timeout = navigationTimeoutMs });
-
-        IReadOnlyList<BrowserContextCookiesResult> browserCookies = [];
-        while (true)
-        {
-            if (page.IsClosed)
+            var launchOptions = new BrowserTypeLaunchOptions
             {
-                break;
+                Headless = options.Headless
+            };
+
+            var browserPath = string.IsNullOrWhiteSpace(options.BrowserExecutablePath)
+                ? ScriptBrowser.GetLocalBrowserPath()
+                : options.BrowserExecutablePath;
+            if (!string.IsNullOrWhiteSpace(browserPath))
+            {
+                launchOptions.ExecutablePath = browserPath;
             }
 
-            browserCookies = await context.CookiesAsync();
-            if (HasReadyState(browserCookies, page.Url, readyHost))
+            var browser = await playwright.Chromium.LaunchAsync(launchOptions);
+            try
             {
-                break;
+                var context = await browser.NewContextAsync();
+                try
+                {
+                    var page = await context.NewPageAsync();
+                    await page.GotoAsync(options.StartUrl, new PageGotoOptions { Timeout = options.NavigationTimeoutMs });
+
+                    IReadOnlyList<BrowserContextCookiesResult> browserCookies = [];
+                    while (true)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        if (page.IsClosed)
+                        {
+                            break;
+                        }
+
+                        browserCookies = await context.CookiesAsync();
+                        var state = new InteractiveAuthState(context, page, browserCookies);
+                        if (await options.WaitUntil(state, cancellationToken))
+                        {
+                            break;
+                        }
+
+                        await Task.Delay(options.PollIntervalMs, cancellationToken);
+                    }
+
+                    var cookieContainer = BuildCookieContainer(browserCookies, options.AdditionalCookieUris);
+                    var handler = new HttpClientHandler
+                    {
+                        AllowAutoRedirect = false,
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
+                        CookieContainer = cookieContainer,
+                        UseCookies = true,
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+
+                    var client = new HttpClient(new RedirectFollowingHandler(handler))
+                    {
+                        Timeout = TimeSpan.FromSeconds(options.HttpTimeoutSeconds)
+                    };
+                    client.DefaultRequestHeaders.TryAddWithoutValidation(
+                        "User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0");
+
+                    var authenticatedContext = new AuthenticatedHttpClientContext(
+                        playwright,
+                        browser,
+                        context,
+                        page,
+                        client,
+                        handler,
+                        cookieContainer,
+                        browserPath,
+                        browserCookies);
+
+                    try
+                    {
+                        if (options.AfterReady is not null)
+                        {
+                            await options.AfterReady(authenticatedContext, cancellationToken);
+                            await authenticatedContext.RefreshCookiesFromBrowserAsync(options.AdditionalCookieUris);
+                        }
+
+                        return authenticatedContext;
+                    }
+                    catch
+                    {
+                        await authenticatedContext.DisposeAsync();
+                        throw;
+                    }
+                }
+                catch
+                {
+                    await context.CloseAsync();
+                    throw;
+                }
             }
-
-            await Task.Delay(pollIntervalMs);
+            catch
+            {
+                await browser.CloseAsync();
+                throw;
+            }
         }
-
-        var cookieContainer = BuildCookieContainer(browserCookies);
-        var handler = new HttpClientHandler
+        catch
         {
-            AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
-            CookieContainer = cookieContainer,
-            UseCookies = true,
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-
-        var client = new HttpClient(new RedirectFollowingHandler(handler))
-        {
-            Timeout = TimeSpan.FromSeconds(httpTimeoutSeconds)
-        };
-        client.DefaultRequestHeaders.TryAddWithoutValidation(
-            "User-Agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0");
-
-        return new AuthenticatedHttpClientContext(
-            playwright,
-            browser,
-            context,
-            page,
-            client,
-            handler,
-            cookieContainer,
-            browserPath,
-            browserCookies);
+            playwright.Dispose();
+            throw;
+        }
     }
 
-    public static bool HasReadyState(IReadOnlyList<BrowserContextCookiesResult> cookies, string currentUrl, string readyHost)
+    public static ValueTask<bool> WaitForUrlAsync(
+        InteractiveAuthState state,
+        CancellationToken cancellationToken,
+        params string[] urlKeywords)
     {
-        if (string.IsNullOrWhiteSpace(currentUrl)
-            || !currentUrl.Contains(readyHost, StringComparison.OrdinalIgnoreCase))
+        cancellationToken.ThrowIfCancellationRequested();
+        if (urlKeywords.Length == 0)
         {
-            return false;
+            return ValueTask.FromResult(false);
         }
 
-        var hasIPlanet = cookies.Any(static cookie => cookie.Name.Equals("iPlanetDirectoryPro", StringComparison.OrdinalIgnoreCase));
-        var hasReadyHostSession = cookies.Any(cookie => cookie.Name.Equals("JSESSIONID", StringComparison.OrdinalIgnoreCase)
-                && cookie.Domain.Contains(readyHost, StringComparison.OrdinalIgnoreCase))
-            || cookies.Any(cookie => cookie.Name.Equals("route", StringComparison.OrdinalIgnoreCase)
-                && cookie.Domain.Contains(readyHost, StringComparison.OrdinalIgnoreCase));
+        var currentUrl = state.Page.Url;
+        if (string.IsNullOrWhiteSpace(currentUrl))
+        {
+            return ValueTask.FromResult(false);
+        }
 
-        return hasIPlanet && hasReadyHostSession;
+        return ValueTask.FromResult(
+            urlKeywords.Any(keyword => currentUrl.Contains(keyword, StringComparison.OrdinalIgnoreCase)));
     }
 
-    public static CookieContainer BuildCookieContainer(IReadOnlyList<BrowserContextCookiesResult> cookies)
+    public static ValueTask<bool> WaitForCookieAsync(
+        InteractiveAuthState state,
+        CancellationToken cancellationToken,
+        string cookieName,
+        string? domainKeyword = null)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentException.ThrowIfNullOrWhiteSpace(cookieName);
+
+        return ValueTask.FromResult(state.Cookies.Any(cookie =>
+            cookie.Name.Equals(cookieName, StringComparison.OrdinalIgnoreCase)
+            && (string.IsNullOrWhiteSpace(domainKeyword)
+                || cookie.Domain.Contains(domainKeyword, StringComparison.OrdinalIgnoreCase))));
+    }
+
+    public static CookieContainer BuildCookieContainer(
+        IReadOnlyList<BrowserContextCookiesResult> cookies,
+        IEnumerable<Uri>? additionalCookieUris = null)
     {
         var cookieContainer = new CookieContainer();
+        var sharedUris = additionalCookieUris?.DistinctBy(static uri => uri.AbsoluteUri).ToArray() ?? [];
         foreach (var cookie in cookies)
         {
-            foreach (var uri in GetCandidateUris(cookie))
+            foreach (var uri in GetCandidateUris(cookie, sharedUris))
             {
                 try
                 {
@@ -132,7 +199,9 @@ public static class ScriptUnifiedAuth
         return cookieContainer;
     }
 
-    public static IEnumerable<Uri> GetCandidateUris(BrowserContextCookiesResult cookie)
+    public static IEnumerable<Uri> GetCandidateUris(
+        BrowserContextCookiesResult cookie,
+        IEnumerable<Uri>? additionalCookieUris = null)
     {
         var normalizedDomain = cookie.Domain.TrimStart('.');
         if (Uri.TryCreate($"https://{normalizedDomain}/", UriKind.Absolute, out var domainUri))
@@ -140,17 +209,74 @@ public static class ScriptUnifiedAuth
             yield return domainUri;
         }
 
-        if (normalizedDomain.EndsWith("zju.edu.cn", StringComparison.OrdinalIgnoreCase))
+        foreach (var parentUri in GetParentDomainUris(normalizedDomain))
         {
-            yield return new Uri("https://zju.edu.cn/");
-            yield return new Uri("https://zjuam.zju.edu.cn/");
-            yield return new Uri("https://identity.zju.edu.cn/");
-            yield return new Uri("https://service.zju.edu.cn/");
-            yield return new Uri("https://courses.zju.edu.cn/");
-            yield return new Uri("https://zdbk.zju.edu.cn/");
-            yield return new Uri("https://eta.zju.edu.cn/");
+            yield return parentUri;
+        }
+
+        if (additionalCookieUris is not null)
+        {
+            foreach (var uri in additionalCookieUris)
+            {
+                yield return uri;
+            }
         }
     }
+
+    public static IEnumerable<Uri> GetParentDomainUris(string hostOrDomain)
+    {
+        if (string.IsNullOrWhiteSpace(hostOrDomain))
+        {
+            yield break;
+        }
+
+        var normalizedDomain = hostOrDomain.Trim().TrimStart('.');
+        if (Uri.TryCreate(normalizedDomain, UriKind.Absolute, out var absoluteUri))
+        {
+            normalizedDomain = absoluteUri.Host;
+        }
+
+        var domainParts = normalizedDomain
+            .Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        for (var index = 1; index < domainParts.Length - 1; index++)
+        {
+            var parentDomain = string.Join('.', domainParts[index..]);
+            if (Uri.TryCreate($"https://{parentDomain}/", UriKind.Absolute, out var parentUri))
+            {
+                yield return parentUri;
+            }
+        }
+    }
+}
+
+public sealed class InteractiveAuthOptions
+{
+    public required string StartUrl { get; init; }
+    public required Func<InteractiveAuthState, CancellationToken, ValueTask<bool>> WaitUntil { get; init; }
+    public Func<AuthenticatedHttpClientContext, CancellationToken, Task>? AfterReady { get; init; }
+    public IEnumerable<Uri>? AdditionalCookieUris { get; init; }
+    public string? BrowserExecutablePath { get; init; }
+    public bool Headless { get; init; }
+    public int NavigationTimeoutMs { get; init; } = ScriptUnifiedAuth.DefaultNavigationTimeoutMs;
+    public int HttpTimeoutSeconds { get; init; } = ScriptUnifiedAuth.DefaultHttpTimeoutSeconds;
+    public int PollIntervalMs { get; init; } = ScriptUnifiedAuth.DefaultPollIntervalMs;
+}
+
+public sealed class InteractiveAuthState
+{
+    public InteractiveAuthState(
+        IBrowserContext browserContext,
+        IPage page,
+        IReadOnlyList<BrowserContextCookiesResult> cookies)
+    {
+        BrowserContext = browserContext;
+        Page = page;
+        Cookies = cookies;
+    }
+
+    public IBrowserContext BrowserContext { get; }
+    public IPage Page { get; }
+    public IReadOnlyList<BrowserContextCookiesResult> Cookies { get; }
 }
 
 public sealed class AuthenticatedHttpClientContext : IAsyncDisposable
@@ -174,7 +300,7 @@ public sealed class AuthenticatedHttpClientContext : IAsyncDisposable
         HttpHandler = httpHandler;
         CookieContainer = cookieContainer;
         BrowserPath = browserPath;
-        Cookies = cookies;
+        Cookies = cookies.ToArray();
     }
 
     public IPlaywright Playwright { get; }
@@ -185,7 +311,35 @@ public sealed class AuthenticatedHttpClientContext : IAsyncDisposable
     public HttpClientHandler HttpHandler { get; }
     public CookieContainer CookieContainer { get; }
     public string? BrowserPath { get; }
-    public IReadOnlyList<BrowserContextCookiesResult> Cookies { get; }
+    public IReadOnlyList<BrowserContextCookiesResult> Cookies { get; private set; }
+
+    public async Task RefreshCookiesFromBrowserAsync(IEnumerable<Uri>? additionalCookieUris = null)
+    {
+        Cookies = await BrowserContext.CookiesAsync();
+        var refreshedCookieContainer = ScriptUnifiedAuth.BuildCookieContainer(Cookies, additionalCookieUris);
+        var visitedUris = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var cookie in Cookies)
+        {
+            foreach (var uri in ScriptUnifiedAuth.GetCandidateUris(cookie, additionalCookieUris))
+            {
+                if (!visitedUris.Add(uri.AbsoluteUri))
+                {
+                    continue;
+                }
+
+                foreach (System.Net.Cookie existingCookie in CookieContainer.GetCookies(uri))
+                {
+                    existingCookie.Expired = true;
+                }
+
+                foreach (System.Net.Cookie refreshedCookie in refreshedCookieContainer.GetCookies(uri))
+                {
+                    CookieContainer.Add(uri, refreshedCookie);
+                }
+            }
+        }
+    }
 
     public async ValueTask DisposeAsync()
     {

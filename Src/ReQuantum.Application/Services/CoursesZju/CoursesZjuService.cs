@@ -2,57 +2,29 @@ using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.CoursesZju;
-using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Shared.Services;
-using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace ReQuantum.Application.Services.CoursesZju;
 
 [AutoInject(Lifetime.Singleton)]
 public class CoursesZjuService : ICoursesZjuService
 {
-    private readonly IZjuContext _zjuContext;
-    private readonly IStorage _storage;
+    private readonly HttpClient _httpClient;
     private readonly ILogger<CoursesZjuService> _logger;
-    private CoursesZjuState? _state;
-    private const string StateKey = "CoursesZju:State";
     private const string TodoApi = "https://courses.zju.edu.cn/api/todos?no-intercept=true";
 
-    public CoursesZjuService(IZjuContext zjuContext, IStorage storage, ILogger<CoursesZjuService> logger)
+    public CoursesZjuService(HttpClient httpClient, ILogger<CoursesZjuService> logger)
     {
-        _zjuContext = zjuContext;
-        _storage = storage;
+        _httpClient = httpClient;
         _logger = logger;
-        _zjuContext.OnLogout += () => _state = null;
     }
 
     public async Task<Result<HashSet<CoursesZjuTodoDto>>> GetTodoListAsync()
     {
-        var clientResult = await GetAuthenticatedClient();
-        if (!clientResult.IsSuccess)
-        {
-            return Result.Fail("400", clientResult.Message);
-        }
-
-        var client = clientResult.Value!;
-        var result = await client.GetAsync(TodoApi);
-
-        if (!result.IsSuccessStatusCode)
-        {
-            _state = null;
-            return Result.Fail("400", $"获取待办事项失败: {result.StatusCode}");
-        }
-
         try
         {
-            var response = await result.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>();
-            if (response is null)
-            {
-                return Result.Fail("400", "解析待办事项失败");
-            }
-
-            return response.TodoList.ToHashSet();
+            return await TryGetTodoListCoreAsync();
         }
         catch (Exception ex)
         {
@@ -61,57 +33,27 @@ public class CoursesZjuService : ICoursesZjuService
         }
     }
 
-    private async Task<Result<HttpClient>> GetAuthenticatedClient()
+    private async Task<Result<HashSet<CoursesZjuTodoDto>>> TryGetTodoListCoreAsync()
     {
-        await LoadStateAsync();
-
-        if (_state is not null)
+        using var response = await _httpClient.GetAsync(TodoApi);
+        if (!response.IsSuccessStatusCode)
         {
-            return HttpClientUtilities.Create(new RequestOptions { Cookies = [_state.Session] });
+            return Result.Fail("400", $"获取待办事项失败: {response.StatusCode}");
         }
 
-        using var client = HttpClientUtilities.Create(new RequestOptions
+        try
         {
-            AllowRedirects = false
-        });
-        var authResult = await _zjuContext.AuthorizeAsync(client);
-        if (!authResult.IsSuccess)
-        {
-            return Result.Fail("400", authResult.Message);
+            var data = await response.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>();
+            if (data is null)
+            {
+                return Result.Fail("400", "解析待办事项失败");
+            }
+
+            return data.TodoList.ToHashSet();
         }
-
-        var cookies = new List<Cookie>();
-        using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, TodoApi, cookies);
-        var session = cookies.FirstOrDefault(cookie => cookie.Name == "session");
-        if (session is null)
+        catch (JsonException)
         {
-            return Result.Fail("400", "无法获取Cookie");
+            return Result.Fail("400", "解析待办事项失败");
         }
-
-        _state = new CoursesZjuState(session);
-        await SaveStateAsync();
-        return HttpClientUtilities.Create(new RequestOptions { Cookies = [session] });
-    }
-
-    private async ValueTask LoadStateAsync()
-    {
-        if (_state is not null)
-        {
-            return;
-        }
-
-        var state = await _storage.TryGetAsync<CoursesZjuState>(StateKey);
-        _state = state.ValueOr((CoursesZjuState?)null);
-    }
-
-    private async ValueTask SaveStateAsync()
-    {
-        if (_state is null)
-        {
-            await _storage.RemoveAsync(StateKey);
-            return;
-        }
-
-        await _storage.SetAsync(StateKey, _state);
     }
 }

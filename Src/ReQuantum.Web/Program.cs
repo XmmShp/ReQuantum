@@ -14,6 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
+builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuTodoAfterReadyHandler>();
 builder.Services.AddSingleton<WebZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());

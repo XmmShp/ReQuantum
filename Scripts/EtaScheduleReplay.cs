@@ -6,7 +6,7 @@ const string EtaSwitchRoleUrl = "https://eta.zju.edu.cn/zftal-xgxt-web/teacher/x
 var xnxq = ScriptHttp.RequireEnvironmentVariable("ETA_XNXQ");
 var url = $"https://eta.zju.edu.cn/zftal-xgxt-web/student/xtgl/index/getTableKcb.zf?xnxq={Uri.EscapeDataString(xnxq)}";
 
-await using var authenticatedContext = await ScriptUnifiedAuth.CreateAuthenticatedHttpClientContextAsync();
+await using var authenticatedContext = await ScriptUnifiedAuth.CreateZjuCasAuthenticatedHttpClientContextAsync();
 
 using (var switchRoleRequest = new HttpRequestMessage(HttpMethod.Post, EtaSwitchRoleUrl))
 {

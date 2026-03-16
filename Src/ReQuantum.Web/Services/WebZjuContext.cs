@@ -11,9 +11,11 @@ public class WebZjuContext : ZjuContext
 {
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
+    private readonly IReadOnlyList<IZjuLoginAfterReadyHandler> _afterReadyHandlers;
 
-    public WebZjuContext(IStorage storage) : base(storage)
+    public WebZjuContext(IStorage storage, IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers) : base(storage)
     {
+        _afterReadyHandlers = afterReadyHandlers.ToArray();
     }
 
     public override async Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default)
@@ -54,6 +56,12 @@ public class WebZjuContext : ZjuContext
             }
 
             var loginInfo = await TryGetLoginInfoAsync(page, cancellationToken);
+            var afterReadyResult = await RunAfterReadyHandlersAsync(page, cancellationToken);
+            if (!afterReadyResult.IsSuccess)
+            {
+                return afterReadyResult;
+            }
+
             return Set(cookieValue, loginInfo);
         }
         catch (OperationCanceledException)
@@ -64,6 +72,21 @@ public class WebZjuContext : ZjuContext
         {
             return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
         }
+    }
+
+    private async Task<Result> RunAfterReadyHandlersAsync(IPage page, CancellationToken cancellationToken)
+    {
+        var context = new PlaywrightAfterReadyContext(page);
+        foreach (var handler in _afterReadyHandlers)
+        {
+            var result = await handler.OnAfterReadyAsync(context, cancellationToken);
+            if (!result.IsSuccess)
+            {
+                return result;
+            }
+        }
+
+        return Result.Success();
     }
 
     private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IPage page, CancellationToken cancellationToken)
@@ -117,6 +140,35 @@ public class WebZjuContext : ZjuContext
         catch
         {
             return null;
+        }
+    }
+
+    private sealed class PlaywrightAfterReadyContext : IZjuLoginAfterReadyContext
+    {
+        private readonly IPage _page;
+
+        public PlaywrightAfterReadyContext(IPage page)
+        {
+            _page = page;
+        }
+
+        public async Task<Result> VisitAsync(string url, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await _page.GotoAsync(url, new PageGotoOptions { Timeout = 15000 });
+                await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
+                return Result.Success();
+            }
+            catch (OperationCanceledException)
+            {
+                return Result.Fail("400", "登录后回调已取消");
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail("400", $"登录后访问页面失败: {ex.Message}");
+            }
         }
     }
 }

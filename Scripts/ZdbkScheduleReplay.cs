@@ -9,7 +9,7 @@ var url = commandLineArgs.Skip(1).FirstOrDefault(static arg => Uri.IsWellFormedU
 var formBody = Environment.GetEnvironmentVariable("ZDBK_FORM_BODY")
     ?? "xnm=2025-2026&xqm=2%7C%E6%98%A5&xqmmc=%E6%98%A5&xxqf=0&xsfs=0";
 
-await using var authenticatedContext = await ScriptUnifiedAuth.CreateAuthenticatedHttpClientContextAsync();
+await using var authenticatedContext = await ScriptUnifiedAuth.CreateZjuCasAuthenticatedHttpClientContextAsync();
 
 using (var ssoLoginRequest = new HttpRequestMessage(HttpMethod.Get, SsoLoginUrl))
 {
