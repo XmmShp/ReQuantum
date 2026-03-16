@@ -68,6 +68,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ReQuantum.MAUI.Persistence\ReQuantum.MAUI.Persistence.csproj" />
     <ProjectReference Include="..\ReQuantum.UI\ReQuantum.UI.csproj" />
+    <ProjectReference Include="..\ReQuantum.Infrastructure.Abstraction\ReQuantum.Infrastructure.Abstraction.csproj" />
   </ItemGroup>
 
 </Project>

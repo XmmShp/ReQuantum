@@ -1,6 +1,7 @@
 using Microsoft.Playwright;
 using NOF.Contract;
 using ReQuantum.Application.Models.ZjuSso;
+using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using System.Text.Json;
@@ -12,8 +13,12 @@ public class MauiZjuContext : ZjuContext
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
 
-    public MauiZjuContext(IStorage storage) : base(storage)
+    private readonly IHttpContext _httpContext;
+
+    public MauiZjuContext(IStorage storage, IHttpContext httpContext) : base(storage)
     {
+        _httpContext = httpContext;
+        OnLogout += () => _httpContext.ClearCookies();
     }
 
     public override async Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default)
@@ -55,7 +60,17 @@ public class MauiZjuContext : ZjuContext
             }
 
             var loginInfo = await TryGetLoginInfoAsync(page, cancellationToken);
-            return Set(cookieValue, loginInfo);
+            var setResult = Set(cookieValue, loginInfo);
+            if (setResult.IsSuccess)
+            {
+                var allCookies = await page.Context.CookiesAsync();
+                _httpContext.ReplaceCookies(allCookies.Select(c => new CookieEntry(
+                    c.Name, c.Value, c.Domain, c.Path,
+                    c.Expires > 0 ? (long)c.Expires : 0,
+                    c.HttpOnly, c.Secure)));
+            }
+
+            return setResult;
         }
         catch (OperationCanceledException)
         {
