@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace ReQuantum.ScriptSupport;
 
 public static class ScriptHttp
@@ -15,17 +13,6 @@ public static class ScriptHttp
         Console.Error.WriteLine($"Missing required environment variable: {name}");
         Environment.Exit(1);
         return string.Empty;
-    }
-
-    public static HttpClientHandler CreateHandler()
-    {
-        return new HttpClientHandler
-        {
-            AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
-            UseCookies = false,
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
     }
 
     public static IReadOnlyList<string> TryGetHeaderValues(HttpResponseMessage response, string headerName)

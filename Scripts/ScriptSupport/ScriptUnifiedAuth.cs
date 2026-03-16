@@ -51,8 +51,7 @@ public static class ScriptUnifiedAuth
             await Task.Delay(pollIntervalMs);
         }
 
-        var filteredCookies = FilterUsefulCookies(browserCookies);
-        var cookieContainer = BuildCookieContainer(filteredCookies);
+        var cookieContainer = BuildCookieContainer(browserCookies);
         var handler = new HttpClientHandler
         {
             AllowAutoRedirect = false,
@@ -79,7 +78,7 @@ public static class ScriptUnifiedAuth
             handler,
             cookieContainer,
             browserPath,
-            filteredCookies);
+            browserCookies);
     }
 
     public static bool HasReadyState(IReadOnlyList<BrowserContextCookiesResult> cookies, string currentUrl, string readyHost)
@@ -97,50 +96,6 @@ public static class ScriptUnifiedAuth
                 && cookie.Domain.Contains(readyHost, StringComparison.OrdinalIgnoreCase));
 
         return hasIPlanet && hasReadyHostSession;
-    }
-
-    public static List<BrowserContextCookiesResult> FilterUsefulCookies(IReadOnlyList<BrowserContextCookiesResult> cookies)
-    {
-        return cookies
-            .Where(static cookie => IsUsefulCookieName(cookie.Name))
-            .Where(static cookie => IsUsefulCookieDomain(cookie.Domain))
-            .GroupBy(static cookie => $"{cookie.Name}|{cookie.Domain}|{cookie.Path}", StringComparer.OrdinalIgnoreCase)
-            .Select(static group => group.Last())
-            .ToList();
-    }
-
-    public static bool IsUsefulCookieName(string name)
-    {
-        return name.Equals("iPlanetDirectoryPro", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("_csrf", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("_pf0", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("_pc0", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("route", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("session", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("JSESSIONID", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("CLIENT_URL", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("AUTH_SESSION_ID", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("AUTH_SESSION_ID_LEGACY", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("KC_RESTART", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("KEYCLOAK_IDENTITY", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("KEYCLOAK_IDENTITY_LEGACY", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("KEYCLOAK_SESSION", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("KEYCLOAK_SESSION_LEGACY", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("Coremail", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("device_token", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("old_device_token", StringComparison.OrdinalIgnoreCase)
-            || name.Equals("sudyLoginToken", StringComparison.OrdinalIgnoreCase);
-    }
-
-    public static bool IsUsefulCookieDomain(string domain)
-    {
-        return domain.Contains("zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("zjuam.zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("identity.zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("service.zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("courses.zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("zdbk.zju.edu.cn", StringComparison.OrdinalIgnoreCase)
-            || domain.Contains("eta.zju.edu.cn", StringComparison.OrdinalIgnoreCase);
     }
 
     public static CookieContainer BuildCookieContainer(IReadOnlyList<BrowserContextCookiesResult> cookies)
