@@ -3,7 +3,6 @@ using ReQuantum.Infrastructure.Abstraction;
 using ReQuantum.Infrastructure.Utilities;
 using ReQuantum.Shared.Services;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,22 +14,21 @@ namespace ReQuantum.Infrastructure.Services;
 public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
 {
     private readonly IStorage _storage;
-    private readonly CookieContainer _cookieContainer;
     private const string CookieStateKey = "HttpContext:Cookies";
 
     public HttpClient HttpClient { get; }
-    public CookieContainer CookieContainer => _cookieContainer;
+    public CookieContainer CookieContainer { get; }
 
     public MauiHttpContext(IStorage storage)
     {
         _storage = storage;
-        _cookieContainer = new CookieContainer();
+        CookieContainer = new CookieContainer();
 
         var innerHandler = new HttpClientHandler
         {
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
-            CookieContainer = _cookieContainer,
+            CookieContainer = CookieContainer,
             UseCookies = true,
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
@@ -55,13 +53,14 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
                 var cookie = new System.Net.Cookie(entry.Name, entry.Value, entry.Path, normalizedDomain);
                 if (entry.Expires > 0)
                 {
-                    try { cookie.Expires = DateTimeOffset.FromUnixTimeSeconds(entry.Expires).DateTime; }
+                    try
+                    { cookie.Expires = DateTimeOffset.FromUnixTimeSeconds(entry.Expires).DateTime; }
                     catch { }
                 }
 
                 cookie.HttpOnly = entry.HttpOnly;
                 cookie.Secure = entry.Secure;
-                _cookieContainer.Add(uri, cookie);
+                CookieContainer.Add(uri, cookie);
             }
             catch { }
         }
@@ -69,7 +68,7 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
 
     public void ClearCookies()
     {
-        foreach (System.Net.Cookie c in _cookieContainer.GetAllCookies())
+        foreach (System.Net.Cookie c in CookieContainer.GetAllCookies())
         {
             c.Expired = true;
         }
@@ -115,13 +114,14 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
                 var cookie = new System.Net.Cookie(record.Name, record.Value, record.Path, normalizedDomain);
                 if (record.Expires > 0)
                 {
-                    try { cookie.Expires = DateTimeOffset.FromUnixTimeSeconds(record.Expires).DateTime; }
+                    try
+                    { cookie.Expires = DateTimeOffset.FromUnixTimeSeconds(record.Expires).DateTime; }
                     catch { }
                 }
 
                 cookie.HttpOnly = record.HttpOnly;
                 cookie.Secure = record.Secure;
-                _cookieContainer.Add(uri, cookie);
+                CookieContainer.Add(uri, cookie);
             }
             catch { }
         }
@@ -131,7 +131,7 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
     {
         try
         {
-            var cookies = _cookieContainer.GetAllCookies();
+            var cookies = CookieContainer.GetAllCookies();
             var records = cookies.Select(CookieRecord.From).ToList();
             var json = JsonSerializer.SerializeToUtf8Bytes(records);
             var encrypted = Encryption.Encrypt(json);

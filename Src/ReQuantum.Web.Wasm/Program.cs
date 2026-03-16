@@ -9,10 +9,12 @@ using ReQuantum.Web.Wasm.Services;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddSingleton<IStorage, WebClientStorage>();
-builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuTodoAfterReadyHandler>();
+builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
 builder.Services.AddSingleton<WasmZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WasmZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WasmZjuContext>());
+builder.Services.AddSingleton<IZjuAuthenticator>(sp => sp.GetRequiredService<WasmZjuContext>());
+builder.Services.AddSingleton<IZjuLoginStateWriter>(sp => sp.GetRequiredService<WasmZjuContext>());
 builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
 builder.Services.AddSingleton<IPtaBrowserAuthService, WasmPtaBrowserAuthService>();
 builder.Services.AddSingleton<IPtaProblemSetService, PtaProblemSetService>();

@@ -14,10 +14,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
-builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuTodoAfterReadyHandler>();
+builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
 builder.Services.AddSingleton<WebZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
+builder.Services.AddSingleton<IZjuAuthenticator>(sp => sp.GetRequiredService<WebZjuContext>());
+builder.Services.AddSingleton<IZjuLoginStateWriter>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
 builder.Services.AddSingleton<IPtaBrowserAuthService, WebPtaBrowserAuthService>();
 builder.Services.AddSingleton<IPtaProblemSetService, PtaProblemSetService>();

@@ -14,6 +14,7 @@ namespace ReQuantum.Application.Services.Zdbk;
 public class ZdbkExamService : IZdbkExamService
 {
     private readonly IZjuContext _zjuContext;
+    private readonly IZjuAuthenticator _zjuAuthenticator;
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkExamService> _logger;
 
@@ -24,10 +25,12 @@ public class ZdbkExamService : IZdbkExamService
 
     public ZdbkExamService(
         IZjuContext zjuContext,
+        IZjuAuthenticator zjuAuthenticator,
         IAcademicCalendarService calendarService,
         ILogger<ZdbkExamService> logger)
     {
         _zjuContext = zjuContext;
+        _zjuAuthenticator = zjuAuthenticator;
         _calendarService = calendarService;
         _logger = logger;
     }
@@ -148,7 +151,7 @@ public class ZdbkExamService : IZdbkExamService
         {
             AllowRedirects = false
         });
-        var authResult = await _zjuContext.AuthorizeAsync(client);
+        var authResult = await _zjuAuthenticator.AuthorizeAsync(client);
         if (!authResult.IsSuccess)
         {
             return Result.Fail("500", authResult.Message);

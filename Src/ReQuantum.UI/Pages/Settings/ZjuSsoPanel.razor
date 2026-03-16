@@ -4,6 +4,7 @@
 @using ReQuantum.Shared.Resources.Localization
 @implements IDisposable
 @inject IMutableZjuContext SsoService
+@inject IZjuLoginStateWriter LoginStateWriter
 @inject IStringLocalizer<ZjuSsoStrings> L
 
 <div>
@@ -128,13 +129,13 @@
         StateHasChanged();
     }
 
-    private void HandleManualLogin()
+    private async Task HandleManualLogin()
     {
         var loginInfo = new ZjuLoginInfo(
             _manualUserName,
             _manualLoginName,
             _manualUserId);
-        var result = SsoService.Set(_manualCookieValue, loginInfo);
+        var result = await LoginStateWriter.SetAuthenticatedStateAsync(_manualCookieValue, loginInfo);
 
         _progressMessages.Clear();
         _progressMessages.Add($" {result.Message}");
