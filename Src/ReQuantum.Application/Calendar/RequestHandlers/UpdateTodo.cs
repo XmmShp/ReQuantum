@@ -5,14 +5,14 @@ using ReQuantum.Contract.Calendar.Todos;
 using ReQuantum.Domain.Calendar;
 using ReQuantum.Domain.Calendar.Repositories;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
-/// 删除待办事项
+/// 更新待办事项
 /// </summary>
-public class RemoveTodo(ICalendarTodoRepository repository, IUnitOfWork uow) : IRequestHandler<RemoveTodoRequest>
+public class UpdateTodo(ICalendarTodoRepository repository, IUnitOfWork uow) : IRequestHandler<UpdateTodoRequest>
 {
-    public async Task<Result> HandleAsync(RemoveTodoRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(UpdateTodoRequest request, CancellationToken cancellationToken)
     {
         var existing = await repository.FindAsync(CalendarTodoId.Of(request.Id), cancellationToken);
         if (existing is null)
@@ -20,7 +20,7 @@ public class RemoveTodo(ICalendarTodoRepository repository, IUnitOfWork uow) : I
             return Result.Fail(CalendarFailures.TodoNotFound);
         }
 
-        repository.Remove(existing);
+        existing.Update(request.Content, request.DueTime);
         await uow.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

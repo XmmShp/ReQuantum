@@ -4,7 +4,7 @@ using ReQuantum.Contract.Calendar.Todos;
 using ReQuantum.Domain.Calendar.AggregateRoots;
 using ReQuantum.Domain.Calendar.Repositories;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 添加待办事项

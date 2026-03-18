@@ -1,5 +1,4 @@
 using ReQuantum.Application.Abstraction;
-using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.CoursesZju;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.Zdbk;

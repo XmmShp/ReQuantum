@@ -1,6 +1,6 @@
 using NOF.Application;
 using NOF.Contract;
-using ReQuantum.Application.Services;
+using ReQuantum.Application.Calendar.Abstractions;
 using ReQuantum.Contract.Calendar;
 using ReQuantum.Domain.Calendar.Repositories;
 using CalendarEvent = ReQuantum.Domain.Calendar.AggregateRoots.CalendarEvent;
@@ -8,7 +8,7 @@ using CalendarEventDto = ReQuantum.Contract.Calendar.CalendarEvent;
 using CalendarTodo = ReQuantum.Domain.Calendar.AggregateRoots.CalendarTodo;
 using CalendarTodoDto = ReQuantum.Contract.Calendar.CalendarTodo;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 按日期范围获取日历综合数据。

@@ -4,7 +4,7 @@ using CalendarEventDto = ReQuantum.Contract.Calendar.CalendarEvent;
 using CalendarNoteDto = ReQuantum.Contract.Calendar.CalendarNote;
 using CalendarTodoDto = ReQuantum.Contract.Calendar.CalendarTodo;
 
-namespace ReQuantum.Application.RequestHandlers;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 领域实体到 Contract 类型的映射工具

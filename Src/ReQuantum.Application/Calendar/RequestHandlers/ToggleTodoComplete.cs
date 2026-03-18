@@ -5,7 +5,7 @@ using ReQuantum.Contract.Calendar.Todos;
 using ReQuantum.Domain.Calendar;
 using ReQuantum.Domain.Calendar.Repositories;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 切换待办完成状态

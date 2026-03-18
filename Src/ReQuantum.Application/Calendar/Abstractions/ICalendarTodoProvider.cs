@@ -1,6 +1,6 @@
 using ReQuantum.Contract.Calendar;
 
-namespace ReQuantum.Application.Services;
+namespace ReQuantum.Application.Calendar.Abstractions;
 
 /// <summary>
 /// 外部待办来源提供者，可将第三方数据源的待办映射为 <see cref="CalendarTodo"/>。

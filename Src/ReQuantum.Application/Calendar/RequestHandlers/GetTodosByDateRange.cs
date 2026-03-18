@@ -5,7 +5,7 @@ using ReQuantum.Contract.Calendar.Todos;
 using ReQuantum.Domain.Calendar.Repositories;
 using CalendarTodoDto = ReQuantum.Contract.Calendar.CalendarTodo;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 按日期范围获取待办事项

@@ -4,7 +4,7 @@ using ReQuantum.Contract.Calendar.Notes;
 using ReQuantum.Domain.Calendar.Repositories;
 using CalendarNoteDto = ReQuantum.Contract.Calendar.CalendarNote;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 获取所有便签

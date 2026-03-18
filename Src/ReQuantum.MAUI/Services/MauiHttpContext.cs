@@ -1,5 +1,4 @@
 using ReQuantum.Application.Abstraction;
-using ReQuantum.Application.Services;
 using ReQuantum.Infrastructure.Abstraction;
 using ReQuantum.Infrastructure.Utilities;
 using System.Net;

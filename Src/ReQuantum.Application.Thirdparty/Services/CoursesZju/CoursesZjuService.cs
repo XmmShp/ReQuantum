@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
+using ReQuantum.Application.Calendar.Abstractions;
 using ReQuantum.Application.Models.CoursesZju;
 using ReQuantum.Contract.Calendar;
 using System.Net.Http.Json;

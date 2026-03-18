@@ -4,7 +4,7 @@ using ReQuantum.Contract.Calendar.Events;
 using ReQuantum.Domain.Calendar.Repositories;
 using CalendarEventDto = ReQuantum.Contract.Calendar.CalendarEvent;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 获取所有日程事件

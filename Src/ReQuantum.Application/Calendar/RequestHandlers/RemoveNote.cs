@@ -5,7 +5,7 @@ using ReQuantum.Contract.Calendar.Notes;
 using ReQuantum.Domain.Calendar;
 using ReQuantum.Domain.Calendar.Repositories;
 
-namespace ReQuantum.Application.RequestHandlers.Calendar;
+namespace ReQuantum.Application.Calendar.RequestHandlers;
 
 /// <summary>
 /// 删除便签
