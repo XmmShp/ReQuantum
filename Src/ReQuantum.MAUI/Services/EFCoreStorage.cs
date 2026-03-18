@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NOF.Annotation;
-using ReQuantum.Application.Abstraction;
+using ReQuantum.Application.Common.Services;
 using ReQuantum.MAUI.Persistence;
 
 namespace ReQuantum.Infrastructure.Services;

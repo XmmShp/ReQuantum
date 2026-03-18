@@ -1,10 +1,12 @@
 using Microsoft.Playwright;
 using NOF.Contract;
-using ReQuantum.Application.Abstraction;
-using ReQuantum.Application.Models.ZjuSso;
-using ReQuantum.Application.Services.ZjuSso;
+using ReQuantum.Application.Common.Services;
+using ReQuantum.Application.ZjuSso.Abstractions;
+using ReQuantum.Application.ZjuSso.Models;
+using ReQuantum.Application.ZjuSso.Services;
 using ReQuantum.Shared.Services;
 using System.Text.Json;
+using Cookie = ReQuantum.Application.Common.Models.Cookie;
 
 namespace ReQuantum.Infrastructure.Services;
 
@@ -82,7 +84,7 @@ public class MauiZjuContext : ZjuContext
             if (setResult.IsSuccess)
             {
                 var allCookies = await page.Context.CookiesAsync();
-                _httpContext.ReplaceCookies(allCookies.Select(c => new CookieEntry(
+                _httpContext.ReplaceCookies(allCookies.Select(c => new Cookie(
                     c.Name, c.Value, c.Domain, c.Path,
                     c.Expires > 0 ? (long)c.Expires : 0,
                     c.HttpOnly, c.Secure)));
@@ -125,7 +127,7 @@ public class MauiZjuContext : ZjuContext
 
         _httpContext.ReplaceCookies(
         [
-            new CookieEntry(
+            new Cookie(
                 cookie.Name,
                 cookie.Value,
                 cookie.Domain,

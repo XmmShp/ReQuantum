@@ -1,7 +1,7 @@
 using Microsoft.Playwright;
 using NOF.Contract;
-using ReQuantum.Application.Abstraction;
-using ReQuantum.Application.Services.Pta;
+using ReQuantum.Application.Common.Services;
+using ReQuantum.Application.Pta.Services;
 using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Web.Services;

@@ -1,4 +1,5 @@
-using ReQuantum.Application.Abstraction;
+using ReQuantum.Application.Common.Models;
+using ReQuantum.Application.Common.Services;
 
 namespace ReQuantum.Web.Wasm.Services;
 
@@ -6,7 +7,7 @@ public class WasmHttpContext : IHttpContext
 {
     public HttpClient HttpClient { get; } = new();
 
-    public void ReplaceCookies(IEnumerable<CookieEntry> cookies) { }
+    public void ReplaceCookies(IEnumerable<Cookie> cookies) { }
 
     public void ClearCookies() { }
 

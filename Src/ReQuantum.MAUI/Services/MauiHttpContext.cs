@@ -1,9 +1,10 @@
-using ReQuantum.Application.Abstraction;
+using ReQuantum.Application.Common.Services;
 using ReQuantum.Infrastructure.Abstraction;
 using ReQuantum.Infrastructure.Utilities;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Cookie = ReQuantum.Application.Common.Models.Cookie;
 
 namespace ReQuantum.Infrastructure.Services;
 
@@ -41,7 +42,7 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0");
     }
 
-    public void ReplaceCookies(IEnumerable<CookieEntry> cookies)
+    public void ReplaceCookies(IEnumerable<Cookie> cookies)
     {
         foreach (var entry in cookies)
         {

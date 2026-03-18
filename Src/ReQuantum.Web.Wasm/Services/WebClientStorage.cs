@@ -1,4 +1,4 @@
-using ReQuantum.Application.Abstraction;
+using ReQuantum.Application.Common.Services;
 
 namespace ReQuantum.Web.Wasm.Services;
 

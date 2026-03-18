@@ -2,8 +2,6 @@
   <Folder Name="/Solution Items/">
     <File Path="Directory.Packages.props" />
   </Folder>
-  <Project Path="Src/ReQuantum.Application.Abstraction/ReQuantum.Application.Abstraction.csproj" Id="0d889c9b-8df7-4b95-9073-e4ea57e24eff" />
-  <Project Path="Src/ReQuantum.Application.Thirdparty/ReQuantum.Application.Thirdparty.csproj" Id="b155fbb6-5117-43a0-b8cb-5525dc88f7c4" />
   <Project Path="Src/ReQuantum.Application/ReQuantum.Application.csproj" />
   <Project Path="Src/ReQuantum.Contract/ReQuantum.Contract.csproj" Id="44154e8e-6e30-4ab4-a1a6-3ab2e6530f10" />
   <Project Path="Src/ReQuantum.Domain/ReQuantum.Domain.csproj" Id="36ecf6ee-cfa9-4606-9f73-39c3bfa9723b" />
