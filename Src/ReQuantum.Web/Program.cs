@@ -1,6 +1,7 @@
 using ReQuantum.Application.Services.CoursesZju;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.Zdbk;
+using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using ReQuantum.Web.Components;
@@ -14,12 +15,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
+builder.Services.AddSingleton<WebHttpContext>();
+builder.Services.AddSingleton<IHttpContext>(sp => sp.GetRequiredService<WebHttpContext>());
 builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
 builder.Services.AddSingleton<WebZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
-builder.Services.AddSingleton<IZjuAuthenticator>(sp => sp.GetRequiredService<WebZjuContext>());
-builder.Services.AddSingleton<IZjuLoginStateWriter>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<ICoursesZjuService, CoursesZjuService>();
 builder.Services.AddSingleton<IPtaBrowserAuthService, WebPtaBrowserAuthService>();
 builder.Services.AddSingleton<IPtaProblemSetService, PtaProblemSetService>();

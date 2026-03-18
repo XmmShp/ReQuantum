@@ -49,8 +49,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<MauiZjuContext>();
         builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
-        builder.Services.AddSingleton<IZjuAuthenticator>(sp => sp.GetRequiredService<MauiZjuContext>());
-        builder.Services.AddSingleton<IZjuLoginStateWriter>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IPtaBrowserAuthService, MauiPtaBrowserAuthService>();
         builder.Services.AddLocalization();
 

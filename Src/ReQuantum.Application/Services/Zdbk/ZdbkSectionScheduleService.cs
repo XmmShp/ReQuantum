@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
 using ReQuantum.Application.Models.Zdbk;
+using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using System.Net;
@@ -13,7 +14,7 @@ namespace ReQuantum.Application.Services.Zdbk;
 public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
     private readonly IZjuContext _zjuContext;
-    private readonly IZjuAuthenticator _zjuAuthenticator;
+    private readonly IHttpContext _httpContext;
     private readonly IAcademicCalendarService _calendarService;
     private readonly IStorage _storage;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
@@ -27,13 +28,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     public ZdbkSectionScheduleService(
         IZjuContext zjuContext,
-        IZjuAuthenticator zjuAuthenticator,
+        IHttpContext httpContext,
         IAcademicCalendarService calendarService,
         IStorage storage,
         ILogger<ZdbkSectionScheduleService> logger)
     {
         _zjuContext = zjuContext;
-        _zjuAuthenticator = zjuAuthenticator;
+        _httpContext = httpContext;
         _calendarService = calendarService;
         _storage = storage;
         _logger = logger;
@@ -163,21 +164,11 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     private async Task<Result<HttpClient>> GetAuthenticatedClient()
     {
-        using var client = HttpClientUtilities.Create(new RequestOptions
-        {
-            AllowRedirects = false
-        });
-        var authResult = await _zjuAuthenticator.AuthorizeAsync(client);
-        if (!authResult.IsSuccess)
-        {
-            return Result.Fail("500", authResult.Message);
-        }
-
         try
         {
             var cookies = new List<Cookie>();
             var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(client, ssoUrl, cookies);
+            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(_httpContext.HttpClient, ssoUrl, cookies);
 
             var sessionCookie = cookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
             var route = cookies.Last(ck => ck is { Name: "route" });

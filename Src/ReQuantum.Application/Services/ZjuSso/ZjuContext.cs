@@ -1,12 +1,14 @@
+using NOF.Abstraction;
 using NOF.Contract;
 using ReQuantum.Application.Models.ZjuSso;
 using ReQuantum.Shared.Services;
-using System.Net;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.Application.Services.ZjuSso;
 
 public interface IZjuContext
 {
+    [MemberNotNullWhen(true, nameof(LoginInfo))]
     bool IsAuthenticated { get; }
 
     ZjuLoginInfo? LoginInfo { get; }
@@ -18,60 +20,50 @@ public interface IZjuContext
 
 public interface IMutableZjuContext : IZjuContext
 {
-    Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default);
+    Task<Result> LoginAsync(CancellationToken cancellationToken = default);
+
+    Task<Result> SetLoginInfoAsync(ZjuLoginInfo loginInfo, CancellationToken cancellationToken = default);
 
     void Logout();
 }
 
-public abstract class ZjuContext : IMutableZjuContext
+public abstract class ZjuContext : IMutableZjuContext, IInitializable
 {
     private readonly IStorage _storage;
     private const string StateKey = "ZjuSso:State";
-
-    private ZjuSsoState? _state;
 
     protected ZjuContext(IStorage storage)
     {
         _storage = storage;
     }
 
-    public bool IsAuthenticated => _state is not null;
+    public bool IsAuthenticated => LoginInfo is not null;
 
-    public ZjuLoginInfo? LoginInfo => _state is null
-        ? null
-        : new ZjuLoginInfo(_state.UserName, _state.LoginName, _state.UserId);
+    public ZjuLoginInfo? LoginInfo { get; private set; }
 
     public void Logout()
     {
         OnLogout?.Invoke();
-        _state = null;
-        _ = SaveStateAsync();
+        LoginInfo = null;
+        SaveStateAsync().GetAwaiter().GetResult();
     }
 
     public event Action? OnLogin;
     public event Action? OnLogout;
 
-    public abstract Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default);
+    public abstract Task<Result> LoginAsync(CancellationToken cancellationToken = default);
 
-    protected async Task<Result> SetAuthenticatedStateAsync(Cookie cookie, ZjuLoginInfo loginInfo)
+    public async Task<Result> SetLoginInfoAsync(ZjuLoginInfo loginInfo, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            if (string.IsNullOrWhiteSpace(cookie.Value)
-                || string.IsNullOrWhiteSpace(loginInfo.UserName)
-                || string.IsNullOrWhiteSpace(loginInfo.LoginName)
-                || string.IsNullOrWhiteSpace(loginInfo.UserId))
+            if (string.IsNullOrWhiteSpace(loginInfo.UserName) || string.IsNullOrWhiteSpace(loginInfo.LoginName))
             {
                 return Result.Fail("400", "登录信息不完整");
             }
 
-            _state = new ZjuSsoState
-            {
-                UserName = loginInfo.UserName,
-                LoginName = loginInfo.LoginName,
-                UserId = loginInfo.UserId,
-                IPlanetDirectoryPro = cookie
-            };
+            LoginInfo = loginInfo;
             await SaveStateAsync();
             OnLogin?.Invoke();
             return Result.Success();
@@ -82,36 +74,37 @@ public abstract class ZjuContext : IMutableZjuContext
         }
     }
 
-    private async ValueTask LoadStateAsync()
+    private async Task LoadStateAsync()
     {
-        if (_state is not null)
+        if (LoginInfo is not null)
         {
             return;
         }
 
-        var state = await _storage.TryGetAsync<ZjuSsoState>(StateKey);
-        _state = state.ValueOr((ZjuSsoState?)null);
+        var state = await _storage.TryGetAsync<ZjuLoginInfo>(StateKey);
+        LoginInfo = state.ValueOr((ZjuLoginInfo?)null);
     }
 
-    protected ValueTask EnsureStateLoadedAsync()
+    private async Task SaveStateAsync()
     {
-        return LoadStateAsync();
-    }
-
-    protected async Task<ZjuSsoState?> GetStateAsync()
-    {
-        await LoadStateAsync();
-        return _state;
-    }
-
-    private async ValueTask SaveStateAsync()
-    {
-        if (_state is null)
+        if (LoginInfo is null)
         {
             await _storage.RemoveAsync(StateKey);
             return;
         }
 
-        await _storage.SetAsync(StateKey, _state);
+        await _storage.SetAsync(StateKey, LoginInfo);
     }
+
+    public void Initialize()
+    {
+        if (IsInitialized)
+        {
+            return;
+        }
+        IsInitialized = true;
+        LoadStateAsync().GetAwaiter().GetResult();
+    }
+
+    public bool IsInitialized { get; private set; }
 }

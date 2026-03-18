@@ -5,21 +5,24 @@ using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
 using System.Net;
 using System.Text.Json;
+using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Web.Services;
 
-public class WebZjuContext : ZjuContext, IZjuAuthenticator, IZjuLoginStateWriter
+public class WebZjuContext : ZjuContext
 {
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
     private readonly IReadOnlyList<IZjuLoginAfterReadyHandler> _afterReadyHandlers;
+    private readonly WebHttpContext _httpContext;
 
-    public WebZjuContext(IStorage storage, IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers) : base(storage)
+    public WebZjuContext(IStorage storage, WebHttpContext httpContext, IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers) : base(storage)
     {
+        _httpContext = httpContext;
         _afterReadyHandlers = afterReadyHandlers.ToArray();
     }
 
-    public override async Task<Result> AcquireSessionAsync(CancellationToken cancellationToken = default)
+    public override async Task<Result> LoginAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -97,33 +100,22 @@ public class WebZjuContext : ZjuContext, IZjuAuthenticator, IZjuLoginStateWriter
         return Result.Success();
     }
 
-    public async Task<Result> AuthorizeAsync(HttpClient client, CancellationToken cancellationToken = default)
+    public new void Logout()
     {
-        var state = await GetStateAsync();
-        if (state is null)
-        {
-            return Result.Fail("400", "未登录");
-        }
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, "https://zjuam.zju.edu.cn/cas/login");
-        HttpClientUtilities.ApplyCookies(request, [state.IPlanetDirectoryPro]);
-        var response = await client.SendAsync(request, cancellationToken);
-        if (response.StatusCode != HttpStatusCode.Redirect)
-        {
-            Logout();
-            return Result.Fail("400", "Session 已过期，请重新登录");
-        }
-
-        var cookieHeader = HttpClientUtilities.BuildCookieHeader([state.IPlanetDirectoryPro]);
-        client.DefaultRequestHeaders.Remove("Cookie");
-        client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
-        return Result.Success();
+        _httpContext.ClearCookies();
+        base.Logout();
     }
 
-    public Task<Result> SetAuthenticatedStateAsync(string cookieValue, ZjuLoginInfo loginInfo, CancellationToken cancellationToken = default)
+    private async Task<Result> SetAuthenticatedStateAsync(Cookie cookie, ZjuLoginInfo loginInfo)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        return SetAuthenticatedStateAsync(new Cookie("iPlanetDirectoryPro", cookieValue, "/", "zju.edu.cn"), loginInfo);
+        var result = await base.SetLoginInfoAsync(loginInfo);
+        if (!result.IsSuccess)
+        {
+            return result;
+        }
+
+        _httpContext.SetCookie(cookie);
+        return Result.Success();
     }
 
     private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IPage page, CancellationToken cancellationToken)
@@ -172,7 +164,7 @@ public class WebZjuContext : ZjuContext, IZjuAuthenticator, IZjuLoginStateWriter
                 return null;
             }
 
-            return new ZjuLoginInfo(userName, loginName, userId);
+            return new ZjuLoginInfo(userName, loginName);
         }
         catch
         {
@@ -208,4 +200,5 @@ public class WebZjuContext : ZjuContext, IZjuAuthenticator, IZjuLoginStateWriter
             }
         }
     }
+
 }
