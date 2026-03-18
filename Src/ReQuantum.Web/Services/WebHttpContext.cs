@@ -1,5 +1,5 @@
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Services;
-using ReQuantum.Shared.Services;
 using System.Net;
 using Cookie = System.Net.Cookie;
 

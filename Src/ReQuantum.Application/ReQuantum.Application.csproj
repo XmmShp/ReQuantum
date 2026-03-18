@@ -24,6 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ReQuantum.Application.Abstraction\ReQuantum.Application.Abstraction.csproj" />
+    <ProjectReference Include="..\ReQuantum.Application.Thirdparty\ReQuantum.Application.Thirdparty.csproj" />
     <ProjectReference Include="..\ReQuantum.Domain\ReQuantum.Domain.csproj" />
     <ProjectReference Include="..\ReQuantum.Contract\ReQuantum.Contract.csproj" />
     <ProjectReference Include="..\ReQuantum.Shared\ReQuantum.Shared.csproj" />

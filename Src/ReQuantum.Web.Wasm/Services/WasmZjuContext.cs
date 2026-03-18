@@ -1,6 +1,6 @@
 using NOF.Contract;
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Shared.Services;
 
 namespace ReQuantum.Web.Wasm.Services;
 

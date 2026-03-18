@@ -1,9 +1,9 @@
 using Microsoft.Playwright;
 using NOF.Contract;
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Models.ZjuSso;
 using ReQuantum.Application.Services.ZjuSso;
 using ReQuantum.Shared.Services;
-using System.Net;
 using System.Text.Json;
 using Cookie = System.Net.Cookie;
 

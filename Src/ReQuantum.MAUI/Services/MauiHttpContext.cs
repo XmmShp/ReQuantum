@@ -1,7 +1,7 @@
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Services;
 using ReQuantum.Infrastructure.Abstraction;
 using ReQuantum.Infrastructure.Utilities;
-using ReQuantum.Shared.Services;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;

@@ -1,7 +1,7 @@
 using NOF.Abstraction;
 using NOF.Contract;
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Models.ZjuSso;
-using ReQuantum.Shared.Services;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ReQuantum.Application.Services.ZjuSso;

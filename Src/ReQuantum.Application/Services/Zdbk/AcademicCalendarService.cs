@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
+using ReQuantum.Application.Abstraction;
 using ReQuantum.Application.Models.Zdbk;
-using ReQuantum.Shared.Services;
 using System.Net.Http.Json;
 using System.Text.Json;
 

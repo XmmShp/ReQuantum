@@ -1,9 +1,9 @@
+using ReQuantum.Application.Abstraction;
+using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.CoursesZju;
 using ReQuantum.Application.Services.Pta;
 using ReQuantum.Application.Services.Zdbk;
-using ReQuantum.Application.Services;
 using ReQuantum.Application.Services.ZjuSso;
-using ReQuantum.Shared.Services;
 using ReQuantum.Web.Components;
 using ReQuantum.Web.Services;
 

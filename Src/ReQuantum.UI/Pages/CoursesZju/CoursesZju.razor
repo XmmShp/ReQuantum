@@ -24,6 +24,7 @@
                 <tr>
                     <th>标题</th>
                     <th>课程</th>
+                    <th>开始时间</th>
                     <th>截止时间</th>
                     <th>类型</th>
                     <th>状态</th>
@@ -35,8 +36,9 @@
                     <tr class="@(todo.EndTime < DateTime.UtcNow ? "table-danger" : "")">
                         <td>@todo.Title</td>
                         <td>@todo.CourseName</td>
+                        <td>@(todo.StartTime.HasValue ? todo.StartTime.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "-")</td>
                         <td>@todo.EndTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@todo.Type</td>
+                        <td>@GetTypeLabel(todo.Type)</td>
                         <td>
                             @if (todo.IsLocked)
                             {
@@ -46,9 +48,13 @@
                             {
                                 <span class="badge bg-danger">已过期</span>
                             }
+                            else if (todo.SubmitRate > 0)
+                            {
+                                <span class="badge bg-warning text-dark">已提交</span>
+                            }
                             else
                             {
-                                <span class="badge bg-success">进行中</span>
+                                <span class="badge bg-success">待提交</span>
                             }
                         </td>
                     </tr>
@@ -91,4 +97,13 @@ else if (!_isLoading && _todoList is not null)
 
         _isLoading = false;
     }
+
+    private static string GetTypeLabel(string type) => type switch
+    {
+        "homework" => "作业",
+        "exam" => "考试",
+        "discussion" => "讨论",
+        "survey" => "问卷",
+        _ => type
+    };
 }
