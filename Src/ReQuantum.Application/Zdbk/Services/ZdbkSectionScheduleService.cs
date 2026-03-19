@@ -11,9 +11,8 @@ namespace ReQuantum.Application.Zdbk.Services;
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
-    private readonly IZjuContext _zjuContext;
     private readonly ILoginZjuFactory _loginZjuFactory;
-    private readonly ZjuamAuthHolder _authHolder;
+    private readonly ZjuAuthAccessor _authAccessor;
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
     private IZjuamAuth? _cachedAuth;
@@ -22,18 +21,15 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
     private const string CourseScheduleApiBase = "https://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html";
 
     public ZdbkSectionScheduleService(
-        IZjuContext zjuContext,
         ILoginZjuFactory loginZjuFactory,
-        ZjuamAuthHolder authHolder,
+        ZjuAuthAccessor authAccessor,
         IAcademicCalendarService calendarService,
         ILogger<ZdbkSectionScheduleService> logger)
     {
-        _zjuContext = zjuContext;
         _loginZjuFactory = loginZjuFactory;
-        _authHolder = authHolder;
+        _authAccessor = authAccessor;
         _calendarService = calendarService;
         _logger = logger;
-        _zjuContext.OnLogout += () => ResetCachedService();
     }
 
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCurrentSemesterScheduleAsync()
@@ -118,7 +114,8 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
 
         var zdbkService = zdbkServiceResult.Value!;
-        if (!_zjuContext.IsAuthenticated || _zjuContext.LoginInfo is null)
+        var loginInfo = _authAccessor.CurrentLoginInfo;
+        if (loginInfo is null)
         {
             return Result.Fail("400", "未找到学号");
         }
@@ -126,7 +123,7 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         try
         {
             var semesterCode = MapSemesterToCode(semester);
-            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={_zjuContext.LoginInfo.LoginName}";
+            var apiUrl = $"{CourseScheduleApiBase}?gnmkdm=N253508&su={loginInfo.LoginName}";
             var formData = new Dictionary<string, string>
             {
                 { "xnm", academicYear },
@@ -160,9 +157,10 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     private Result<IZdbkService> GetZdbkService()
     {
-        var auth = _authHolder.CurrentAuth;
+        var auth = _authAccessor.Current;
         if (auth is null)
         {
+            ResetCachedService();
             return Result.Fail("400", "未登录或登录状态已过期");
         }
 

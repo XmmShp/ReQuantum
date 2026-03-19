@@ -3,8 +3,8 @@ using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.CoursesZju.Services;
 using ReQuantum.Application.Pta.Services;
 using ReQuantum.Application.Zdbk.Services;
-using ReQuantum.Application.ZjuSso.Abstractions;
 using ReQuantum.Application.ZjuSso.Services;
+using ReQuantum.UI.Services;
 using ReQuantum.Web.Components;
 using ReQuantum.Web.Services;
 
@@ -18,8 +18,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<IStorage, WebStorage>();
 builder.Services.AddSingleton<IEncryptor, CredentialEncryptor>();
 builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
-builder.Services.AddSingleton<ZjuamAuthHolder>();
-builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
+builder.Services.AddSingleton<ZjuAuthAccessor>();
 builder.Services.AddSingleton<WebZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
 builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());

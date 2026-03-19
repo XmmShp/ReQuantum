@@ -14,6 +14,7 @@ using ReQuantum.Contract;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.MAUI.Persistence;
 using ReQuantum.Services;
+using ReQuantum.UI.Services;
 
 namespace ReQuantum;
 
@@ -52,7 +53,7 @@ public static class MauiProgram
             Timeout = TimeSpan.FromSeconds(100)
         });
         builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
-        builder.Services.AddSingleton<ZjuamAuthHolder>();
+        builder.Services.AddSingleton<ZjuAuthAccessor>();
         builder.Services.AddSingleton<MauiZjuContext>();
         builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());

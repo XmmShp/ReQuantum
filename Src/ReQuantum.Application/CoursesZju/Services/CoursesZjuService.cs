@@ -23,7 +23,7 @@ public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
 {
     private readonly ILogger<CoursesZjuService> _logger;
     private readonly ILoginZjuFactory _loginZjuFactory;
-    private readonly ZjuamAuthHolder _authHolder;
+    private readonly ZjuAuthAccessor _authAccessor;
     private readonly ICalendarTodoRepository _todoRepository;
     private readonly IUnitOfWork _uow;
     private readonly object _serviceLock = new();
@@ -37,13 +37,13 @@ public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
     public CoursesZjuService(
         ILogger<CoursesZjuService> logger,
         ILoginZjuFactory loginZjuFactory,
-        ZjuamAuthHolder authHolder,
+        ZjuAuthAccessor authAccessor,
         ICalendarTodoRepository todoRepository,
         IUnitOfWork uow)
     {
         _logger = logger;
         _loginZjuFactory = loginZjuFactory;
-        _authHolder = authHolder;
+        _authAccessor = authAccessor;
         _todoRepository = todoRepository;
         _uow = uow;
     }
@@ -63,7 +63,7 @@ public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
 
     public async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        if (_authHolder.CurrentAuth is null)
+        if (_authAccessor.Current is null)
         {
             return;
         }
@@ -150,7 +150,7 @@ public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
 
     private ICoursesService? GetOrCreateCoursesService()
     {
-        var auth = _authHolder.CurrentAuth;
+        var auth = _authAccessor.Current;
         if (auth is null)
         {
             lock (_serviceLock)

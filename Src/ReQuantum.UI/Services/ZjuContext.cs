@@ -3,7 +3,7 @@ using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Models;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ReQuantum.Application.ZjuSso.Services;
+namespace ReQuantum.UI.Services;
 
 public interface IZjuContext
 {
@@ -87,7 +87,6 @@ public abstract class ZjuContext : IMutableZjuContext, IWarmup
         await _storage.RemoveAsync(CredentialStateKey);
     }
 
-    /// <inheritdoc />
     public Task WarmupAsync(CancellationToken cancellationToken = default)
     {
         return TryAutoLoginAsync(cancellationToken);

@@ -12,9 +12,8 @@ namespace ReQuantum.Application.Zdbk.Services;
 [AutoInject(Lifetime.Singleton)]
 public class ZdbkExamService : IZdbkExamService
 {
-    private readonly IZjuContext _zjuContext;
     private readonly ILoginZjuFactory _loginZjuFactory;
-    private readonly ZjuamAuthHolder _authHolder;
+    private readonly ZjuAuthAccessor _authAccessor;
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkExamService> _logger;
     private IZjuamAuth? _cachedAuth;
@@ -23,24 +22,21 @@ public class ZdbkExamService : IZdbkExamService
     private const string ExamApiBase = "https://zdbk.zju.edu.cn/jwglxt/xskscx/kscx_cxXsgrksIndex.html";
 
     public ZdbkExamService(
-        IZjuContext zjuContext,
         ILoginZjuFactory loginZjuFactory,
-        ZjuamAuthHolder authHolder,
+        ZjuAuthAccessor authAccessor,
         IAcademicCalendarService calendarService,
         ILogger<ZdbkExamService> logger)
     {
-        _zjuContext = zjuContext;
         _loginZjuFactory = loginZjuFactory;
-        _authHolder = authHolder;
+        _authAccessor = authAccessor;
         _calendarService = calendarService;
         _logger = logger;
-
-        _zjuContext.OnLogout += ResetCachedService;
     }
 
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
     {
-        if (!_zjuContext.IsAuthenticated || _zjuContext.LoginInfo is null)
+        var loginInfo = _authAccessor.CurrentLoginInfo;
+        if (loginInfo is null)
         {
             return Result.Fail("400", "未登录或无学号");
         }
@@ -54,7 +50,7 @@ public class ZdbkExamService : IZdbkExamService
         try
         {
             var zdbkService = zdbkServiceResult.Value!;
-            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuContext.LoginInfo.LoginName}";
+            var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={loginInfo.LoginName}";
 
             var formData = new Dictionary<string, string>
             {
@@ -153,9 +149,10 @@ public class ZdbkExamService : IZdbkExamService
 
     private Result<IZdbkService> GetZdbkService()
     {
-        var auth = _authHolder.CurrentAuth;
+        var auth = _authAccessor.Current;
         if (auth is null)
         {
+            ResetCachedService();
             return Result.Fail("400", "未登录或登录状态已过期");
         }
 

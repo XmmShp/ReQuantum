@@ -3,6 +3,7 @@ using NOF.Contract;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Models;
 using ReQuantum.Application.ZjuSso.Services;
+using ReQuantum.UI.Services;
 using System.Text.Json;
 
 namespace ReQuantum.Infrastructure.Services;
@@ -15,21 +16,21 @@ public class MauiZjuContext : ZjuContext
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILoginZjuFactory _loginZjuFactory;
-    private readonly ZjuamAuthHolder _authHolder;
+    private readonly ZjuAuthAccessor _authAccessor;
 
     public MauiZjuContext(
         IStorage storage,
         IEncryptor encryptor,
         IServiceScopeFactory scopeFactory,
         ILoginZjuFactory loginZjuFactory,
-        ZjuamAuthHolder authHolder) : base(storage, encryptor)
+        ZjuAuthAccessor authAccessor) : base(storage, encryptor)
     {
         _scopeFactory = scopeFactory;
         _loginZjuFactory = loginZjuFactory;
-        _authHolder = authHolder;
+        _authAccessor = authAccessor;
         OnLogout += () =>
         {
-            _authHolder.SetAuth(null);
+            _authAccessor.Clear();
         };
     }
 
@@ -39,7 +40,6 @@ public class MauiZjuContext : ZjuContext
         {
             var auth = _loginZjuFactory.CreateAuth(username, password);
             await auth.LoginAsync(cancellationToken);
-            _authHolder.SetAuth(auth);
 
             var loginInfo = await TryGetLoginInfoAsync(auth, cancellationToken);
 
@@ -51,6 +51,7 @@ public class MauiZjuContext : ZjuContext
             var result = await SetLoginInfoAsync(loginInfo, cancellationToken);
             if (result.IsSuccess)
             {
+                _authAccessor.SetSession(auth, loginInfo);
                 await PersistCredentialsAsync(username, password);
                 _ = Task.Run(EstablishCoursesSessionAndSyncAsync, CancellationToken.None);
             }
