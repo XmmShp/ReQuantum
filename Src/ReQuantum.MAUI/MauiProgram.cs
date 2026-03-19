@@ -46,9 +46,11 @@ public static class MauiProgram
             .AutoMigrate()
             .UseSqlite();
 
-        builder.Services.AddSingleton<MauiHttpContext>();
         builder.Services.AddSingleton<IEncryptor, MauiEncryptor>();
-        builder.Services.AddSingleton<HttpClient>(sp => sp.GetRequiredService<MauiHttpContext>().HttpClient);
+        builder.Services.AddSingleton(_ => new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(100)
+        });
         builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
         builder.Services.AddSingleton<ZjuamAuthHolder>();
         builder.Services.AddSingleton<MauiZjuContext>();

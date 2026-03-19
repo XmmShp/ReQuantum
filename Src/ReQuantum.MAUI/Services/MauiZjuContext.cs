@@ -14,7 +14,6 @@ public class MauiZjuContext : ZjuContext
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
 
-    private readonly MauiHttpContext _httpContext;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILoginZjuFactory _loginZjuFactory;
     private readonly ZjuamAuthHolder _authHolder;
@@ -22,18 +21,15 @@ public class MauiZjuContext : ZjuContext
     public MauiZjuContext(
         IStorage storage,
         IEncryptor encryptor,
-        MauiHttpContext httpContext,
         IServiceScopeFactory scopeFactory,
         ILoginZjuFactory loginZjuFactory,
         ZjuamAuthHolder authHolder) : base(storage, encryptor)
     {
-        _httpContext = httpContext;
         _scopeFactory = scopeFactory;
         _loginZjuFactory = loginZjuFactory;
         _authHolder = authHolder;
         OnLogout += () =>
         {
-            _httpContext.ClearCookies();
             _authHolder.SetAuth(null);
         };
     }
