@@ -1,167 +1,117 @@
-using Microsoft.Playwright;
+using LoginZju;
+using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Common.Services;
-using ReQuantum.Application.ZjuSso.Abstractions;
 using ReQuantum.Application.ZjuSso.Models;
 using ReQuantum.Application.ZjuSso.Services;
-using ReQuantum.Shared.Services;
 using System.Text.Json;
-using Cookie = ReQuantum.Application.Common.Models.Cookie;
 
 namespace ReQuantum.Infrastructure.Services;
 
 public class MauiZjuContext : ZjuContext
 {
+    private const string ServiceHomeUrl = "https://service.zju.edu.cn/";
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
 
-    private readonly IHttpContext _httpContext;
-    private readonly IEnumerable<IZjuLoginAfterReadyHandler> _afterReadyHandlers;
+    private readonly MauiHttpContext _httpContext;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILoginZjuFactory _loginZjuFactory;
+    private readonly ZjuamAuthHolder _authHolder;
 
     public MauiZjuContext(
         IStorage storage,
-        IHttpContext httpContext,
-        IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers) : base(storage)
+        IEncryptor encryptor,
+        MauiHttpContext httpContext,
+        IServiceScopeFactory scopeFactory,
+        ILoginZjuFactory loginZjuFactory,
+        ZjuamAuthHolder authHolder) : base(storage, encryptor)
     {
         _httpContext = httpContext;
-        _afterReadyHandlers = afterReadyHandlers;
-        OnLogout += () => _httpContext.ClearCookies();
+        _scopeFactory = scopeFactory;
+        _loginZjuFactory = loginZjuFactory;
+        _authHolder = authHolder;
+        OnLogout += () =>
+        {
+            _httpContext.ClearCookies();
+            _authHolder.SetAuth(null);
+        };
     }
 
-    public override async Task<Result> LoginAsync(CancellationToken cancellationToken = default)
+    public override async Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var playwright = await Playwright.CreateAsync();
-            var options = new BrowserTypeLaunchOptions { Headless = false };
-            var browserPath = BrowserHelper.GetLocalBrowserPath();
-            if (!string.IsNullOrWhiteSpace(browserPath))
-            {
-                options.ExecutablePath = browserPath;
-            }
+            var auth = _loginZjuFactory.CreateAuth(username, password);
+            await auth.LoginAsync(cancellationToken);
+            _authHolder.SetAuth(auth);
 
-            await using var browser = await playwright.Chromium.LaunchAsync(options);
-            var page = await browser.NewPageAsync();
-
-            await page.GotoAsync("https://zjuam.zju.edu.cn/cas/login", new PageGotoOptions { Timeout = 15000 });
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
-
-            string? cookieValue = null;
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(1000, cancellationToken);
-                var cookies = await page.Context.CookiesAsync();
-                var target = cookies.FirstOrDefault(static cookie
-                    => cookie.Name.Equals("iPlanetDirectoryPro", StringComparison.OrdinalIgnoreCase));
-                if (target is not null && !string.IsNullOrWhiteSpace(target.Value))
-                {
-                    cookieValue = target.Value;
-                    break;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(cookieValue))
-            {
-                return Result.Fail("400", "登录已取消或未完成");
-            }
-
-            var loginInfo = await TryGetLoginInfoAsync(page, cancellationToken);
-            var afterReadyResult = await RunAfterReadyHandlersAsync(page, cancellationToken);
-            if (!afterReadyResult.IsSuccess)
-            {
-                return afterReadyResult;
-            }
+            var loginInfo = await TryGetLoginInfoAsync(auth, cancellationToken);
 
             if (loginInfo is null)
             {
                 return Result.Fail("400", "登录信息不完整");
             }
 
-            var setResult = await SetAuthenticatedStateAsync(
-                new System.Net.Cookie("iPlanetDirectoryPro", cookieValue, "/", "zju.edu.cn"),
-                loginInfo);
-            if (setResult.IsSuccess)
+            var result = await SetLoginInfoAsync(loginInfo);
+            if (result.IsSuccess)
             {
-                var allCookies = await page.Context.CookiesAsync();
-                _httpContext.ReplaceCookies(allCookies.Select(c => new Cookie(
-                    c.Name, c.Value, c.Domain, c.Path,
-                    c.Expires > 0 ? (long)c.Expires : 0,
-                    c.HttpOnly, c.Secure)));
+                await PersistCredentialsAsync(username, password);
+                _ = Task.Run(() => EstablishCoursesSessionAndSyncAsync(), CancellationToken.None);
             }
 
-            return setResult;
+            return result;
         }
         catch (OperationCanceledException)
         {
             return Result.Fail("400", "登录已取消");
         }
+        catch (LoginException ex)
+        {
+            return Result.Fail("400", $"登录失败: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"登录失败: {ex.Message}");
         }
     }
 
-    private async Task<Result> RunAfterReadyHandlersAsync(IPage page, CancellationToken cancellationToken)
+    private async Task EstablishCoursesSessionAndSyncAsync()
     {
-        var context = new PlaywrightAfterReadyContext(page);
-        foreach (var handler in _afterReadyHandlers)
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var tasks = scope.ServiceProvider.GetServices<IBackgroundTask>();
+        foreach (var task in tasks)
         {
-            var result = await handler.OnAfterReadyAsync(context, cancellationToken);
-            if (!result.IsSuccess)
-            {
-                return result;
-            }
+            await task.ExecuteAsync();
         }
-
-        return Result.Success();
     }
 
-    private async Task<Result> SetAuthenticatedStateAsync(System.Net.Cookie cookie, ZjuLoginInfo loginInfo)
-    {
-        var result = await SetLoginInfoAsync(loginInfo);
-        if (!result.IsSuccess)
-        {
-            return result;
-        }
-
-        _httpContext.ReplaceCookies(
-        [
-            new Cookie(
-                cookie.Name,
-                cookie.Value,
-                cookie.Domain,
-                cookie.Path,
-                cookie.Expires != DateTime.MinValue ? new DateTimeOffset(cookie.Expires).ToUnixTimeSeconds() : 0,
-                cookie.HttpOnly,
-                cookie.Secure)
-        ]);
-
-        return Result.Success();
-    }
-
-    private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IPage page, CancellationToken cancellationToken)
+    private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IZjuamAuth auth, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await page.Context.APIRequest.GetAsync(LoginInfoUrl, new APIRequestContextOptions
+            var serviceCallbackUrl = await auth.LoginServiceAsync(ServiceHomeUrl, cancellationToken);
+            using var callbackRequest = new HttpRequestMessage(HttpMethod.Get, serviceCallbackUrl);
+            using var callbackResponse = await auth.FetchAsync(callbackRequest, cancellationToken);
+            if (!callbackResponse.IsSuccessStatusCode)
             {
-                Headers = new Dictionary<string, string>
-                {
-                    ["Accept"] = "*/*",
-                    ["Referer"] = LoginInfoReferer,
-                    ["X-Requested-With"] = "XMLHttpRequest"
-                },
-                Timeout = 15000
-            });
+                return null;
+            }
 
-            if (!response.Ok)
+            using var request = new HttpRequestMessage(HttpMethod.Get, LoginInfoUrl);
+            request.Headers.Add("Referer", LoginInfoReferer);
+            request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            request.Headers.Accept.ParseAdd("*/*");
+
+            using var response = await auth.FetchAsync(request, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
             {
                 return null;
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            var content = await response.TextAsync();
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
             using var document = JsonDocument.Parse(content);
 
             if (!document.RootElement.TryGetProperty("data", out var data))
@@ -194,32 +144,4 @@ public class MauiZjuContext : ZjuContext
         }
     }
 
-    private sealed class PlaywrightAfterReadyContext : IZjuLoginAfterReadyContext
-    {
-        private readonly IPage _page;
-
-        public PlaywrightAfterReadyContext(IPage page)
-        {
-            _page = page;
-        }
-
-        public async Task<Result> VisitAsync(string url, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await _page.GotoAsync(url, new PageGotoOptions { Timeout = 15000 });
-                await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
-                return Result.Success();
-            }
-            catch (OperationCanceledException)
-            {
-                return Result.Fail("400", "登录后回调已取消");
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail("400", $"登录后访问页面失败: {ex.Message}");
-            }
-        }
-    }
 }

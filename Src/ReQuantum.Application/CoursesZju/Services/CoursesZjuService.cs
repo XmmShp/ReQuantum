@@ -1,11 +1,14 @@
+using LoginZju;
 using Microsoft.Extensions.Logging;
 using NOF.Annotation;
+using NOF.Application;
 using NOF.Contract;
-using ReQuantum.Application.Calendar.Abstractions;
+using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.CoursesZju.Models;
-using ReQuantum.Contract.Calendar;
+using ReQuantum.Application.ZjuSso.Services;
+using ReQuantum.Domain.Calendar.AggregateRoots;
+using ReQuantum.Domain.Calendar.Repositories;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace ReQuantum.Application.CoursesZju.Services;
@@ -15,19 +18,34 @@ public interface ICoursesZjuService
     Task<Result<HashSet<CoursesZjuTodoDto>>> GetTodoListAsync();
 }
 
-[AutoInject(Lifetime.Singleton)]
-public class CoursesZjuService : ICoursesZjuService, ICalendarTodoProvider
+[AutoInject(Lifetime.Scoped)]
+public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
 {
-    private readonly HttpClient _httpClient;
     private readonly ILogger<CoursesZjuService> _logger;
+    private readonly ILoginZjuFactory _loginZjuFactory;
+    private readonly ZjuamAuthHolder _authHolder;
+    private readonly ICalendarTodoRepository _todoRepository;
+    private readonly IUnitOfWork _uow;
+    private readonly object _serviceLock = new();
+    private IZjuamAuth? _cachedAuth;
+    private ICoursesService? _cachedCoursesService;
     private const string TodoApi = "https://courses.zju.edu.cn/api/todos?no-intercept=true";
+    private const string SourceName = "courses_zju";
 
     public string Name => "学在浙大";
 
-    public CoursesZjuService(HttpClient httpClient, ILogger<CoursesZjuService> logger)
+    public CoursesZjuService(
+        ILogger<CoursesZjuService> logger,
+        ILoginZjuFactory loginZjuFactory,
+        ZjuamAuthHolder authHolder,
+        ICalendarTodoRepository todoRepository,
+        IUnitOfWork uow)
     {
-        _httpClient = httpClient;
         _logger = logger;
+        _loginZjuFactory = loginZjuFactory;
+        _authHolder = authHolder;
+        _todoRepository = todoRepository;
+        _uow = uow;
     }
 
     public async Task<Result<HashSet<CoursesZjuTodoDto>>> GetTodoListAsync()
@@ -43,55 +61,125 @@ public class CoursesZjuService : ICoursesZjuService, ICalendarTodoProvider
         }
     }
 
-    public async IAsyncEnumerable<CalendarTodo> GetTodosAsync(
-        DateOnly start,
-        DateOnly end,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        HashSet<CoursesZjuTodoDto> dtos;
+        if (_authHolder.CurrentAuth is null)
+        {
+            return;
+        }
+
         try
         {
-            dtos = await FetchTodoDtosAsync();
+            var dtos = await FetchTodoDtosAsync(cancellationToken);
+            foreach (var dto in dtos)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var properties = BuildProperties(dto);
+                var existing = await _todoRepository.FindByExternalAsync(SourceName, dto.Id.ToString(), cancellationToken);
+                if (existing is null)
+                {
+                    var todo = CalendarTodo.CreateFromExternal(
+                        externalSource: SourceName,
+                        externalId: dto.Id.ToString(),
+                        content: dto.Title,
+                        dueTime: dto.EndTime,
+                        createdAt: dto.StartTime ?? dto.EndTime,
+                        properties: properties);
+                    _todoRepository.Add(todo);
+                }
+                else
+                {
+                    existing.UpdateFromExternal(dto.Title, dto.EndTime, existing.IsCompleted, properties);
+                }
+            }
+
+            await _uow.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred when fetching todos from courses.zju.edu.cn for calendar");
-            yield break;
-        }
-
-        foreach (var dto in dtos)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var dueDate = DateOnly.FromDateTime(dto.EndTime.ToLocalTime());
-            if (dueDate < start || dueDate > end)
-            {
-                continue;
-            }
-
-            yield return MapToCalendarTodo(dto);
+            _logger.LogError(ex, "An error occurred when syncing todos from courses.zju.edu.cn");
         }
     }
 
-    private async Task<HashSet<CoursesZjuTodoDto>> FetchTodoDtosAsync()
+    private async Task<HashSet<CoursesZjuTodoDto>> FetchTodoDtosAsync(CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.GetAsync(TodoApi);
+        var result = await TryFetchOnceAsync(cancellationToken);
+        if (result is not null)
+        {
+            return result;
+        }
+
+        throw new InvalidOperationException("学在浙大会话无效或响应非 JSON，无法获取待办事项");
+    }
+
+    private async Task<HashSet<CoursesZjuTodoDto>?> TryFetchOnceAsync(CancellationToken cancellationToken = default)
+    {
+        var coursesService = GetOrCreateCoursesService();
+        if (coursesService is null)
+        {
+            return null;
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, TodoApi);
+        request.Headers.Accept.ParseAdd("application/json");
+
+        using var response = await coursesService.FetchAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException($"获取待办事项失败: {response.StatusCode}");
+            return null;
         }
 
-        var data = await response.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>();
-        if (data is null)
+        var contentType = response.Content.Headers.ContentType?.MediaType;
+        if (contentType is null || !contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
         {
-            throw new JsonException("解析待办事项失败");
+            return null;
         }
 
-        return data.TodoList.ToHashSet();
+        CoursesZjuTodosResponse? data;
+        try
+        {
+            data = await response.Content.ReadFromJsonAsync<CoursesZjuTodosResponse>(cancellationToken);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+
+        return data?.TodoList.ToHashSet();
     }
 
-    private static CalendarTodo MapToCalendarTodo(CoursesZjuTodoDto dto)
+    private ICoursesService? GetOrCreateCoursesService()
     {
-        var properties = new Dictionary<string, object?>
+        var auth = _authHolder.CurrentAuth;
+        if (auth is null)
+        {
+            lock (_serviceLock)
+            {
+                _cachedCoursesService?.Dispose();
+                _cachedCoursesService = null;
+                _cachedAuth = null;
+            }
+
+            return null;
+        }
+
+        lock (_serviceLock)
+        {
+            if (_cachedCoursesService is not null && ReferenceEquals(_cachedAuth, auth))
+            {
+                return _cachedCoursesService;
+            }
+
+            _cachedCoursesService?.Dispose();
+            _cachedCoursesService = _loginZjuFactory.CreateCourses(auth);
+            _cachedAuth = auth;
+            return _cachedCoursesService;
+        }
+    }
+
+    private static Dictionary<string, object?> BuildProperties(CoursesZjuTodoDto dto)
+    {
+        return new Dictionary<string, object?>
         {
             ["course_id"] = dto.CourseId,
             ["course_name"] = dto.CourseName,
@@ -101,16 +189,7 @@ public class CoursesZjuService : ICoursesZjuService, ICalendarTodoProvider
             ["is_student"] = dto.IsStudent,
             ["submit_rate"] = dto.SubmitRate,
             ["not_scored_num"] = dto.NotScoredNum,
-            ["start_time"] = dto.StartTime,
-            ["source"] = "courses_zju"
+            ["start_time"] = dto.StartTime
         };
-
-        return new CalendarTodo(
-            Id: dto.Id,
-            Content: dto.Title,
-            DueTime: dto.EndTime,
-            IsCompleted: false,
-            CreatedAt: dto.StartTime ?? dto.EndTime,
-            Properties: properties);
     }
 }

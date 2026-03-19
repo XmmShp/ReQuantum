@@ -1,13 +1,11 @@
+using LoginZju;
 using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
-using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.Zdbk.Models;
 using ReQuantum.Application.Zdbk.Utilities;
 using ReQuantum.Application.ZjuSso.Services;
-using ReQuantum.Shared.Services;
 using System.Net.Http.Json;
-using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Application.Zdbk.Services;
 
@@ -15,25 +13,29 @@ namespace ReQuantum.Application.Zdbk.Services;
 public class ZdbkExamService : IZdbkExamService
 {
     private readonly IZjuContext _zjuContext;
-    private readonly IHttpContext _httpContext;
+    private readonly ILoginZjuFactory _loginZjuFactory;
+    private readonly ZjuamAuthHolder _authHolder;
     private readonly IAcademicCalendarService _calendarService;
     private readonly ILogger<ZdbkExamService> _logger;
+    private IZjuamAuth? _cachedAuth;
+    private IZdbkService? _cachedZdbkService;
 
     private const string ExamApiBase = "https://zdbk.zju.edu.cn/jwglxt/xskscx/kscx_cxXsgrksIndex.html";
-    private const string SsoLoginUrl = "https://zjuam.zju.edu.cn/cas/login";
-    private const string BaseUrl = "https://zdbk.zju.edu.cn";
-    private const string SsoRedirectUrl = "/jwglxt/xtgl/login_ssologin.html";
 
     public ZdbkExamService(
         IZjuContext zjuContext,
-        IHttpContext httpContext,
+        ILoginZjuFactory loginZjuFactory,
+        ZjuamAuthHolder authHolder,
         IAcademicCalendarService calendarService,
         ILogger<ZdbkExamService> logger)
     {
         _zjuContext = zjuContext;
-        _httpContext = httpContext;
+        _loginZjuFactory = loginZjuFactory;
+        _authHolder = authHolder;
         _calendarService = calendarService;
         _logger = logger;
+
+        _zjuContext.OnLogout += ResetCachedService;
     }
 
     public async Task<Result<List<ParsedExamInfo>>> GetExamsAsync()
@@ -43,15 +45,15 @@ public class ZdbkExamService : IZdbkExamService
             return Result.Fail("400", "未登录或无学号");
         }
 
-        var clientResult = await GetAuthenticatedClientAsync();
-        if (!clientResult.IsSuccess)
+        var zdbkServiceResult = GetZdbkService();
+        if (!zdbkServiceResult.IsSuccess)
         {
-            return Result.Fail("400", clientResult.Message);
+            return Result.Fail("400", zdbkServiceResult.Message);
         }
 
         try
         {
-            var client = clientResult.Value!;
+            var zdbkService = zdbkServiceResult.Value!;
             var apiUrl = $"{ExamApiBase}?doType=query&gnmkdm=N509070&su={_zjuContext.LoginInfo.LoginName}";
 
             var formData = new Dictionary<string, string>
@@ -65,8 +67,11 @@ public class ZdbkExamService : IZdbkExamService
                 { "time", "0" }
             };
 
-            var content = new FormUrlEncodedContent(formData);
-            var response = await client.PostAsync(apiUrl, content);
+            using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
+            {
+                Content = new FormUrlEncodedContent(formData)
+            };
+            using var response = await zdbkService.FetchAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -146,22 +151,28 @@ public class ZdbkExamService : IZdbkExamService
         return result;
     }
 
-    private async Task<Result<HttpClient>> GetAuthenticatedClientAsync()
+    private Result<IZdbkService> GetZdbkService()
     {
-        try
+        var auth = _authHolder.CurrentAuth;
+        if (auth is null)
         {
-            var cookies = new List<Cookie>();
-            var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(_httpContext.HttpClient, ssoUrl, cookies);
-
-            var sessionCookie = cookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
-            var route = cookies.Last(ck => ck is { Name: "route" });
-
-            return HttpClientUtilities.Create(new RequestOptions { Cookies = [sessionCookie, route] });
+            return Result.Fail("400", "未登录或登录状态已过期");
         }
-        catch (Exception ex)
+
+        if (_cachedZdbkService is null || !ReferenceEquals(_cachedAuth, auth))
         {
-            return Result.Fail("500", $"SSO认证失败: {ex.Message}");
+            _cachedZdbkService?.Dispose();
+            _cachedAuth = auth;
+            _cachedZdbkService = _loginZjuFactory.CreateZdbk(auth);
         }
+
+        return Result.Success(_cachedZdbkService!);
+    }
+
+    private void ResetCachedService()
+    {
+        _cachedAuth = null;
+        _cachedZdbkService?.Dispose();
+        _cachedZdbkService = null;
     }
 }

@@ -1,12 +1,10 @@
-using Microsoft.Playwright;
+using LoginZju;
 using NOF.Contract;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Abstractions;
 using ReQuantum.Application.ZjuSso.Models;
 using ReQuantum.Application.ZjuSso.Services;
-using ReQuantum.Shared.Services;
 using System.Text.Json;
-using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Web.Services;
 
@@ -16,52 +14,33 @@ public class WebZjuContext : ZjuContext
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
     private readonly IReadOnlyList<IZjuLoginAfterReadyHandler> _afterReadyHandlers;
     private readonly WebHttpContext _httpContext;
+    private readonly ILoginZjuFactory _loginZjuFactory;
+    private readonly ZjuamAuthHolder _authHolder;
 
-    public WebZjuContext(IStorage storage, WebHttpContext httpContext, IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers) : base(storage)
+    public WebZjuContext(
+        IStorage storage,
+        IEncryptor encryptor,
+        WebHttpContext httpContext,
+        IEnumerable<IZjuLoginAfterReadyHandler> afterReadyHandlers,
+        ILoginZjuFactory loginZjuFactory,
+        ZjuamAuthHolder authHolder) : base(storage, encryptor)
     {
         _httpContext = httpContext;
         _afterReadyHandlers = afterReadyHandlers.ToArray();
+        _loginZjuFactory = loginZjuFactory;
+        _authHolder = authHolder;
     }
 
-    public override async Task<Result> LoginAsync(CancellationToken cancellationToken = default)
+    public override async Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var playwright = await Playwright.CreateAsync();
-            var options = new BrowserTypeLaunchOptions { Headless = false };
-            var browserPath = BrowserHelper.GetLocalBrowserPath();
-            if (!string.IsNullOrWhiteSpace(browserPath))
-            {
-                options.ExecutablePath = browserPath;
-            }
+            var auth = _loginZjuFactory.CreateAuth(username, password);
+            await auth.LoginAsync(cancellationToken);
+            _authHolder.SetAuth(auth);
 
-            await using var browser = await playwright.Chromium.LaunchAsync(options);
-            var page = await browser.NewPageAsync();
-
-            await page.GotoAsync("https://zjuam.zju.edu.cn/cas/login", new PageGotoOptions { Timeout = 15000 });
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
-
-            string? cookieValue = null;
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(1000, cancellationToken);
-                var cookies = await page.Context.CookiesAsync();
-                var target = cookies.FirstOrDefault(static cookie => cookie.Name.Equals("iPlanetDirectoryPro", StringComparison.OrdinalIgnoreCase));
-                if (target is not null && !string.IsNullOrWhiteSpace(target.Value))
-                {
-                    cookieValue = target.Value;
-                    break;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(cookieValue))
-            {
-                return Result.Fail("400", "登录已取消或未完成");
-            }
-
-            var loginInfo = await TryGetLoginInfoAsync(page, cancellationToken);
-            var afterReadyResult = await RunAfterReadyHandlersAsync(page, cancellationToken);
+            var loginInfo = await TryGetLoginInfoAsync(auth, cancellationToken);
+            var afterReadyResult = await RunAfterReadyHandlersAsync(auth, cancellationToken);
             if (!afterReadyResult.IsSuccess)
             {
                 return afterReadyResult;
@@ -72,23 +51,31 @@ public class WebZjuContext : ZjuContext
                 return Result.Fail("400", "登录信息不完整");
             }
 
-            return await SetAuthenticatedStateAsync(
-                new Cookie("iPlanetDirectoryPro", cookieValue, "/", "zju.edu.cn"),
-                loginInfo);
+            var result = await SetLoginInfoAsync(loginInfo);
+            if (result.IsSuccess)
+            {
+                await PersistCredentialsAsync(username, password);
+            }
+
+            return result;
         }
         catch (OperationCanceledException)
         {
             return Result.Fail("400", "登录已取消");
         }
+        catch (LoginException ex)
+        {
+            return Result.Fail("400", $"登录失败: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return Result.Fail("400", $"浏览器登录失败: {ex.Message}");
+            return Result.Fail("400", $"登录失败: {ex.Message}");
         }
     }
 
-    private async Task<Result> RunAfterReadyHandlersAsync(IPage page, CancellationToken cancellationToken)
+    private async Task<Result> RunAfterReadyHandlersAsync(IZjuamAuth auth, CancellationToken cancellationToken)
     {
-        var context = new PlaywrightAfterReadyContext(page);
+        var context = new AuthAfterReadyContext(auth);
         foreach (var handler in _afterReadyHandlers)
         {
             var result = await handler.OnAfterReadyAsync(context, cancellationToken);
@@ -104,43 +91,28 @@ public class WebZjuContext : ZjuContext
     public new void Logout()
     {
         _httpContext.ClearCookies();
+        _authHolder.SetAuth(null);
         base.Logout();
     }
 
-    private async Task<Result> SetAuthenticatedStateAsync(Cookie cookie, ZjuLoginInfo loginInfo)
-    {
-        var result = await base.SetLoginInfoAsync(loginInfo);
-        if (!result.IsSuccess)
-        {
-            return result;
-        }
-
-        _httpContext.SetCookie(cookie);
-        return Result.Success();
-    }
-
-    private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IPage page, CancellationToken cancellationToken)
+    private static async Task<ZjuLoginInfo?> TryGetLoginInfoAsync(IZjuamAuth auth, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await page.Context.APIRequest.GetAsync(LoginInfoUrl, new APIRequestContextOptions
-            {
-                Headers = new Dictionary<string, string>
-                {
-                    ["Accept"] = "*/*",
-                    ["Referer"] = LoginInfoReferer,
-                    ["X-Requested-With"] = "XMLHttpRequest"
-                },
-                Timeout = 15000
-            });
+            using var request = new HttpRequestMessage(HttpMethod.Get, LoginInfoUrl);
+            request.Headers.Add("Referer", LoginInfoReferer);
+            request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            request.Headers.Accept.ParseAdd("*/*");
 
-            if (!response.Ok)
+            using var response = await auth.FetchAsync(request, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
             {
                 return null;
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            var content = await response.TextAsync();
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
             using var document = JsonDocument.Parse(content);
 
             if (!document.RootElement.TryGetProperty("data", out var data))
@@ -173,13 +145,13 @@ public class WebZjuContext : ZjuContext
         }
     }
 
-    private sealed class PlaywrightAfterReadyContext : IZjuLoginAfterReadyContext
+    private sealed class AuthAfterReadyContext : IZjuLoginAfterReadyContext
     {
-        private readonly IPage _page;
+        private readonly IZjuamAuth _auth;
 
-        public PlaywrightAfterReadyContext(IPage page)
+        public AuthAfterReadyContext(IZjuamAuth auth)
         {
-            _page = page;
+            _auth = auth;
         }
 
         public async Task<Result> VisitAsync(string url, CancellationToken cancellationToken = default)
@@ -187,8 +159,8 @@ public class WebZjuContext : ZjuContext
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await _page.GotoAsync(url, new PageGotoOptions { Timeout = 15000 });
-                await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 15000 });
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                using var _ = await _auth.FetchAsync(request, cancellationToken);
                 return Result.Success();
             }
             catch (OperationCanceledException)

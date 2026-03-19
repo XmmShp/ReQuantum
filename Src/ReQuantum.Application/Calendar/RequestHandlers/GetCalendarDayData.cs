@@ -1,6 +1,5 @@
 using NOF.Application;
 using NOF.Contract;
-using ReQuantum.Application.Calendar.Abstractions;
 using ReQuantum.Contract.Calendar;
 using ReQuantum.Domain.Calendar.Repositories;
 using CalendarEvent = ReQuantum.Domain.Calendar.AggregateRoots.CalendarEvent;
@@ -18,8 +17,7 @@ namespace ReQuantum.Application.Calendar.RequestHandlers;
 public class GetCalendarDayData(
     ICalendarEventRepository eventRepository,
     ICalendarTodoRepository todoRepository,
-    ICalendarNoteRepository noteRepository,
-    IEnumerable<ICalendarTodoProvider> todoProviders)
+    ICalendarNoteRepository noteRepository)
     : IRequestHandler<GetCalendarDayDataRequest, GetCalendarDayDataResponse>
 {
     public async Task<Result<GetCalendarDayDataResponse>> HandleAsync(GetCalendarDayDataRequest request, CancellationToken cancellationToken)
@@ -43,13 +41,6 @@ public class GetCalendarDayData(
         }
 
         var todoList = todos.Select(t => t.Map.To<CalendarTodoDto>()).ToList();
-        foreach (var provider in todoProviders)
-        {
-            await foreach (var todo in provider.GetTodosAsync(request.Date, request.Date, cancellationToken))
-            {
-                todoList.Add(todo);
-            }
-        }
 
         var data = new CalendarDayData(
             request.Date,

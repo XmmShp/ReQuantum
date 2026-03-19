@@ -49,4 +49,10 @@ public class CalendarTodoRepository : EFCoreRepository<CalendarTodo>, ICalendarT
                 && DateOnly.FromDateTime(t.DueTime) >= date)
             .AsAsyncEnumerable();
     }
+
+    public Task<CalendarTodo?> FindByExternalAsync(string externalSource, string externalId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CalendarTodos
+            .FirstOrDefaultAsync(t => t.ExternalSource == externalSource && t.ExternalId == externalId, cancellationToken);
+    }
 }

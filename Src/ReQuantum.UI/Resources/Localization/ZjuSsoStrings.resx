@@ -31,12 +31,11 @@
   <data name="LoggedInAs" xml:space="preserve"><value>Logged in as</value></data>
   <data name="NotLoggedIn" xml:space="preserve"><value>Not logged in</value></data>
   <data name="Logout" xml:space="preserve"><value>Logout</value></data>
-  <data name="BrowserLogin" xml:space="preserve"><value>Login via Browser</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>Enter your ZJU password</value></data>
   <data name="ManualLogin" xml:space="preserve"><value>Manual Login (Cookie)</value></data>
-  <data name="CookieValue" xml:space="preserve"><value>iPlanetDirectoryPro Value</value></data>
-  <data name="CookieValuePlaceholder" xml:space="preserve"><value>Paste iPlanetDirectoryPro cookie value here</value></data>
   <data name="UserName" xml:space="preserve"><value>User Name</value></data>
-  <data name="UserNamePlaceholder" xml:space="preserve"><value>Display name from ZJU login info (optional)</value></data>
+  <data name="UserNamePlaceholder" xml:space="preserve"><value>Display name from ZJU login info</value></data>
   <data name="LoginName" xml:space="preserve"><value>Login Name</value></data>
   <data name="LoginNamePlaceholder" xml:space="preserve"><value>Student number / login name (optional)</value></data>
   <data name="UserId" xml:space="preserve"><value>User ID</value></data>

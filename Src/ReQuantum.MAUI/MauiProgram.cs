@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using LoginZju;
 using NOF.Application;
 using NOF.Hosting.Maui;
 using NOF.Infrastructure.EntityFrameworkCore;
@@ -8,11 +9,11 @@ using ReQuantum.Application.Calendar;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.CoursesZju.Services;
 using ReQuantum.Application.Pta.Services;
-using ReQuantum.Application.ZjuSso.Abstractions;
 using ReQuantum.Application.ZjuSso.Services;
 using ReQuantum.Contract;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.MAUI.Persistence;
+using ReQuantum.Services;
 
 namespace ReQuantum;
 
@@ -33,6 +34,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddReQuantumAutoInjectServices();
         builder.Services.AddAllHandlers();
+        builder.Services.AddScoped<IBackgroundTask, CoursesZjuService>();
+        builder.Services.AddHostedService<BackgroundTaskHostedService>();
         builder.Services.AddSingleton<IReQuantumService, RequestSenderReQuantumService>();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
@@ -44,9 +47,10 @@ public static class MauiProgram
             .UseSqlite();
 
         builder.Services.AddSingleton<MauiHttpContext>();
-        builder.Services.AddSingleton<IHttpContext>(sp => sp.GetRequiredService<MauiHttpContext>());
+        builder.Services.AddSingleton<IEncryptor, MauiEncryptor>();
         builder.Services.AddSingleton<HttpClient>(sp => sp.GetRequiredService<MauiHttpContext>().HttpClient);
-        builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
+        builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
+        builder.Services.AddSingleton<ZjuamAuthHolder>();
         builder.Services.AddSingleton<MauiZjuContext>();
         builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
@@ -64,6 +68,7 @@ public static class MauiProgram
     }
     public static MauiApp CreateMauiApp()
     {
+        _ = CreateNOFMauiApp().StartAsync();
         return CreateNOFMauiApp().MauiApp;
     }
 }

@@ -1,9 +1,8 @@
 using ReQuantum.Application.Common.Models;
-using ReQuantum.Application.Common.Services;
 
 namespace ReQuantum.Web.Wasm.Services;
 
-public class WasmHttpContext : IHttpContext
+public class WasmHttpContext
 {
     public HttpClient HttpClient { get; } = new();
 

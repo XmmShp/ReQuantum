@@ -1,3 +1,4 @@
+using LoginZju;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.CoursesZju.Services;
 using ReQuantum.Application.Pta.Services;
@@ -15,8 +16,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<IStorage, WebStorage>();
+builder.Services.AddSingleton<IEncryptor, CredentialEncryptor>();
 builder.Services.AddSingleton<WebHttpContext>();
-builder.Services.AddSingleton<IHttpContext>(sp => sp.GetRequiredService<WebHttpContext>());
+builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
+builder.Services.AddSingleton<ZjuamAuthHolder>();
 builder.Services.AddSingleton<IZjuLoginAfterReadyHandler, CoursesZjuSessionAfterReadyHandler>();
 builder.Services.AddSingleton<WebZjuContext>();
 builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<WebZjuContext>());
@@ -30,7 +33,7 @@ builder.Services.AddSingleton<IZdbkCalendarConverter, ZdbkCalendarConvertService
 builder.Services.AddSingleton<IZdbkExamService, ZdbkExamService>();
 builder.Services.AddSingleton<IZdbkGradeService, ZdbkGradeService>();
 builder.Services.AddSingleton<IZdbkSectionScheduleService, ZdbkSectionScheduleService>();
-builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddSingleton<HttpClient>(sp => sp.GetRequiredService<WebHttpContext>().HttpClient);
 builder.Services.AddLocalization();
 
 var app = builder.Build();

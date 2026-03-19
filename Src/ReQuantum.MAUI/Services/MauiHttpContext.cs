@@ -1,27 +1,19 @@
-using ReQuantum.Application.Common.Services;
 using ReQuantum.Infrastructure.Abstraction;
-using ReQuantum.Infrastructure.Utilities;
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Cookie = ReQuantum.Application.Common.Models.Cookie;
 
 namespace ReQuantum.Infrastructure.Services;
 
 /// <summary>
-/// MAUI 实现的全局 HTTP 上下文。持有唯一 <see cref="HttpClient"/> 实例，每次请求后自动将 <see cref="CookieContainer"/> 状态持久化。
+/// MAUI 实现的全局 HTTP 上下文。持有唯一 <see cref="HttpClient"/> 实例，Cookie 仅保存在内存中。
 /// </summary>
-public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
+public sealed class MauiHttpContext : IAsyncDisposable
 {
-    private readonly IStorage _storage;
-    private const string CookieStateKey = "HttpContext:Cookies";
-
     public HttpClient HttpClient { get; }
     public CookieContainer CookieContainer { get; }
 
-    public MauiHttpContext(IStorage storage)
+    public MauiHttpContext()
     {
-        _storage = storage;
         CookieContainer = new CookieContainer();
 
         var innerHandler = new HttpClientHandler
@@ -33,7 +25,7 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
 
-        HttpClient = new HttpClient(new PersistHandler(new RedirectFollowingHandler(innerHandler), this))
+        HttpClient = new HttpClient(new RedirectFollowingHandler(innerHandler))
         {
             Timeout = TimeSpan.FromSeconds(100)
         };
@@ -72,116 +64,13 @@ public sealed class MauiHttpContext : IHttpContext, IAsyncDisposable
         {
             c.Expired = true;
         }
-
-        _ = _storage.RemoveAsync(CookieStateKey);
     }
 
-    public async ValueTask InitializeAsync()
-    {
-        var encryptedData = await _storage.TryGetAsync<byte[]>(CookieStateKey);
-        if (!encryptedData.HasValue || encryptedData.Value is null)
-        {
-            return;
-        }
-
-        var decrypted = Encryption.Decrypt(encryptedData.Value);
-        if (decrypted is null)
-        {
-            return;
-        }
-
-        List<CookieRecord>? records;
-        try
-        {
-            records = JsonSerializer.Deserialize<List<CookieRecord>>(decrypted);
-        }
-        catch
-        {
-            return;
-        }
-
-        if (records is null)
-        {
-            return;
-        }
-
-        foreach (var record in records)
-        {
-            try
-            {
-                var normalizedDomain = record.Domain.TrimStart('.');
-                var uri = new Uri($"https://{normalizedDomain}/");
-                var cookie = new System.Net.Cookie(record.Name, record.Value, record.Path, normalizedDomain);
-                if (record.Expires > 0)
-                {
-                    try
-                    { cookie.Expires = DateTimeOffset.FromUnixTimeSeconds(record.Expires).DateTime; }
-                    catch { }
-                }
-
-                cookie.HttpOnly = record.HttpOnly;
-                cookie.Secure = record.Secure;
-                CookieContainer.Add(uri, cookie);
-            }
-            catch { }
-        }
-    }
-
-    internal async Task PersistAsync()
-    {
-        try
-        {
-            var cookies = CookieContainer.GetAllCookies();
-            var records = cookies.Select(CookieRecord.From).ToList();
-            var json = JsonSerializer.SerializeToUtf8Bytes(records);
-            var encrypted = Encryption.Encrypt(json);
-            await _storage.SetAsync(CookieStateKey, encrypted);
-        }
-        catch { }
-    }
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     public async ValueTask DisposeAsync()
     {
         HttpClient.Dispose();
         await ValueTask.CompletedTask;
-    }
-
-    private sealed class PersistHandler : DelegatingHandler
-    {
-        private readonly MauiHttpContext _context;
-
-        public PersistHandler(HttpMessageHandler inner, MauiHttpContext context) : base(inner)
-        {
-            _context = context;
-        }
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var response = await base.SendAsync(request, cancellationToken);
-            _ = _context.PersistAsync();
-            return response;
-        }
-    }
-
-    private sealed record CookieRecord
-    {
-        [JsonPropertyName("n")] public string Name { get; init; } = string.Empty;
-        [JsonPropertyName("v")] public string Value { get; init; } = string.Empty;
-        [JsonPropertyName("d")] public string Domain { get; init; } = string.Empty;
-        [JsonPropertyName("p")] public string Path { get; init; } = "/";
-        [JsonPropertyName("e")] public long Expires { get; init; }
-        [JsonPropertyName("h")] public bool HttpOnly { get; init; }
-        [JsonPropertyName("s")] public bool Secure { get; init; }
-
-        public static CookieRecord From(System.Net.Cookie c) => new()
-        {
-            Name = c.Name,
-            Value = c.Value,
-            Domain = c.Domain,
-            Path = c.Path,
-            Expires = c.Expires != DateTime.MinValue ? new DateTimeOffset(c.Expires).ToUnixTimeSeconds() : 0,
-            HttpOnly = c.HttpOnly,
-            Secure = c.Secure
-        };
     }
 }

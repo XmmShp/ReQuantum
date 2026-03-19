@@ -1,20 +1,15 @@
-using ReQuantum.Application.Common.Services;
 using System.Net;
 using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Web.Services;
 
-public class WebHttpContext : IHttpContext
+public class WebHttpContext
 {
-    private const string CookieStateKey = "ZjuSso:Cookie";
-    private readonly IStorage _storage;
-
     public CookieContainer CookieContainer { get; } = new();
     public HttpClient HttpClient { get; }
 
-    public WebHttpContext(IStorage storage)
+    public WebHttpContext()
     {
-        _storage = storage;
         var handler = new HttpClientHandler
         {
             AllowAutoRedirect = false,
@@ -52,26 +47,9 @@ public class WebHttpContext : IHttpContext
         {
             c.Expired = true;
         }
-
-        _ = _storage.RemoveAsync(CookieStateKey);
     }
 
-    public async ValueTask InitializeAsync()
-    {
-        var state = await _storage.TryGetAsync<CookieRecord>(CookieStateKey);
-        var record = state.ValueOr((CookieRecord?)null);
-        if (record is null)
-        {
-            return;
-        }
-
-        try
-        {
-            var uri = new Uri($"https://{record.Domain}/");
-            CookieContainer.Add(uri, new Cookie(record.Name, record.Value, record.Path, record.Domain));
-        }
-        catch { }
-    }
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     internal void SetCookie(Cookie cookie)
     {
@@ -81,13 +59,5 @@ public class WebHttpContext : IHttpContext
             CookieContainer.Add(uri, cookie);
         }
         catch { }
-
-        _ = _storage.SetAsync(CookieStateKey, CookieRecord.From(cookie));
-    }
-
-    private sealed record CookieRecord(string Name, string Value, string Path, string Domain)
-    {
-        public static CookieRecord From(Cookie cookie) =>
-            new(cookie.Name, cookie.Value, cookie.Path, cookie.Domain);
     }
 }

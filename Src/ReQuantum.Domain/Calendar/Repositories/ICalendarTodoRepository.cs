@@ -11,4 +11,5 @@ public interface ICalendarTodoRepository : IRepository<CalendarTodo, CalendarTod
     IAsyncEnumerable<CalendarTodo> FindByDateAsync(DateOnly date, CancellationToken cancellationToken = default);
     IAsyncEnumerable<CalendarTodo> FindByDateRangeAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default);
     IAsyncEnumerable<CalendarTodo> FindIncompleteByDateAsync(DateOnly date, CancellationToken cancellationToken = default);
+    Task<CalendarTodo?> FindByExternalAsync(string externalSource, string externalId, CancellationToken cancellationToken = default);
 }

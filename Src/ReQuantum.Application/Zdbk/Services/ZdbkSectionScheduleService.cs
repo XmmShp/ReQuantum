@@ -1,12 +1,10 @@
+using LoginZju;
 using Microsoft.Extensions.Logging;
 using NOF.Annotation;
 using NOF.Contract;
-using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.Zdbk.Models;
 using ReQuantum.Application.ZjuSso.Services;
-using ReQuantum.Shared.Services;
 using System.Net.Http.Json;
-using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Application.Zdbk.Services;
 
@@ -14,32 +12,28 @@ namespace ReQuantum.Application.Zdbk.Services;
 public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 {
     private readonly IZjuContext _zjuContext;
-    private readonly IHttpContext _httpContext;
+    private readonly ILoginZjuFactory _loginZjuFactory;
+    private readonly ZjuamAuthHolder _authHolder;
     private readonly IAcademicCalendarService _calendarService;
-    private readonly IStorage _storage;
     private readonly ILogger<ZdbkSectionScheduleService> _logger;
-    private ZdbkState? _state;
+    private IZjuamAuth? _cachedAuth;
+    private IZdbkService? _cachedZdbkService;
 
-    private const string StateKey = "Zdbk:State";
-    private const string BaseUrl = "https://zdbk.zju.edu.cn";
-    private const string SsoLoginUrl = "https://zjuam.zju.edu.cn/cas/login";
-    private const string SsoRedirectUrl = "/jwglxt/xtgl/login_ssologin.html";
     private const string CourseScheduleApiBase = "https://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html";
 
     public ZdbkSectionScheduleService(
         IZjuContext zjuContext,
-        IHttpContext httpContext,
+        ILoginZjuFactory loginZjuFactory,
+        ZjuamAuthHolder authHolder,
         IAcademicCalendarService calendarService,
-        IStorage storage,
         ILogger<ZdbkSectionScheduleService> logger)
     {
         _zjuContext = zjuContext;
-        _httpContext = httpContext;
+        _loginZjuFactory = loginZjuFactory;
+        _authHolder = authHolder;
         _calendarService = calendarService;
-        _storage = storage;
         _logger = logger;
-        _zjuContext.OnLogout += () => _state = null;
-        LoadState();
+        _zjuContext.OnLogout += () => ResetCachedService();
     }
 
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCurrentSemesterScheduleAsync()
@@ -117,13 +111,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
 
     public async Task<Result<ZdbkSectionScheduleResponse>> GetCourseScheduleAsync(string academicYear, string semester)
     {
-        var clientResult = await GetAuthenticatedClient();
-        if (!clientResult.IsSuccess)
+        var zdbkServiceResult = GetZdbkService();
+        if (!zdbkServiceResult.IsSuccess)
         {
-            return Result.Fail("400", clientResult.Message);
+            return Result.Fail("400", zdbkServiceResult.Message);
         }
 
-        var client = clientResult.Value!;
+        var zdbkService = zdbkServiceResult.Value!;
         if (!_zjuContext.IsAuthenticated || _zjuContext.LoginInfo is null)
         {
             return Result.Fail("400", "未找到学号");
@@ -139,11 +133,13 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
                 { "xqm", $"{semesterCode}|{semester}" }
             };
 
-            var content = new FormUrlEncodedContent(formData);
-            var response = await client.PostAsync(apiUrl, content);
+            using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
+            {
+                Content = new FormUrlEncodedContent(formData)
+            };
+            using var response = await zdbkService.FetchAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                _state = null;
                 return Result.Fail("400", $"获取课程失败: {response.StatusCode}");
             }
 
@@ -162,25 +158,22 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         }
     }
 
-    private async Task<Result<HttpClient>> GetAuthenticatedClient()
+    private Result<IZdbkService> GetZdbkService()
     {
-        try
+        var auth = _authHolder.CurrentAuth;
+        if (auth is null)
         {
-            var cookies = new List<Cookie>();
-            var ssoUrl = $"{SsoLoginUrl}?service={Uri.EscapeDataString($"{BaseUrl}{SsoRedirectUrl}")}";
-            using var response = await HttpClientUtilities.GetWithCookieTrackingAsync(_httpContext.HttpClient, ssoUrl, cookies);
-
-            var sessionCookie = cookies.Last(ck => ck is { Name: "JSESSIONID", Domain: "zdbk.zju.edu.cn" });
-            var route = cookies.Last(ck => ck is { Name: "route" });
-
-            _state = new ZdbkState(sessionCookie, route);
-            SaveState();
-            return HttpClientUtilities.Create(new RequestOptions { Cookies = [sessionCookie, route] });
+            return Result.Fail("400", "未登录或登录状态已过期");
         }
-        catch (Exception ex)
+
+        if (_cachedZdbkService is null || !ReferenceEquals(_cachedAuth, auth))
         {
-            return Result.Fail("500", $"SSO认证失败: {ex.Message}");
+            _cachedZdbkService?.Dispose();
+            _cachedAuth = auth;
+            _cachedZdbkService = _loginZjuFactory.CreateZdbk(auth);
         }
+
+        return Result.Success(_cachedZdbkService!);
     }
 
     private static string MapSemesterToCode(string semester) => semester switch
@@ -190,17 +183,10 @@ public class ZdbkSectionScheduleService : IZdbkSectionScheduleService
         _ => throw new ArgumentOutOfRangeException(nameof(semester))
     };
 
-    private void LoadState() => _state = (_storage.TryGetAsync<ZdbkState>(StateKey).AsTask()).GetAwaiter().GetResult().ValueOr((ZdbkState?)null);
-
-    private void SaveState()
+    private void ResetCachedService()
     {
-        if (_state is null)
-        {
-            _storage.RemoveAsync(StateKey);
-        }
-        else
-        {
-            _storage.SetAsync(StateKey, _state);
-        }
+        _cachedAuth = null;
+        _cachedZdbkService?.Dispose();
+        _cachedZdbkService = null;
     }
 }

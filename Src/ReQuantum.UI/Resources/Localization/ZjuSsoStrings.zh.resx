@@ -31,12 +31,11 @@
   <data name="LoggedInAs" xml:space="preserve"><value>已登录</value></data>
   <data name="NotLoggedIn" xml:space="preserve"><value>未登录</value></data>
   <data name="Logout" xml:space="preserve"><value>退出登录</value></data>
-  <data name="BrowserLogin" xml:space="preserve"><value>通过浏览器登录</value></data>
+  <data name="Password" xml:space="preserve"><value>密码</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>输入浙大统一身份认证密码</value></data>
   <data name="ManualLogin" xml:space="preserve"><value>手动登录（Cookie）</value></data>
-  <data name="CookieValue" xml:space="preserve"><value>iPlanetDirectoryPro 值</value></data>
-  <data name="CookieValuePlaceholder" xml:space="preserve"><value>在此粘贴 iPlanetDirectoryPro Cookie 值</value></data>
   <data name="UserName" xml:space="preserve"><value>用户名</value></data>
-  <data name="UserNamePlaceholder" xml:space="preserve"><value>从登录信息获取的显示名称（可选）</value></data>
+  <data name="UserNamePlaceholder" xml:space="preserve"><value>从登录信息获取的显示名称</value></data>
   <data name="LoginName" xml:space="preserve"><value>登录名</value></data>
   <data name="LoginNamePlaceholder" xml:space="preserve"><value>学号 / 登录名（可选）</value></data>
   <data name="UserId" xml:space="preserve"><value>用户 ID</value></data>

@@ -6,12 +6,12 @@ namespace ReQuantum.Web.Wasm.Services;
 
 public class WasmZjuContext : ZjuContext
 {
-    public WasmZjuContext(IStorage storage) : base(storage)
+    public WasmZjuContext(IStorage storage, IEncryptor encryptor) : base(storage, encryptor)
     {
     }
 
-    public override Task<Result> LoginAsync(CancellationToken cancellationToken = default)
+    public override Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult<Result>(Result.Fail("500", "浏览器登录在 WebAssembly 环境中不可用，请使用手动 Cookie 登录"));
+        return Task.FromResult<Result>(Result.Fail("500", "登录在 WebAssembly 环境中不可用，请使用手动登录"));
     }
 }

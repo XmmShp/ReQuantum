@@ -20,7 +20,7 @@ public interface IZjuContext
 
 public interface IMutableZjuContext : IZjuContext
 {
-    Task<Result> LoginAsync(CancellationToken cancellationToken = default);
+    Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default);
 
     Task<Result> SetLoginInfoAsync(ZjuLoginInfo loginInfo, CancellationToken cancellationToken = default);
 
@@ -30,11 +30,13 @@ public interface IMutableZjuContext : IZjuContext
 public abstract class ZjuContext : IMutableZjuContext, IInitializable
 {
     private readonly IStorage _storage;
-    private const string StateKey = "ZjuSso:State";
+    private readonly IEncryptor _encryptor;
+    private const string CredentialStateKey = "ZjuSso:Credentials";
 
-    protected ZjuContext(IStorage storage)
+    protected ZjuContext(IStorage storage, IEncryptor encryptor)
     {
         _storage = storage;
+        _encryptor = encryptor;
     }
 
     public bool IsAuthenticated => LoginInfo is not null;
@@ -45,13 +47,13 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
     {
         OnLogout?.Invoke();
         LoginInfo = null;
-        SaveStateAsync().GetAwaiter().GetResult();
+        ClearCredentialStateAsync().GetAwaiter().GetResult();
     }
 
     public event Action? OnLogin;
     public event Action? OnLogout;
 
-    public abstract Task<Result> LoginAsync(CancellationToken cancellationToken = default);
+    public abstract Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default);
 
     public async Task<Result> SetLoginInfoAsync(ZjuLoginInfo loginInfo, CancellationToken cancellationToken = default)
     {
@@ -64,7 +66,6 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
             }
 
             LoginInfo = loginInfo;
-            await SaveStateAsync();
             OnLogin?.Invoke();
             return Result.Success();
         }
@@ -74,26 +75,46 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
         }
     }
 
-    private async Task LoadStateAsync()
+    protected async Task PersistCredentialsAsync(string username, string password)
     {
-        if (LoginInfo is not null)
-        {
-            return;
-        }
-
-        var state = await _storage.TryGetAsync<ZjuLoginInfo>(StateKey);
-        LoginInfo = state.ValueOr((ZjuLoginInfo?)null);
+        var state = new CredentialState(
+            _encryptor.EncryptToBase64(username),
+            _encryptor.EncryptToBase64(password));
+        await _storage.SetAsync(CredentialStateKey, state);
     }
 
-    private async Task SaveStateAsync()
+    private async Task ClearCredentialStateAsync()
     {
-        if (LoginInfo is null)
+        await _storage.RemoveAsync(CredentialStateKey);
+    }
+
+    private async Task TryAutoLoginAsync()
+    {
+        if (IsAuthenticated)
         {
-            await _storage.RemoveAsync(StateKey);
             return;
         }
 
-        await _storage.SetAsync(StateKey, LoginInfo);
+        var state = await _storage.TryGetAsync<CredentialState>(CredentialStateKey);
+        var credentialState = state.ValueOr((CredentialState?)null);
+        if (credentialState is null)
+        {
+            return;
+        }
+
+        var username = _encryptor.TryDecryptFromBase64(credentialState.UsernameCipher);
+        var password = _encryptor.TryDecryptFromBase64(credentialState.PasswordCipher);
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            await ClearCredentialStateAsync();
+            return;
+        }
+
+        var loginResult = await LoginAsync(username, password);
+        if (!loginResult.IsSuccess)
+        {
+            await ClearCredentialStateAsync();
+        }
     }
 
     public void Initialize()
@@ -103,8 +124,10 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
             return;
         }
         IsInitialized = true;
-        LoadStateAsync().GetAwaiter().GetResult();
+        TryAutoLoginAsync().GetAwaiter().GetResult();
     }
 
     public bool IsInitialized { get; private set; }
+
+    private sealed record CredentialState(string UsernameCipher, string PasswordCipher);
 }

@@ -8,11 +8,10 @@ namespace ReQuantum.Infrastructure.Utilities;
 /// </summary>
 internal static class Encryption
 {
-    private const int KeySize = 32;
     private const int NonceSize = 12;
     private const int TagSize = 16;
 
-    private static byte[]? _cachedKey;
+    private static byte[]? CachedKey;
 
     public static byte[] Encrypt(byte[] plaintext)
     {
@@ -66,20 +65,20 @@ internal static class Encryption
 
     private static byte[] GetOrCreateKey()
     {
-        if (_cachedKey is not null)
+        if (CachedKey is not null)
         {
-            return _cachedKey;
+            return CachedKey;
         }
 
-        var deviceId = DeviceInfo.Current.Name ?? "ReQuantum";
-        var manufacturer = DeviceInfo.Current.Manufacturer ?? "Unknown";
-        var model = DeviceInfo.Current.Model ?? "Unknown";
+        var deviceId = DeviceInfo.Current.Name;
+        var manufacturer = DeviceInfo.Current.Manufacturer;
+        var model = DeviceInfo.Current.Model;
         var platform = DeviceInfo.Current.Platform.ToString();
 
         var seed = $"{deviceId}|{manufacturer}|{model}|{platform}|ReQuantum.Cookie.Encryption.V1";
         var seedBytes = Encoding.UTF8.GetBytes(seed);
 
-        _cachedKey = SHA256.HashData(seedBytes);
-        return _cachedKey;
+        CachedKey = SHA256.HashData(seedBytes);
+        return CachedKey;
     }
 }

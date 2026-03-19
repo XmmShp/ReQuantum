@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ReQuantum.Web.Wasm\ReQuantum.Web.Wasm.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
-    <PackageReference Include="Microsoft.Playwright" />
+    <PackageReference Include="login-ZJU.NET" />
     <PackageReference Include="NOF.Hosting.AspNetCore" />
     <PackageReference Include="NOF.Infrastructure.EntityFrameworkCore" />
     <PackageReference Include="NOF.Infrastructure.EntityFrameworkCore.SQLite" />
