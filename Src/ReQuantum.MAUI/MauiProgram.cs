@@ -1,6 +1,6 @@
+using LoginZju;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using LoginZju;
 using NOF.Application;
 using NOF.Hosting.Maui;
 using NOF.Infrastructure.EntityFrameworkCore;
@@ -56,6 +56,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<MauiZjuContext>();
         builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
+        builder.Services.AddSingleton<IWarmup>(sp => sp.GetRequiredService<MauiZjuContext>());
         builder.Services.AddSingleton<IPtaBrowserAuthService, MauiPtaBrowserAuthService>();
         builder.Services.AddLocalization();
 
@@ -70,7 +71,13 @@ public static class MauiProgram
     }
     public static MauiApp CreateMauiApp()
     {
-        _ = CreateNOFMauiApp().StartAsync();
-        return CreateNOFMauiApp().MauiApp;
+        var app = CreateNOFMauiApp();
+
+        _ = app.Services.GetServices<IWarmup>()
+            .Select(o => o.WarmupAsync())
+            .ToArray();
+
+        app.StartAsync();
+        return app.MauiApp;
     }
 }

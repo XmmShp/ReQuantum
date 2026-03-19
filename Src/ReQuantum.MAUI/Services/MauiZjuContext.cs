@@ -1,5 +1,4 @@
 using LoginZju;
-using Microsoft.Extensions.Logging;
 using NOF.Contract;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Models;
@@ -49,11 +48,11 @@ public class MauiZjuContext : ZjuContext
                 return Result.Fail("400", "登录信息不完整");
             }
 
-            var result = await SetLoginInfoAsync(loginInfo);
+            var result = await SetLoginInfoAsync(loginInfo, cancellationToken);
             if (result.IsSuccess)
             {
                 await PersistCredentialsAsync(username, password);
-                _ = Task.Run(() => EstablishCoursesSessionAndSyncAsync(), CancellationToken.None);
+                _ = Task.Run(EstablishCoursesSessionAndSyncAsync, CancellationToken.None);
             }
 
             return result;

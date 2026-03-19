@@ -1,4 +1,3 @@
-using NOF.Abstraction;
 using NOF.Contract;
 using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Models;
@@ -27,7 +26,7 @@ public interface IMutableZjuContext : IZjuContext
     void Logout();
 }
 
-public abstract class ZjuContext : IMutableZjuContext, IInitializable
+public abstract class ZjuContext : IMutableZjuContext, IWarmup
 {
     private readonly IStorage _storage;
     private readonly IEncryptor _encryptor;
@@ -88,14 +87,22 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
         await _storage.RemoveAsync(CredentialStateKey);
     }
 
-    private async Task TryAutoLoginAsync()
+    /// <inheritdoc />
+    public Task WarmupAsync(CancellationToken cancellationToken = default)
     {
+        return TryAutoLoginAsync(cancellationToken);
+    }
+
+    private async Task TryAutoLoginAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (IsAuthenticated)
         {
             return;
         }
 
-        var state = await _storage.TryGetAsync<CredentialState>(CredentialStateKey);
+        var state = await _storage.TryGetAsync<CredentialState>(CredentialStateKey, cancellationToken);
         var credentialState = state.ValueOr((CredentialState?)null);
         if (credentialState is null)
         {
@@ -110,24 +117,12 @@ public abstract class ZjuContext : IMutableZjuContext, IInitializable
             return;
         }
 
-        var loginResult = await LoginAsync(username, password);
+        var loginResult = await LoginAsync(username, password, cancellationToken);
         if (!loginResult.IsSuccess)
         {
             await ClearCredentialStateAsync();
         }
     }
-
-    public void Initialize()
-    {
-        if (IsInitialized)
-        {
-            return;
-        }
-        IsInitialized = true;
-        TryAutoLoginAsync().GetAwaiter().GetResult();
-    }
-
-    public bool IsInitialized { get; private set; }
 
     private sealed record CredentialState(string UsernameCipher, string PasswordCipher);
 }

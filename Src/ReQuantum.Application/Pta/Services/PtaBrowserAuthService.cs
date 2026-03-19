@@ -8,7 +8,7 @@ using Cookie = System.Net.Cookie;
 
 namespace ReQuantum.Application.Pta.Services;
 
-public abstract class PtaBrowserAuthService : IPtaBrowserAuthService
+public abstract class PtaBrowserAuthService : IPtaBrowserAuthService, IWarmup
 {
     private readonly IStorage _storage;
     private PtaState? _state;
@@ -26,6 +26,12 @@ public abstract class PtaBrowserAuthService : IPtaBrowserAuthService
 
     public event Action? OnLogin;
     public event Action? OnLogout;
+
+    /// <inheritdoc />
+    public Task WarmupAsync(CancellationToken cancellationToken = default)
+    {
+        return LoadStateAsync(cancellationToken).AsTask();
+    }
 
     public async Task<Result<HttpClient>> GetAuthenticatedClientAsync(RequestOptions? options = null)
     {
@@ -153,14 +159,14 @@ public abstract class PtaBrowserAuthService : IPtaBrowserAuthService
         }
     }
 
-    private async ValueTask LoadStateAsync()
+    private async ValueTask LoadStateAsync(CancellationToken cancellationToken = default)
     {
         if (_state is not null)
         {
             return;
         }
 
-        var state = await _storage.TryGetAsync<PtaState>(StateKey);
+        var state = await _storage.TryGetAsync<PtaState>(StateKey, cancellationToken);
         _state = state.ValueOr((PtaState?)null);
     }
 
