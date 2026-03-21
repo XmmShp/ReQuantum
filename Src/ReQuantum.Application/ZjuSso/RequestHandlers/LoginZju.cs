@@ -1,52 +1,34 @@
 using LoginZju;
+using NOF.Application;
 using NOF.Contract;
-using ReQuantum.Application.Common.Services;
 using ReQuantum.Application.ZjuSso.Models;
 using ReQuantum.Application.ZjuSso.Services;
-using ReQuantum.UI.Services;
+using ReQuantum.Contract.ZjuSso;
 using System.Text.Json;
 
-namespace ReQuantum.Web.Services;
+namespace ReQuantum.Application.ZjuSso.RequestHandlers;
 
-public class WebZjuContext : ZjuContext
+public class LoginZju(ILoginZjuFactory loginZjuFactory, IZjuAuthAccessor authAccessor) : IRequestHandler<LoginZjuRequest, ZjuLoginInfo>
 {
+    private const string ServiceHomeUrl = "https://service.zju.edu.cn/";
     private const string LoginInfoUrl = "https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p=YXM9MiZ0PTUmZD0xMzMmcD0xJmY9MjImbT1OJg__";
     private const string LoginInfoReferer = "https://service.zju.edu.cn/_s2/cs_sy/main.psp";
-    private readonly ILoginZjuFactory _loginZjuFactory;
-    private readonly ZjuAuthAccessor _authAccessor;
 
-    public WebZjuContext(
-        IStorage storage,
-        IEncryptor encryptor,
-        ILoginZjuFactory loginZjuFactory,
-        ZjuAuthAccessor authAccessor) : base(storage, encryptor)
-    {
-        _loginZjuFactory = loginZjuFactory;
-        _authAccessor = authAccessor;
-    }
-
-    public override async Task<Result> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
+    public async Task<Result<ZjuLoginInfo>> HandleAsync(LoginZjuRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var auth = _loginZjuFactory.CreateAuth(username, password);
+            var auth = loginZjuFactory.CreateAuth(request.Username, request.Password);
             await auth.LoginAsync(cancellationToken);
 
             var loginInfo = await TryGetLoginInfoAsync(auth, cancellationToken);
-
             if (loginInfo is null)
             {
                 return Result.Fail("400", "登录信息不完整");
             }
 
-            var result = await SetLoginInfoAsync(loginInfo, cancellationToken);
-            if (result.IsSuccess)
-            {
-                _authAccessor.SetSession(auth, loginInfo);
-                await PersistCredentialsAsync(username, password);
-            }
-
-            return result;
+            authAccessor.SetSession(auth, loginInfo);
+            return loginInfo;
         }
         catch (OperationCanceledException)
         {
@@ -66,22 +48,26 @@ public class WebZjuContext : ZjuContext
     {
         try
         {
+            var serviceCallbackUrl = await auth.LoginServiceAsync(ServiceHomeUrl, cancellationToken);
+            using var callbackRequest = new HttpRequestMessage(HttpMethod.Get, serviceCallbackUrl);
+            using var callbackResponse = await auth.FetchAsync(callbackRequest, cancellationToken);
+            if (!callbackResponse.IsSuccessStatusCode)
+            {
+                return null;
+            }
             using var request = new HttpRequestMessage(HttpMethod.Get, LoginInfoUrl);
             request.Headers.Add("Referer", LoginInfoReferer);
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             request.Headers.Accept.ParseAdd("*/*");
 
             using var response = await auth.FetchAsync(request, cancellationToken);
-
             if (!response.IsSuccessStatusCode)
             {
                 return null;
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
             using var document = JsonDocument.Parse(content);
-
             if (!document.RootElement.TryGetProperty("data", out var data))
             {
                 return null;
@@ -98,8 +84,8 @@ public class WebZjuContext : ZjuContext
                 : null;
 
             if (string.IsNullOrWhiteSpace(userName)
-                && string.IsNullOrWhiteSpace(loginName)
-                && string.IsNullOrWhiteSpace(userId))
+                || string.IsNullOrWhiteSpace(loginName)
+                || string.IsNullOrWhiteSpace(userId))
             {
                 return null;
             }

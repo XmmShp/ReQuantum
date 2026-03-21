@@ -7,18 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Repositories\**" />
-    <EmbeddedResource Remove="Repositories\**" />
-    <None Remove="Repositories\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="login-ZJU.NET" />
     <PackageReference Include="NOF.Application" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 using ReQuantum.Application.Common.Services;
+using ReQuantum.Contract.Common.Services;
 using ReQuantum.Infrastructure.Utilities;
 
 namespace ReQuantum.Infrastructure.Services;

@@ -21,7 +21,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <!-- ZJU Authentication -->
-    <PackageVersion Include="login-ZJU.NET" Version="1.0.0-dev-26031901" />
+    <PackageVersion Include="login-ZJU.NET" Version="1.0.0-dev-26032001" />
     <PackageVersion Include="NOF.Application" Version="$(NofVersion)" />
     <PackageVersion Include="NOF.Contract" Version="$(NofVersion)" />
     <PackageVersion Include="NOF.Domain" Version="$(NofVersion)" />

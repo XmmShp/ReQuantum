@@ -26,7 +26,7 @@ public class CoursesZjuService : ICoursesZjuService, IBackgroundTask
     private readonly ZjuAuthAccessor _authAccessor;
     private readonly ICalendarTodoRepository _todoRepository;
     private readonly IUnitOfWork _uow;
-    private readonly object _serviceLock = new();
+    private readonly Lock _serviceLock = new();
     private IZjuamAuth? _cachedAuth;
     private ICoursesService? _cachedCoursesService;
     private const string TodoApi = "https://courses.zju.edu.cn/api/todos?no-intercept=true";

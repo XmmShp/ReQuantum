@@ -1,9 +1,12 @@
 @using Microsoft.Extensions.Localization
+@using ReQuantum.Contract
 @using ReQuantum.Application.ZjuSso.Models
+@using ReQuantum.Contract.ZjuSso
 @using ReQuantum.UI.Services
 @using ReQuantum.Shared.Resources.Localization
 @implements IDisposable
-@inject IMutableZjuContext SsoService
+@inject IZjuContext SsoService
+@inject IReQuantumService ReQuantumService
 @inject IStringLocalizer<ZjuSsoStrings> L
 
 <div>
@@ -92,14 +95,14 @@
 
     protected override void OnInitialized()
     {
-        SsoService.OnLogin += OnAuthStateChanged;
-        SsoService.OnLogout += OnAuthStateChanged;
+        SsoService.LoggedIn += OnAuthStateChanged;
+        SsoService.LoggedOut += OnAuthStateChanged;
     }
 
     public void Dispose()
     {
-        SsoService.OnLogin -= OnAuthStateChanged;
-        SsoService.OnLogout -= OnAuthStateChanged;
+        SsoService.LoggedIn -= OnAuthStateChanged;
+        SsoService.LoggedOut -= OnAuthStateChanged;
         _loginCancellationTokenSource?.Cancel();
         _loginCancellationTokenSource?.Dispose();
     }
@@ -119,7 +122,7 @@
         _loginCancellationTokenSource?.Dispose();
         _loginCancellationTokenSource = new CancellationTokenSource();
 
-        var result = await SsoService.LoginAsync(_username, _password, _loginCancellationTokenSource.Token);
+        var result = await ReQuantumService.LoginZjuAsync(new LoginZjuRequest(_username, _password), _loginCancellationTokenSource.Token);
 
         if (!result.IsSuccess)
         {
@@ -127,6 +130,7 @@
         }
         else
         {
+            SsoService.LoginInfo = new ZjuLoginInfo(result.Value!.UserName, result.Value.LoginName);
             _password = string.Empty;
         }
 
@@ -139,7 +143,8 @@
         var loginInfo = new ZjuLoginInfo(
             _manualUserName,
             _manualLoginName);
-        var result = await SsoService.SetLoginInfoAsync(loginInfo);
+        SsoService.LoginInfo = loginInfo;
+        var result = NOF.Contract.Result.Success();
 
         _progressMessages.Clear();
         _progressMessages.Add($" {result.Message}");
@@ -148,10 +153,11 @@
         _manualLoginName = string.Empty;
     }
 
-    private void HandleLogout()
+    private async Task HandleLogout()
     {
         _loginCancellationTokenSource?.Cancel();
-        SsoService.Logout();
+        _ = await ReQuantumService.LogoutZjuAsync(new LogoutZjuRequest());
+        SsoService.LoginInfo = null;
         _progressMessages.Clear();
     }
 }

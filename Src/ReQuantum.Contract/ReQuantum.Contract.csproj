@@ -9,5 +9,9 @@
   <ItemGroup>
     <PackageReference Include="NOF.Contract" />
   </ItemGroup>
+   
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
 
 </Project>

@@ -11,6 +11,7 @@ using ReQuantum.Application.CoursesZju.Services;
 using ReQuantum.Application.Pta.Services;
 using ReQuantum.Application.ZjuSso.Services;
 using ReQuantum.Contract;
+using ReQuantum.Contract.Common.Services;
 using ReQuantum.Infrastructure.Services;
 using ReQuantum.MAUI.Persistence;
 using ReQuantum.Services;
@@ -52,12 +53,9 @@ public static class MauiProgram
         {
             Timeout = TimeSpan.FromSeconds(100)
         });
-        builder.Services.AddSingleton<ILoginZjuFactory, LoginZjuFactory>();
-        builder.Services.AddSingleton<ZjuAuthAccessor>();
-        builder.Services.AddSingleton<MauiZjuContext>();
-        builder.Services.AddSingleton<IZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
-        builder.Services.AddSingleton<IMutableZjuContext>(sp => sp.GetRequiredService<MauiZjuContext>());
-        builder.Services.AddSingleton<IWarmup>(sp => sp.GetRequiredService<MauiZjuContext>());
+        builder.Services.AddLoginZju();
+        builder.Services.AddSingleton<IZjuAuthAccessor, ZjuAuthAccessor>(sp => sp.GetRequiredService<ZjuAuthAccessor>());
+        builder.Services.AddSingleton<IZjuContext, ZjuContext>();
         builder.Services.AddSingleton<IPtaBrowserAuthService, MauiPtaBrowserAuthService>();
         builder.Services.AddLocalization();
 

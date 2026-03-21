@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace ReQuantum.Application.Common.Services;
+namespace ReQuantum.Contract.Common.Services;
 
 public interface IEncryptor
 {

@@ -1,9 +1,10 @@
+using ReQuantum.Contract.Common.Services;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace ReQuantum.Application.Common.Services;
 
-public sealed class CredentialEncryptor : IEncryptor
+public sealed class AesEncryptor : IEncryptor
 {
     private const int NonceSize = 12;
     private const int TagSize = 16;
@@ -11,11 +12,6 @@ public sealed class CredentialEncryptor : IEncryptor
 
     public byte[] Encrypt(byte[] plaintext)
     {
-        if (OperatingSystem.IsBrowser())
-        {
-            return plaintext;
-        }
-
         var nonce = new byte[NonceSize];
         RandomNumberGenerator.Fill(nonce);
         var ciphertext = new byte[plaintext.Length];
@@ -35,11 +31,6 @@ public sealed class CredentialEncryptor : IEncryptor
     {
         try
         {
-            if (OperatingSystem.IsBrowser())
-            {
-                return ciphertext;
-            }
-
             if (ciphertext.Length < NonceSize + TagSize)
             {
                 return null;
@@ -66,7 +57,7 @@ public sealed class CredentialEncryptor : IEncryptor
 
     private static byte[] CreateKey()
     {
-        var seed = $"{Environment.UserName}|{Environment.MachineName}|{Environment.OSVersion}|ReQuantum.ZjuCredentials.V1";
+        var seed = $"{Environment.UserName}|{Environment.MachineName}|{Environment.OSVersion}|ReQuantum.Encryptor.V1";
         return SHA256.HashData(Encoding.UTF8.GetBytes(seed));
     }
 }
